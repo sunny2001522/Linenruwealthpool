@@ -2,32 +2,17 @@ import { ChevronLeft, HelpCircle, BookOpen, Video, FileText, MessageCircle, Sear
 import { useNavigate } from "react-router";
 import { useState } from "react";
 
-/**
- * ⚠️ 轉換到 Swift/Kotlin 注意事項
- * 
- * Figma Make 跑版通常是因為 React 使用了寬度 100% 但在 Swift 裡沒有對應的 spacer() 或 maxWidth: .infinity。
- * 在交給 Claude 轉代碼時，特別備註：
- * 「請確保在 SwiftUI 中使用彈性佈局，適應不同尺寸的 iPhone。」
- * 
- * 關鍵轉換規則：
- * - w-full → SwiftUI: .frame(maxWidth: .infinity) / Kotlin: match_parent
- * - flex-1 → SwiftUI: Spacer() / Kotlin: layout_weight="1"
- * - justify-between → SwiftUI: HStack(spacing:0){...Spacer()...} / Kotlin: Space Between
- * - 所有容器都需要明確寬度約束，避免內容溢出
- */
-
 export function HelpCenterPage() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
 
-  // 📱 建議1: 使用純色而非漸層，更容易轉換到原生平台
   const categories = [
     {
       icon: BookOpen,
       title: "新手入門",
       description: "了解基本功能和操作",
       articles: 12,
-      color: "#4A90E2" // 使用單一顏色而非漸層
+      color: "#4A90E2"
     },
     {
       icon: Video,
@@ -89,15 +74,12 @@ export function HelpCenterPage() {
   ];
 
   return (
-    // 📱 建議2: 避免複雜漸層，使用純色背景
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
-      {/* 📱 建議3: 移除 backdrop-blur，原生平台效能較差 */}
       <div className="sticky top-0 z-10 bg-background border-b border-border">
         <div className="max-w-screen-xl mx-auto px-4 py-3 flex items-center gap-3">
-          {/* 📱 建議4: 明確指定尺寸 (40x40) */}
           <button
-            onClick={() => navigate("/more")}
+            onClick={() => navigate("/home/more")}
             className="w-10 h-10 rounded-xl bg-muted hover:bg-muted/80 flex items-center justify-center"
           >
             <ChevronLeft className="w-5 h-5" />
@@ -106,14 +88,11 @@ export function HelpCenterPage() {
         </div>
       </div>
 
-      {/* 📱 建議5: 使用固定間距 (16px) 而非 space-y-6 */}
       <div className="max-w-screen-xl mx-auto px-4 py-4">
         {/* Search */}
-        {/* 📱 建議6: 簡化卡片樣式，移除 backdrop-blur */}
         <div className="bg-card border border-border rounded-2xl p-4 mb-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-            {/* ⚠️ w-full 轉換：SwiftUI 用 .frame(maxWidth: .infinity)，Kotlin 用 android:layout_width="match_parent" */}
             <input
               type="text"
               value={searchQuery}
@@ -125,7 +104,6 @@ export function HelpCenterPage() {
         </div>
 
         {/* Categories */}
-        {/* 📱 建議7: 使用 Grid 2列布局，間距明確 (12px) */}
         <div className="grid grid-cols-2 gap-3 mb-4">
           {categories.map((category, index) => {
             const Icon = category.icon;
@@ -134,7 +112,6 @@ export function HelpCenterPage() {
                 key={index}
                 className="bg-card border border-border rounded-2xl p-4 text-left"
               >
-                {/* 📱 建議8: 使用純色背景而非漸層 */}
                 <div 
                   className="w-12 h-12 rounded-xl flex items-center justify-center mb-3"
                   style={{ backgroundColor: category.color }}
@@ -158,7 +135,6 @@ export function HelpCenterPage() {
           <div className="px-4 py-3 border-b border-border">
             <h3 className="font-bold text-sm text-muted-foreground">熱門主題</h3>
           </div>
-          {/* 📱 建議9: 使用 FlexWrap 布局，明確間距 */}
           <div className="p-3">
             <div className="flex flex-wrap gap-2">
               {popularTopics.map((topic, index) => (
@@ -186,13 +162,10 @@ export function HelpCenterPage() {
                   index < recentArticles.length - 1 ? 'border-b border-border' : ''
                 }`}
               >
-                {/* 📱 建議10: 使用水平布局，明確間距 (12px) */}
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
                     <FileText className="w-5 h-5 text-primary" />
                   </div>
-                  {/* ⚠️ flex-1 轉換：SwiftUI 在 HStack 中不需要 Spacer，直接用 .frame(maxWidth: .infinity, alignment: .leading) */}
-                  {/* Kotlin 用 android:layout_weight="1" */}
                   <div className="flex-1 min-w-0">
                     <h4 className="font-medium text-sm mb-1">
                       {article.title}
@@ -212,7 +185,6 @@ export function HelpCenterPage() {
         </div>
 
         {/* Contact Support */}
-        {/* 📱 建議11: 簡化背景，使用純色 */}
         <div className="bg-primary/10 border border-primary/20 rounded-2xl p-4 mb-4">
           <div className="flex items-start gap-3">
             <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0">
@@ -256,12 +228,8 @@ interface QuickLinkProps {
   onClick?: () => void;
 }
 
-// 📱 建議12: 簡化按鈕樣式
 function QuickLink({ label, isLast, onClick }: QuickLinkProps) {
   return (
-    // ⚠️ w-full + justify-between 轉換：
-    // SwiftUI: HStack { Text(...); Spacer(); Image(...) }.frame(maxWidth: .infinity)
-    // Kotlin: LinearLayout with layout_width="match_parent" + Space Between
     <button
       onClick={onClick}
       className={`w-full flex items-center justify-between px-4 py-3 ${
@@ -269,7 +237,6 @@ function QuickLink({ label, isLast, onClick }: QuickLinkProps) {
       }`}
     >
       <span className="font-medium text-sm">{label}</span>
-      {/* 📱 建議13: 使用簡單的箭頭圖示 */}
       <svg
         className="w-5 h-5 text-muted-foreground"
         fill="none"

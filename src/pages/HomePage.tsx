@@ -573,7 +573,7 @@ a.首圖
         <div className="flex items-center justify-between mb-3 px-4">
           <h2 className="text-lg font-bold">熱門焦點股票</h2>
           <button
-            onClick={() => navigate("/stock-picker")}
+            onClick={() => navigate("/home/stock-picker")}
             className="text-primary text-sm flex items-center gap-1 hover:opacity-80 transition-opacity font-medium"
           >
             查看更多
@@ -901,7 +901,7 @@ a.首圖
         <div className="px-4 flex items-center justify-between mb-3">
           <h2 className="text-lg font-bold">社團貼文</h2>
           <button
-            onClick={() => navigate("/discussion")}
+            onClick={() => navigate("/home/discussion")}
             className="text-primary text-sm flex items-center gap-1 hover:opacity-80 transition-opacity font-medium"
           >
             查看更多
@@ -945,7 +945,7 @@ a.首圖
         <div className="px-4 flex items-center justify-between mb-3">
           <h2 className="text-lg font-bold">精選內容</h2>
           <button
-            onClick={() => navigate("/content")}
+            onClick={() => navigate("/home/content")}
             className="text-primary text-sm flex items-center gap-1 hover:opacity-80 transition-opacity font-medium"
           >
             查看更多

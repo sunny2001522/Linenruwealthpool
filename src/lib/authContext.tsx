@@ -10,6 +10,7 @@ interface AuthContextType {
   user: User | null;
   isLoggedIn: boolean;
   login: (email: string, password: string) => boolean;
+  loginAsGuest: () => void;
   logout: () => void;
   upgradeToPro: () => void;
   downgradeToTrial: () => void;
@@ -21,16 +22,13 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const TEST_ACCOUNTS = [
   { email: "test@example.com", password: "123456", name: "測試用戶", isPro: false },
   { email: "vip@example.com", password: "123456", name: "VIP會員", isPro: true },
+  { email: "pro@example.com", password: "123456", name: "專業版會員", isPro: true },
   { email: "demo@example.com", password: "demo123", name: "示範帳號", isPro: false }
 ];
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  // 修改：預設設置為試用版用戶，避免空白頁面
-  const [user, setUser] = useState<User | null>({
-    name: "試用用戶",
-    email: "trial@example.com",
-    isPro: false
-  });
+  // 預設為未登入狀態，需要透過歡迎頁面進入
+  const [user, setUser] = useState<User | null>(null);
 
   const login = (email: string, password: string): boolean => {
     // 檢查是否為預設帳號
@@ -56,6 +54,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return true;
   };
 
+  const loginAsGuest = () => {
+    setUser({
+      name: "試用用戶",
+      email: "trial@example.com",
+      isPro: false
+    });
+  };
+
   const logout = () => {
     setUser(null);
   };
@@ -73,7 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoggedIn: !!user, login, logout, upgradeToPro, downgradeToTrial }}>
+    <AuthContext.Provider value={{ user, isLoggedIn: !!user, login, loginAsGuest, logout, upgradeToPro, downgradeToTrial }}>
       {children}
     </AuthContext.Provider>
   );

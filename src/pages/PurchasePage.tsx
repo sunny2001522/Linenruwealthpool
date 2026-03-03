@@ -39,7 +39,7 @@ export function PurchasePage() {
     console.log('upgradeToPro() 執行完成，立即跳轉');
     
     // 立即跳轉，並傳遞購買成功的標記
-    navigate("/more", { state: { justPurchased: true } });
+    navigate("/home/more", { state: { justPurchased: true } });
   };
 
   return (

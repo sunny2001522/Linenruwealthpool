@@ -1,144 +1,4 @@
 /**
- * 原生功能橋接工具
- * 
- * 此文件提供 Web 與原生 App (iOS/Android) 之間的橋接功能
- * 工程師需要在原生端實現對應的功能
- */
-
-/**
- * App 評分功能
- * 
- * iOS 實現：
- * - 使用 StoreKit 的 SKStoreReviewController.requestReview()
- * - 在 iOS 10.3+ 可使用原生評分彈窗
- * - URL Scheme: itms-apps://itunes.apple.com/app/id{APP_ID}?action=write-review
- * 
- * Android 實現：
- * - 使用 Google Play In-App Review API
- * - 或跳轉到 Play Store: market://details?id={PACKAGE_NAME}
- * - 網頁版: https://play.google.com/store/apps/details?id={PACKAGE_NAME}
- * 
- * 範例呼叫：
- * - iOS: window.webkit.messageHandlers.rateApp.postMessage({})
- * - Android: Android.rateApp()
- */
-export function openAppRating() {
-  // TODO: 工程師實現原生橋接
-  
-  // iOS 實現範例
-  if (window.webkit?.messageHandlers?.rateApp) {
-    window.webkit.messageHandlers.rateApp.postMessage({});
-    return;
-  }
-  
-  // Android 實現範例
-  if (window.Android?.rateApp) {
-    window.Android.rateApp();
-    return;
-  }
-  
-  // 開發/測試環境降級處理
-  if (import.meta.env.DEV) {
-    console.log('📱 [開發模式] App 評分功能');
-    console.log('原生實現說明：');
-    console.log('iOS: 使用 SKStoreReviewController.requestReview()');
-    console.log('Android: 使用 Google Play In-App Review API');
-    alert('🌟 App 評分功能\n\n此功能需要原生實現：\niOS: StoreKit\nAndroid: In-App Review API');
-  } else {
-    // 生產環境：跳轉到應用商店（作為降級方案）
-    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-    const isAndroid = /Android/i.test(navigator.userAgent);
-    
-    if (isIOS) {
-      // 替換為實際的 App Store ID
-      window.location.href = 'itms-apps://itunes.apple.com/app/id{YOUR_APP_ID}?action=write-review';
-    } else if (isAndroid) {
-      // 替換為實際的 Package Name
-      window.location.href = 'market://details?id={YOUR_PACKAGE_NAME}';
-    }
-  }
-}
-
-/**
- * 分享功能
- * 
- * iOS 實現：
- * - 使用 UIActivityViewController 顯示原生分享面板
- * - 支援分享文字、圖片、URL 等
- * 
- * Android 實現：
- * - 使用 Intent.ACTION_SEND 顯示原生分享選單
- * - 支援分享文字、圖片、URL 等
- * 
- * Web API 降級：
- * - 使用 Web Share API (navigator.share)
- * - 支援度：iOS Safari 12.2+, Android Chrome 89+
- * 
- * 範例呼叫：
- * - iOS: window.webkit.messageHandlers.share.postMessage({title, text, url})
- * - Android: Android.share(title, text, url)
- */
-export interface ShareOptions {
-  title?: string;
-  text?: string;
-  url?: string;
-}
-
-export async function shareToFriend(options: ShareOptions = {}) {
-  const defaultOptions: ShareOptions = {
-    title: '長線聚寶盆 - 台股選股神器',
-    text: '推薦你使用長線聚寶盆，專業的台股選股應用！',
-    url: 'https://www.cmoney.tw/app/itemcontent.aspx?id=3627',
-    ...options
-  };
-  
-  // TODO: 工程師實現原生橋接
-  
-  // iOS 實現範例
-  if (window.webkit?.messageHandlers?.share) {
-    window.webkit.messageHandlers.share.postMessage(defaultOptions);
-    return;
-  }
-  
-  // Android 實現範例
-  if (window.Android?.share) {
-    window.Android.share(
-      defaultOptions.title || '',
-      defaultOptions.text || '',
-      defaultOptions.url || ''
-    );
-    return;
-  }
-  
-  // Web Share API 降級方案（支援行動裝置）
-  if (navigator.share) {
-    try {
-      await navigator.share(defaultOptions);
-      console.log('✅ 分享成功');
-    } catch (error) {
-      if ((error as Error).name !== 'AbortError') {
-        console.error('❌ 分享失敗:', error);
-        fallbackShare(defaultOptions);
-      }
-    }
-    return;
-  }
-  
-  // 開發/測試環境
-  if (import.meta.env.DEV) {
-    console.log('📱 [開發模式] 分享功能');
-    console.log('分享內容:', defaultOptions);
-    console.log('原生實現說明：');
-    console.log('iOS: 使用 UIActivityViewController');
-    console.log('Android: 使用 Intent.ACTION_SEND');
-    alert(`📤 分享功能\n\n${defaultOptions.title}\n${defaultOptions.text}\n${defaultOptions.url}\n\n此功能需要原生實現：\niOS: UIActivityViewController\nAndroid: Intent.ACTION_SEND`);
-  } else {
-    // 最終降級方案：複製連結
-    fallbackShare(defaultOptions);
-  }
-}
-
-/**
  * 降級分享方案：複製連結到剪貼簿
  */
 function fallbackShare(options: ShareOptions) {
@@ -180,26 +40,139 @@ function legacyCopyToClipboard(text: string) {
   document.body.removeChild(textarea);
 }
 
+interface ShareOptions {
+  title: string;
+  text: string;
+  url: string;
+}
+
 /**
- * TypeScript 類型聲明：原生橋接接口
+ * 分享給好友功能
  */
-declare global {
-  interface Window {
-    webkit?: {
-      messageHandlers?: {
-        rateApp?: {
-          postMessage: (message: any) => void;
-        };
-        share?: {
-          postMessage: (message: ShareOptions) => void;
-        };
-      };
-    };
-    Android?: {
-      rateApp: () => void;
-      share: (title: string, text: string, url: string) => void;
-    };
+export function shareToFriend() {
+  const shareOptions: ShareOptions = {
+    title: '恩如選股 App',
+    text: '推薦你使用恩如選股 App，精準選股，輕鬆投資！',
+    url: 'https://www.cmoney.tw/app/itemcontent.aspx?id=3627'
+  };
+
+  // iOS 實現
+  if (window.webkit?.messageHandlers?.share) {
+    window.webkit.messageHandlers.share.postMessage(shareOptions);
+    return;
+  }
+  
+  // Android 實現
+  if (window.Android?.share) {
+    window.Android.share(
+      shareOptions.title,
+      shareOptions.text,
+      shareOptions.url
+    );
+    return;
+  }
+  
+  // Web Share API (現代瀏覽器)
+  if (navigator.share) {
+    navigator.share(shareOptions)
+      .catch((error) => {
+        if (error.name !== 'AbortError') {
+          console.error('分享失敗:', error);
+          fallbackShare(shareOptions);
+        }
+      });
+  } else {
+    // 降級方案：複製到剪貼簿
+    fallbackShare(shareOptions);
   }
 }
 
-export {};
+/**
+ * 開啟 App 評分功能
+ * 
+ * iOS 實現：
+ * - 使用 SKStoreReviewController 請求評分
+ * - 或打開 App Store 評分頁面
+ * 
+ * Android 實現：
+ * - 使用 In-App Review API
+ * - 或打開 Google Play 評分頁面
+ */
+export function openAppRating() {
+  // iOS 實現
+  if (window.webkit?.messageHandlers?.openAppRating) {
+    window.webkit.messageHandlers.openAppRating.postMessage({});
+    return;
+  }
+  
+  // Android 實現
+  if (window.Android?.openAppRating) {
+    window.Android.openAppRating();
+    return;
+  }
+  
+  // 開發/測試環境
+  if (import.meta.env.DEV) {
+    console.log('⭐ [開發模式] 打開 App 評分');
+    alert('⭐ App 評分\n\n此功能需要原生實現：\niOS: SKStoreReviewController\nAndroid: In-App Review API');
+  } else {
+    // 生產環境降級：使用 URL 打開評分頁面
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    
+    if (isIOS) {
+      // iOS App Store 評分頁面
+      window.location.href = 'itms-apps://itunes.apple.com/app/id123456789?action=write-review';
+    } else if (isAndroid) {
+      // Google Play 評分頁面
+      window.location.href = 'market://details?id=com.cmoney.enru';
+    }
+  }
+}
+
+/**
+ * 開啟 App Store 更新頁面
+ * 
+ * iOS 實現：
+ * - 使用 URL Scheme 打開 App Store
+ * - URL: itms-apps://itunes.apple.com/app/id{APP_ID}
+ * 
+ * Android 實現：
+ * - 使用 Intent 打開 Google Play
+ * - URL: market://details?id={PACKAGE_NAME}
+ * 
+ * 範例呼叫：
+ * - iOS: window.webkit.messageHandlers.openAppStore.postMessage({})
+ * - Android: Android.openAppStore()
+ */
+export function openAppStore() {
+  // iOS 實現
+  if (window.webkit?.messageHandlers?.openAppStore) {
+    window.webkit.messageHandlers.openAppStore.postMessage({});
+    return;
+  }
+  
+  // Android 實現
+  if (window.Android?.openAppStore) {
+    window.Android.openAppStore();
+    return;
+  }
+  
+  // 開發/測試環境
+  if (import.meta.env.DEV) {
+    console.log('📱 [開發模式] 打開 App Store');
+    alert('🏪 App Store 更新\n\n此功能需要原生實現：\niOS: 打開 App Store\nAndroid: 打開 Google Play');
+  } else {
+    // 生產環境降級：使用 URL 打開
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    
+    if (isIOS) {
+      // iOS App Store URL
+      window.location.href = 'itms-apps://itunes.apple.com/app/id123456789';
+    } else if (isAndroid) {
+      // Google Play URL
+      window.location.href = 'market://details?id=com.cmoney.enru';
+    }
+  }
+}

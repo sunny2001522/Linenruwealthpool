@@ -652,7 +652,7 @@ export function DiscussionPage() {
       !canAccessElite ? (
         <VIPLockedView
           isLoggedIn={isLoggedIn}
-          onLoginClick={() => navigate("/more")}
+          onLoginClick={() => navigate("/home/more")}
         />
       ) : (
         <div className="pb-20 pt-3">
@@ -730,6 +730,10 @@ function PostCard({
   const [editedPost, setEditedPost] = useState(post);
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  // 內容展開狀態
+  const [isExpanded, setIsExpanded] = useState(false);
+  const CONTENT_PREVIEW_LENGTH = 100; // 預覽字數
 
   // 圖片查看器狀態
   const [imageViewer, setImageViewer] = useState<{
@@ -1188,10 +1192,17 @@ function PostCard({
         {/* Post Content */}
         <div className="px-4 pb-3">
           <p className="text-sm leading-relaxed text-foreground/90">
-            {editedPost.content}
-            <button className="text-primary ml-1 text-sm font-medium">
-              繼續閱讀
-            </button>
+            {isExpanded || editedPost.content.length <= CONTENT_PREVIEW_LENGTH
+              ? editedPost.content
+              : `${editedPost.content.slice(0, CONTENT_PREVIEW_LENGTH)}...`}
+            {editedPost.content.length > CONTENT_PREVIEW_LENGTH && (
+              <button 
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="text-primary ml-1 text-sm font-medium hover:underline"
+              >
+                {isExpanded ? "收合" : "繼續閱讀"}
+              </button>
+            )}
           </p>
         </div>
 

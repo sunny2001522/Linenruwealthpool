@@ -1,5 +1,5 @@
 import { RouterProvider } from "react-router";
-import { router } from "./routes";
+import { router } from "./routes" ;
 import { AuthProvider } from "./lib/authContext";
 import { TabProvider } from "./lib/tabContext";
 import { Toaster } from "sonner@2.0.3";

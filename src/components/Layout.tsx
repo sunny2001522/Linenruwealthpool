@@ -6,12 +6,12 @@ import { useTabContext } from "../lib/tabContext";
 type SubTabType = "live" | "favorite" | "unpurchased" | "purchased" | "stock" | "tutorial";
 
 const navItems = [
-  { path: "/", label: "首頁", icon: Home },
-  { path: "/stock-picker", label: "選股", icon: BarChart3 },
-  { path: "/watchlist", label: "自選", icon: Eye },
-  { path: "/discussion", label: "社團", icon: MessageCircle },
-  { path: "/content", label: "內容", icon: FileText },
-  { path: "/more", label: "會員", icon: User },
+  { path: "/home", label: "首頁", icon: Home },
+  { path: "/home/stock-picker", label: "選股", icon: BarChart3 },
+  { path: "/home/watchlist", label: "自選", icon: Eye },
+  { path: "/home/discussion", label: "社團", icon: MessageCircle },
+  { path: "/home/content", label: "內容", icon: FileText },
+  { path: "/home/more", label: "會員", icon: User },
 ];
 
 export function Layout() {

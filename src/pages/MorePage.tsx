@@ -1,4 +1,4 @@
-import { ChevronRight, ChevronLeft, BookOpen, Headphones, Star, Share2, Settings, User, Mail, Calendar, Crown, LogOut, Bell, Shield, HelpCircle, Sparkles } from "lucide-react";
+import { ChevronRight, ChevronLeft, BookOpen, Headphones, Star, Share2, Settings, User, Mail, Calendar, Crown, LogOut, Shield, HelpCircle, Sparkles } from "lucide-react";
 import { useAuth } from "../lib/authContext";
 import { useNavigate, useLocation } from "react-router";
 import { useState, useEffect } from "react";
@@ -43,7 +43,7 @@ export function MorePage() {
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
+    navigate("/");
   };
 
   const handleCancelSubscription = () => {
@@ -55,9 +55,6 @@ export function MorePage() {
 
   const accountSettings = [
     { icon: User, label: "編輯個人資料", onClick: () => navigate("/edit-profile") },
-    { icon: Bell, label: "通知設定", onClick: () => navigate("/notification-settings") },
-    { icon: Shield, label: "隱私與安全", onClick: () => navigate("/privacy-security") },
-    { icon: Settings, label: "偏好設定", onClick: () => navigate("/preferences") },
   ];
 
   const supportItems = [
@@ -122,11 +119,7 @@ export function MorePage() {
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className={`p-2.5 rounded-xl ${
-                      userInfo.isPro
-                        ? 'bg-primary/20'
-                        : 'bg-muted/50'
-                    }`} />
+                    
                     <Sparkles className={`w-5 h-5 ${
                       userInfo.isPro
                         ? 'text-primary'
