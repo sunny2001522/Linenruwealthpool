@@ -7,464 +7,446 @@
 
 ## 🎯 頁面概述
 
-**自選頁**讓用戶管理個人化的自選股清單，即時追蹤關注的股票，查看恩如三部曲評分和價格變動。
+**自選頁**讓用戶管理多組自選股清單，支持群組管理、篩選、排序、拖曳調整順序等功能，即時追蹤關注的股票。
 
 ### 路由資訊
 - **路徑**：`/home/watchlist`
 - **組件**：`WatchlistPage`
 - **底部導覽圖標**：⭐ Eye（自選）
-- **是否需要登入**：是
+- **是否需要登入**：否（訪客也可查看）
 - **有無底部導覽列**：有
 
 ---
 
-## 📐 頁面結構
+## 📐 完整頁面結構
 
 ```
 ┌─────────────────────────────────────────────────┐
-│              頂部標題 + 新增按鈕                  │
-│        「我的自選股」    [ + 新增股票 ]          │
+│              頂部 Header                         │
+│  [大盤 ▼-488.54] [多方]/[空方] [視圖][編輯][+]  │
 └─────────────────────────────────────────────────┘
-                      ↓
+                       ↓
 ┌─────────────────────────────────────────────────┐
-│              自選股列表（可拖曳排序）             │
-│   ┌───────────────────────────────────────┐    │
-│   │ 2330 台積電    780.00  ▲ 2.35%  ⭐⭐  │    │
-│   │ ⭐⭐⭐⭐⭐⭐  週20MA: 750.00  [刪除]  │    │
-│   └───────────────────────────────────────┘    │
-│   ┌───────────────────────────────────────┐    │
-│   │ 2317 鴻海      120.50  ▲ 1.85%  ⭐⭐  │    │
-│   │ ⭐⭐⭐⭐⭐⭐  週20MA: 115.00  [刪除]  │    │
-│   └───────────────────────────────────────┘    │
+│              第二層：基礎策略篩選                 │
+│   多方: [站上週20MA] [強勢週20MA]                │
+│   空方: [跌破週20MA] [弱勢週20MA]                │
+│                                                 │
+│   右側: [產業▼] [篩選▼]                         │
 └─────────────────────────────────────────────────┘
-                      ↓
+                       ↓
 ┌─────────────────────────────────────────────────┐
-│              空狀態提示                          │
-│   「尚未加入任何自選股」                         │
-│   [ 立即新增 ]                                  │
+│              群組標籤列                          │
+│   [自選1] [自選2] [自選3] [自選4] [自選5]       │
+│   （可編輯名稱，預設5組，VIP可新增更多）         │
+└─────────────────────────────────────────────────┘
+                       ↓
+┌─────────────────────────────────────────────────┐
+│              股票列表                            │
+│   視圖模式: 列表模式 / 卡片模式                  │
+│   編輯模式: 可拖曳排序 / 刪除股票                │
+│   排序: 可點擊表頭排序                           │
+└─────────────────────────────────────────────────┘
+                       ↓
+┌─────────────────────────────────────────────────┐
+│              空狀態（無股票時）                   │
+│   「目前沒有自選股」                            │
+│   [ + 新增股票 ]                                │
 └─────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🎨 視覺設計規範
+## 🎨 第一層：頂部 Header 區域
 
-### 配色方案
-- **上漲紅色**：`#FE6D73`
-- **下跌綠色**：`#9cffd9`
-- **星星金色**：`#D4AF37`
-- **刪除按鈕紅色**：`#FF6B6B`
+### 左側：大盤指標按鈕
+- **顯示內容**：
+  - 文字：「大盤」
+  - 漲跌符號：▲（紅色）/ ▼（綠色）/ —（灰色）
+  - 漲跌點數：例如 `-488.54`
+- **顏色規則**：
+  - 上漲：紅色背景 `bg-[#FE6D73]/20`，紅色邊框和文字
+  - 下跌：綠色背景 `bg-[#9cffd9]/20`，綠色邊框和文字
+  - 平盤：灰色背景和邊框
+- **交互行為**：
+  - 點擊導航至 `/market-index`（大盤詳情頁）
 
-### 自選股卡片設計
+### 中間：多方/空方切換
+- **佈局**：絕對定位居中
+- **按鈕設計**：
+  - 選中狀態：前景色 `text-foreground`，底部小圓點（紅色/綠色）
+  - 未選中狀態：灰色 `text-muted-foreground`
+- **小圓點顏色**：
+  - 多方：紅色圓點 `bg-red-500`
+  - 空方：綠色圓點 `bg-green-500`
+- **切換行為**：
+  - 切換多方 → 自動切換到「站上週20MA」
+  - 切換空方 → 自動切換到「跌破週20MA」
 
-```tsx
-<div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-4 mb-3">
-  {/* 第一行：股票代碼、名稱、價格、漲跌幅 */}
-  <div className="flex items-center justify-between mb-2">
-    <div className="flex items-center gap-3">
-      {/* 拖曳手柄 */}
-      <GripVertical className="w-5 h-5 text-muted-foreground cursor-move" />
-      
-      {/* 股票代碼與名稱 */}
-      <div>
-        <p className="font-semibold text-lg">{stock.code}</p>
-        <p className="text-sm text-muted-foreground">{stock.name}</p>
-      </div>
-    </div>
+### 右側：工具按鈕組
 
-    {/* 價格與漲跌幅 */}
-    <div className="text-right">
-      <p className="text-xl font-bold">{stock.price.toFixed(2)}</p>
-      <p className={cn(
-        "text-sm font-semibold",
-        stock.changePercent > 0 ? "text-chart-2" : "text-chart-3"
-      )}>
-        {stock.changePercent > 0 ? "▲" : "▼"} {Math.abs(stock.changePercent).toFixed(2)}%
-      </p>
-    </div>
-  </div>
+#### 1. 視圖切換按鈕
+- **圖標**：`LayoutGrid`（切換到卡片模式）/ `LayoutList`（切換到列表模式）
+- **預設**：列表模式
+- **交互**：點擊切換視圖
 
-  {/* 第二行：恩如三部曲評分、週20MA、刪除按鈕 */}
-  <div className="flex items-center justify-between">
-    {/* 恩如三部曲星星 */}
-    <div className="flex items-center gap-1">
-      {[...Array(stock.trilogyScore)].map((_, i) => (
-        <Star key={i} className="w-4 h-4 fill-[#D4AF37] text-[#D4AF37]" />
-      ))}
-      {[...Array(6 - stock.trilogyScore)].map((_, i) => (
-        <Star key={i + stock.trilogyScore} className="w-4 h-4 text-muted-foreground" />
-      ))}
-    </div>
+#### 2. 編輯模式按鈕
+- **圖標**：`Edit2`
+- **選中狀態**：藍色背景 `bg-primary`，黑色圖標
+- **未選中狀態**：灰色文字
+- **功能**：
+  - 開啟後可拖曳排序股票
+  - 可點擊群組標籤旁的筆圖標編輯群組名稱
+  - 股票列表顯示刪除按鈕（Minus 圖標）
 
-    {/* 週20MA */}
-    <p className="text-sm text-muted-foreground">
-      週20MA: {stock.weeklyMa.toFixed(2)}
-    </p>
-
-    {/* 刪除按鈕 */}
-    <button
-      onClick={() => removeFromWatchlist(stock.code)}
-      className="p-2 rounded-lg hover:bg-red-500/10 text-red-500 transition-colors"
-    >
-      <Trash2 className="w-4 h-4" />
-    </button>
-  </div>
-</div>
-```
+#### 3. 新增股票按鈕
+- **圖標**：`Plus`
+- **交互**：點擊導航至 `/search`（搜尋頁面，選擇股票加入自選）
 
 ---
 
-## ➕ 新增自選股功能
+## 🎨 第二層：基礎策略篩選
 
-### 新增按鈕
+與選股頁相同的篩選器，支援：
+- **多方策略**：站上週20MA / 強勢週20MA
+- **空方策略**：跌破週20MA / 弱勢週20MA
+- **產業篩選**：領頭羊產業（多方）/ 落水狗產業（空方）
+- **高級篩選**：特殊篩選、爆量、股本、周均量
 
-```tsx
-<button
-  onClick={() => setShowSearchModal(true)}
-  className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#4A90E2] to-[#6BB6FF] text-white font-medium hover:shadow-lg transition-all flex items-center gap-2"
->
-  <Plus className="w-5 h-5" />
-  新增股票
-</button>
-```
-
-### 搜尋彈窗（SearchStockModal）
-
-```tsx
-<Dialog open={showSearchModal} onOpenChange={setShowSearchModal}>
-  <DialogContent>
-    <DialogHeader>
-      <DialogTitle>新增自選股</DialogTitle>
-    </DialogHeader>
-
-    {/* 搜尋框 */}
-    <div className="relative">
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-      <input
-        type="text"
-        placeholder="輸入股票代碼或名稱..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        className="w-full pl-10 pr-4 py-2 rounded-lg bg-muted border border-border focus:border-primary"
-      />
-    </div>
-
-    {/* 搜尋結果列表 */}
-    <div className="max-h-[400px] overflow-y-auto">
-      {searchResults.map(stock => (
-        <button
-          key={stock.code}
-          onClick={() => {
-            addToWatchlist(stock.code);
-            setShowSearchModal(false);
-          }}
-          className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors"
-        >
-          <div>
-            <p className="font-semibold">{stock.code}</p>
-            <p className="text-sm text-muted-foreground">{stock.name}</p>
-          </div>
-          <div className="text-right">
-            <p className="font-semibold">{stock.price.toFixed(2)}</p>
-            <p className={cn(
-              "text-sm",
-              stock.changePercent > 0 ? "text-chart-2" : "text-chart-3"
-            )}>
-              {stock.changePercent > 0 ? "▲" : "▼"} {Math.abs(stock.changePercent).toFixed(2)}%
-            </p>
-          </div>
-        </button>
-      ))}
-    </div>
-  </DialogContent>
-</Dialog>
-```
+### 篩選範圍
+篩選僅作用於 **當前選中的群組** 內的股票。
 
 ---
 
-## 🔄 拖曳排序功能
+## 📂 群組標籤列
 
-使用 `react-dnd` 實現拖曳排序：
+### 群組管理
 
-```tsx
-import { DndProvider, useDrag, useDrop } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
+#### 預設群組
+- **數量**：5 組
+- **名稱**：
+  - 自選1、自選2、自選3、自選4、自選5
+  - 可自訂名稱（例：「核心持股」、「短線投機」）
 
-const WatchlistItem = ({ stock, index, moveStock }) => {
-  const ref = useRef(null);
+#### VIP 專屬功能
+- **新增群組**：VIP 可新增更多群組（無上限）
+- **一般版限制**：僅能使用預設的 5 組
 
-  const [{ isDragging }, drag] = useDrag({
-    type: 'WATCHLIST_ITEM',
-    item: { index },
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
-  });
+### 群組標籤設計
 
-  const [, drop] = useDrop({
-    accept: 'WATCHLIST_ITEM',
-    hover: (draggedItem) => {
-      if (draggedItem.index !== index) {
-        moveStock(draggedItem.index, index);
-        draggedItem.index = index;
-      }
-    },
-  });
+#### 正常模式
+- **佈局**：橫向滾動
+- **選中狀態**：
+  - 文字顏色：`text-foreground`
+  - 底部藍色小圓點（可選設計）
+- **未選中狀態**：
+  - 文字顏色：`text-muted-foreground`
+- **交互**：點擊切換群組
 
-  drag(drop(ref));
+#### 編輯模式
+- **顯示**：標籤旁顯示筆圖標（`Edit2`）
+- **點擊筆圖標**：
+  - 標籤文字變為輸入框
+  - 可編輯群組名稱
+  - 按 Enter 保存，按 Esc 取消
+  - 失焦時自動保存
 
-  return (
-    <div
-      ref={ref}
-      style={{ opacity: isDragging ? 0.5 : 1 }}
-      className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-4 mb-3"
-    >
-      {/* 卡片內容 */}
-    </div>
-  );
-};
-
-export function WatchlistPage() {
-  const [watchlist, setWatchlist] = useState([]);
-
-  const moveStock = (fromIndex, toIndex) => {
-    const newList = [...watchlist];
-    const [movedItem] = newList.splice(fromIndex, 1);
-    newList.splice(toIndex, 0, movedItem);
-    setWatchlist(newList);
-  };
-
-  return (
-    <DndProvider backend={HTML5Backend}>
-      <div>
-        {watchlist.map((stock, index) => (
-          <WatchlistItem
-            key={stock.code}
-            stock={stock}
-            index={index}
-            moveStock={moveStock}
-          />
-        ))}
-      </div>
-    </DndProvider>
-  );
-}
-```
-
----
-
-## 🗑️ 刪除自選股功能
-
-### 刪除確認彈窗
-
-```tsx
-<AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
-  <AlertDialogContent>
-    <AlertDialogHeader>
-      <AlertDialogTitle>確認刪除</AlertDialogTitle>
-      <AlertDialogDescription>
-        確定要將「{stockToDelete?.name} ({stockToDelete?.code})」從自選股中移除嗎？
-      </AlertDialogDescription>
-    </AlertDialogHeader>
-    <AlertDialogFooter>
-      <AlertDialogCancel>取消</AlertDialogCancel>
-      <AlertDialogAction
-        onClick={confirmDelete}
-        className="bg-red-500 hover:bg-red-600"
-      >
-        刪除
-      </AlertDialogAction>
-    </AlertDialogFooter>
-  </AlertDialogContent>
-</AlertDialog>
-```
-
-### 刪除邏輯
-
-```typescript
-const removeFromWatchlist = (stockCode: string) => {
-  // 顯示確認彈窗
-  setStockToDelete(watchlist.find(s => s.code === stockCode));
-  setShowDeleteConfirm(true);
-};
-
-const confirmDelete = () => {
-  if (stockToDelete) {
-    // 從列表中移除
-    setWatchlist(prev => prev.filter(s => s.code !== stockToDelete.code));
-    
-    // 保存到 Local Storage
-    saveWatchlistToStorage(watchlist.filter(s => s.code !== stockToDelete.code));
-    
-    // 顯示成功提示
-    toast.success(`已從自選股中移除 ${stockToDelete.name}`);
+### 群組數據存儲
+- **LocalStorage 鍵**：`watchlist_groups`
+- **格式**：
+  ```json
+  {
+    "1": "自選1",
+    "2": "核心持股",
+    "3": "短線投機",
+    "4": "自選4",
+    "5": "自選5"
   }
-  setShowDeleteConfirm(false);
-  setStockToDelete(null);
-};
-```
+  ```
+
+---
+
+## 📊 股票列表顯示
+
+### 視圖模式
+
+#### 1. 列表模式（預設）
+
+**表格欄位**（從左到右）：
+
+| 欄位 | 排序字段 | 寬度 | 說明 |
+|------|---------|------|------|
+| **拖曳** | - | 固定 | 編輯模式顯示 `GripVertical` 圖標 |
+| **代碼** | `code` | 自動 | 股票代碼（例：2330） |
+| **名稱** | `name` | 自動 | 股票名稱（例：台積電） |
+| **價格** | `price` | 自動 | 當前股價 |
+| **漲跌** | `changePercent` | 自動 | 漲跌值 + 漲跌幅（紅/綠） |
+| **三部曲** | `trilogy1/2/3` | 自動 | 3個評分（各0-2星） |
+| **綜合評分** | `rank` | 自動 | 總分（0-6星） + 星星圖標 |
+| **股本** | `capitalBillion` | 自動 | 單位：億 |
+| **週20MA** | `weekly20MaPrice` | 自動 | 週20MA價格 |
+| **週乖離** | `weeklyDeviation` | 自動 | 百分比（%） |
+| **周均量** | `weeklyVolume` | 自動 | 單位：張 |
+| **週量倍** | `weeklyVolumeMultiple` | 自動 | 倍數 |
+| **產業** | `industry` | 自動 | 產業分類 |
+| **火焰** | - | 固定 | 強勢/弱勢時顯示火焰圖標 |
+| **刪除** | - | 固定 | 編輯模式顯示 `Minus` 圖標 |
+
+**排序功能**：
+- 點擊表頭切換排序
+- 預設：代碼升序
+- 排序圖標：
+  - 未排序：`ArrowUpDown`（灰色）
+  - 升序：`ArrowUp`（藍色）
+  - 降序：`ArrowDown`（藍色）
+
+**拖曳排序**（編輯模式）：
+- 拖曳 `GripVertical` 圖標調整順序
+- 拖曳中：行背景色變淺
+- 拖曳完成：自動保存新順序
+
+#### 2. 卡片模式
+
+**佈局**：Grid 網格
+- 手機：2 欄
+- 平板：3 欄
+- 桌面：4-5 欄
+
+**每張卡片顯示**：
+- 股票代碼和名稱
+- 當前價格
+- 漲跌值和漲跌幅
+- 三部曲評分（星星圖標）
+- 三部曲詳細分數（1、2、3）
+- 週乖離率
+- 火焰圖標（若有）
+- 刪除按鈕（編輯模式）
+
+---
+
+## ✏️ 編輯模式功能
+
+### 開啟編輯模式
+點擊頂部編輯按鈕，按鈕變為藍色背景。
+
+### 編輯模式下的功能
+
+#### 1. 編輯群組名稱
+- **觸發**：點擊群組標籤旁的筆圖標
+- **行為**：
+  - 標籤文字變為輸入框
+  - 自動聚焦，可編輯
+  - 按 Enter 保存，按 Esc 取消
+  - 失焦時自動保存
+- **限制**：名稱長度建議 2-10 字
+
+#### 2. 拖曳排序股票
+- **觸發**：拖曳股票行左側的 `GripVertical` 圖標
+- **視覺反饋**：
+  - 拖曳中：行背景色變淺
+  - 拖曳目標位置：顯示插入指示線
+- **保存**：拖曳完成後自動保存新順序
+
+#### 3. 刪除股票
+- **觸發**：點擊股票行右側的 `Minus` 圖標
+- **行為**：
+  - 彈出確認彈窗（`showRemoveModal`）
+  - 顯示股票代碼和名稱
+  - 顯示該股票所在的所有群組（勾選框）
+  - 可選擇從特定群組或所有群組移除
+- **確認後**：
+  - 從選中的群組中移除該股票
+  - 更新 LocalStorage
+  - 更新列表顯示
+
+### 退出編輯模式
+- 再次點擊編輯按鈕
+- 自動保存所有變更
+- 隱藏拖曳圖標和刪除按鈕
 
 ---
 
 ## 🔐 VIP 權限控制
 
-### 專業版 vs 試用版
+### VIP版 vs 一般版
 
-| 功能 | 專業版 | 試用版 |
+| 功能 | VIP版 | 一般版 |
 |------|--------|--------|
-| **儲存上限** | ✅ 無上限 | ⚠️ 最多 10 支 |
-| **清單數量** | ✅ 多組清單 | ⚠️ 僅 1 組 |
+| **群組數量** | ✅ 無限制（可新增） | ⚠️ 固定5組 |
+| **每組股票數** | ✅ 無限制 | ⚠️ 最多10支 |
+| **篩選功能** | ✅ 完整使用 | ✅ 完整使用 |
+| **排序功能** | ✅ 完整使用 | ✅ 完整使用 |
 | **拖曳排序** | ✅ 支援 | ✅ 支援 |
-| **恩如三部曲** | ✅ 完整顯示 | ✅ 完整顯示 |
+| **編輯群組名稱** | ✅ 支援 | ✅ 支援 |
+| **新增群組** | ✅ 支援 | ❌ 不支援 |
 
-### 試用版限制提示
+### 一般版限制提示
+當一般版用戶嘗試：
+1. **新增第6個群組**：
+   - 彈出提示：「升級 VIP 解鎖更多群組」
+   - 顯示升級按鈕
 
-```tsx
-{!user?.isPro && watchlist.length >= 10 && (
-  <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 mb-4">
-    <div className="flex items-start gap-3">
-      <AlertTriangle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
-      <div className="flex-1">
-        <p className="font-semibold text-yellow-500 mb-1">自選股已達上限</p>
-        <p className="text-sm text-muted-foreground mb-3">
-          試用版最多只能儲存 10 支股票，升級專業版即可無限制儲存。
-        </p>
-        <button
-          onClick={() => navigate('/purchase')}
-          className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#4A90E2] to-[#D4AF37] text-white font-medium hover:shadow-lg transition-all text-sm"
-        >
-          立即升級
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-```
+2. **單組超過10支股票**：
+   - 彈出提示：「升級 VIP 新增更多自選股」
+   - 顯示升級按鈕
 
 ---
 
-## 📊 數據存儲
+## 🎭 空狀態處理
 
-### Local Storage 存儲
-
-```typescript
-// watchlistStorage.ts
-export interface WatchlistStorage {
-  stocks: string[];         // 股票代碼列表
-  order: string[];          // 排序順序
-  lastUpdated: string;      // 最後更新時間
-}
-
-export const saveWatchlistToStorage = (stockCodes: string[]) => {
-  const data: WatchlistStorage = {
-    stocks: stockCodes,
-    order: stockCodes,
-    lastUpdated: new Date().toISOString()
-  };
-  localStorage.setItem('watchlist', JSON.stringify(data));
-};
-
-export const loadWatchlistFromStorage = (): string[] => {
-  const data = localStorage.getItem('watchlist');
-  if (data) {
-    const parsed: WatchlistStorage = JSON.parse(data);
-    return parsed.order;
-  }
-  return [];
-};
-```
+### 群組為空時
+當選中的群組沒有任何股票時，顯示：
+- **圖示**：大型星星圖標（淺灰色）
+- **文字**：「目前沒有自選股」
+- **副標題**：「點擊下方按鈕新增股票」
+- **按鈕**：「+ 新增股票」
+  - 點擊導航至 `/search`
 
 ---
 
-## 🔄 實時更新機制
+## 🔍 搜尋功能
 
-### 價格更新頻率
-- **盤中（09:00 - 13:30）**：每 5 秒更新
-- **盤後**：停止更新
-- **未開盤**：顯示前一交易日收盤價
+### 搜尋入口
+點擊頂部右側的「+」按鈕，導航至 `/search`（獨立搜尋頁面）
 
-### 實時更新實作
-
-```typescript
-useEffect(() => {
-  // 首次載入
-  updateWatchlistPrices();
-
-  // 設定定時器
-  const interval = setInterval(() => {
-    if (isMarketOpen()) {
-      updateWatchlistPrices();
-    }
-  }, 5000); // 每 5 秒更新
-
-  // 清除定時器
-  return () => clearInterval(interval);
-}, [watchlist]);
-
-const updateWatchlistPrices = async () => {
-  const codes = watchlist.map(s => s.code);
-  const prices = await fetchStockPrices(codes);
-  
-  setWatchlist(prev => prev.map(stock => ({
-    ...stock,
-    ...prices[stock.code]
-  })));
-};
-```
+### 搜尋流程
+1. 在搜尋頁面輸入股票代碼或名稱
+2. 選擇目標股票
+3. 彈出群組選擇彈窗（`AddToWatchlistModal`）
+4. 選擇要加入的群組（可多選）
+5. 確認後加入，返回自選頁
 
 ---
 
 ## 📱 響應式設計
 
 ### 手機版（< 768px）
-- 卡片式佈局
-- 單欄顯示
-- 拖曳手柄顯示
+- Header：緊湊佈局，按鈕尺寸縮小
+- 群組標籤：橫向滾動
+- 列表模式：簡化表格，隱藏部分欄位（股本、產業）
+- 卡片模式：2 欄網格
 
 ### 平板版（768px - 1024px）
-- 卡片式佈局
-- 單欄顯示
-- 拖曳手柄顯示
+- Header：舒適佈局
+- 群組標籤：橫向滾動
+- 列表模式：完整表格
+- 卡片模式：3 欄網格
 
 ### 桌面版（> 1024px）
-- 表格式佈局（可選）
-- 雙欄顯示（可選）
-- 拖曳手柄顯示
+- Header：寬鬆佈局
+- 群組標籤：完整顯示
+- 列表模式：固定表頭，完整欄位
+- 卡片模式：4-5 欄網格
 
 ---
 
-## 🎯 交互行為
+## 💾 數據存儲
 
-### 點擊股票卡片
-→ 導航至「股票詳情頁」（`/stock/:code`）
+### LocalStorage 結構
 
-### 拖曳股票卡片
-→ 重新排序自選股列表
+#### 1. 群組名稱
+**鍵**：`watchlist_groups`  
+**格式**：
+```json
+{
+  "1": "自選1",
+  "2": "核心持股",
+  "3": "短線投機",
+  "4": "自選4",
+  "5": "自選5"
+}
+```
 
-### 點擊刪除按鈕
-→ 顯示刪除確認彈窗
+#### 2. 群組股票
+**鍵**：`watchlist_{群組編號}`  
+**格式**：
+```json
+{
+  "watchlist_1": ["2330", "2454", "2317"],
+  "watchlist_2": ["2308", "2412"],
+  "watchlist_3": [],
+  "watchlist_4": [],
+  "watchlist_5": []
+}
+```
 
-### 點擊新增按鈕
-→ 打開搜尋彈窗
+### 輔助函數（`watchlistStorage.ts`）
+
+| 函數 | 功能 |
+|------|------|
+| `getWatchlistNames()` | 獲取所有群組名稱 |
+| `updateWatchlistName(id, name)` | 更新群組名稱 |
+| `isInAnyWatchlist(code)` | 檢查股票在哪些群組中 |
+| `addToWatchlist(code, groupId)` | 將股票加入群組 |
+| `removeFromWatchlist(code, groupId)` | 從群組移除股票 |
+| `getWatchlistStocks(groupId)` | 獲取群組內所有股票代碼 |
+
+---
+
+## ⚠️ 工程師需要實現的功能
+
+### 1. 即時價格更新
+- 使用 WebSocket 訂閱自選股即時報價
+- 更新股票列表中的價格、漲跌值、漲跌幅
+- 更新三部曲評分（若策略條件變化）
+
+### 2. 三部曲評分計算
+- 根據當前選中的策略（站上週20MA / 強勢週20MA / 跌破週20MA / 弱勢週20MA）
+- 計算每支股票的三部曲評分
+- 詳細邏輯請參考選股頁面文檔
+
+### 3. 火焰圖標判斷
+- 僅在「強勢週20MA」或「弱勢週20MA」策略下顯示
+- 根據特定條件判斷股票是否顯示火焰
+
+### 4. 篩選功能實現
+- 根據選中的策略和高級篩選條件過濾股票
+- 僅過濾當前群組內的股票
+
+### 5. 拖曳排序保存
+- 拖曳完成後，將新的排序保存到 LocalStorage
+- 格式：`watchlist_{群組編號}_order`：`["2330", "2317", "2454", ...]`
 
 ---
 
 ## 📝 注意事項
 
 ### 顏色使用
-- 上漲使用紅色（`#FE6D73`）
-- 下跌使用綠色（`#9cffd9`）
-- 星星使用金色（`#D4AF37`）
-
-### 數據存儲
-- 使用 Local Storage 持久化
-- 每次變更後立即保存
-- 支持跨設備同步（未來功能）
+- ✅ 必須嚴格遵循台股紅漲綠跌規則
+- ✅ 藍色用於主色調（按鈕、圖標、排序指示）
+- ✅ 金色用於星星圖標
 
 ### 性能優化
-- 使用 `useMemo` 緩存計算結果
-- 使用 `React.memo` 避免不必要的重渲染
-- 限制實時更新頻率
+- 僅訂閱當前群組內股票的即時報價（減少 WebSocket 連接）
+- 切換群組時，取消前一群組的訂閱
+- 使用虛擬滾動（股票數量 > 50 時）
+
+### 用戶體驗
+- 切換群組時，保留篩選和排序設定
+- 編輯群組名稱時，Enter 保存，Esc 取消
+- 拖曳排序時，提供視覺反饋
+- 刪除股票時，彈出確認彈窗
+
+### 數據同步
+- LocalStorage 變更時，立即更新 UI
+- 支援跨標籤頁同步（監聽 `storage` 事件）
+
+---
+
+## 🎯 交互行為總結
+
+| 元素 | 交互行為 |
+|------|---------|
+| 大盤指標按鈕 | 導航至 `/market-index` |
+| 多方/空方按鈕 | 切換市場類型，自動切換策略 |
+| 視圖切換按鈕 | 切換列表/卡片模式 |
+| 編輯按鈕 | 開啟/關閉編輯模式 |
+| 新增股票按鈕（+） | 導航至 `/search` |
+| 群組標籤 | 切換群組 |
+| 群組標籤旁的筆圖標 | 編輯群組名稱（編輯模式） |
+| 表頭欄位 | 點擊排序 |
+| 股票行 | 點擊導航至股票詳情頁（未實現） |
+| 拖曳圖標 | 拖曳調整股票順序（編輯模式） |
+| 刪除圖標（Minus） | 刪除股票（編輯模式） |
 
 ---
 
@@ -473,4 +455,5 @@ const updateWatchlistPrices = async () => {
 - **整體概覽**：`00_APP_OVERVIEW.md`
 - **首頁標籤**：`01_HOME_PAGE.md`
 - **選股標籤**：`02_STOCK_PICKER_PAGE.md`
-- **社團標籤**：`04_DISCUSSION_PAGE.md`
+- **會員標籤**：`06_MORE_PAGE.md`
+- **數據存儲**：`watchlistStorage.ts`

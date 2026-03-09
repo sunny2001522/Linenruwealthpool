@@ -13,84 +13,87 @@
 - **路徑**：`/home/stock-picker`
 - **組件**：`StockPickerPage`
 - **底部導覽圖標**：📊 BarChart3（選股）
-- **是否需要登入**：是
+- **是否需要登入**：否（訪客也可查看）
 - **有無底部導覽列**：有
 
 ---
 
-## 📐 三層篩選系統架構
+## 📐 完整頁面結構
 
 ```
 ┌─────────────────────────────────────────────────┐
-│                  第一層                          │
-│            市場類型選擇（Tab）                    │
-│         【多方 Bull】  【空方 Bear】             │
+│              頂部 Header                         │
+│  [大盤 ▼-488.54] [多方]/[空方] [視圖][編輯][搜尋] │
 └─────────────────────────────────────────────────┘
-                      ↓
+                       ↓
 ┌─────────────────────────────────────────────────┐
-│                  第二層                          │
-│            基礎策略篩選（Tab）                    │
-│   多方: 站上週20MA / 強勢週20MA                  │
-│   空方: 跌破週20MA / 弱勢週20MA                  │
-└─────────────────────────────────────────────────┘
-                      ↓
-┌─────────────────────────────────────────────────┐
-│                  第三層                          │
-│         高級信號篩選（Pills/Chips）              │
-│ 【領頭羊】【211強勢】【爆量】【股本】【周均量】   │
+│              第二層：基礎策略篩選                 │
+│   多方: [站上週20MA] [強勢週20MA]                │
+│   空方: [跌破週20MA] [弱勢週20MA]                │
 │                                                 │
-│   ✅ 支持多選                                    │
-│   ✅ AND 交集篩選                                │
-│   ✅ 點擊變藍色                                  │
-│   ✅ 實時排序                                    │
+│   右側: [產業▼] [篩選▼]                         │
 └─────────────────────────────────────────────────┘
-                      ↓
+                       ↓
+┌─────────────────────────────────────────────────┐
+│              第三層：高級篩選（彈窗）             │
+│   [領頭羊產業/落水狗產業]                        │
+│   [特殊篩選: 火焰 / 高分]                        │
+│   [爆量: 週期 + 倍數]                            │
+│   [股本: 大於/小於 20億/100億]                   │
+│   [周均量: 大於/小於 1000張/5000張/10000張]      │
+└─────────────────────────────────────────────────┘
+                       ↓
 ┌─────────────────────────────────────────────────┐
 │              股票結果列表                        │
-│   排序：三部曲評分 + 特殊形態評分 + 漲跌幅       │
+│   視圖模式: 列表模式 / 卡片模式                  │
+│   排序: 綜合評分（三部曲 + 漲跌幅）              │
+│   VIP: 顯示全部 / 一般版: 前3支 + 12支模糊      │
 └─────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🎨 第一層：市場類型選擇
+## 🎨 第一層：頂部 Header 區域
 
-### Tab 設計
+### 左側：大盤指標按鈕
+- **顯示內容**：
+  - 文字：「大盤」
+  - 漲跌符號：▲（紅色）/ ▼（綠色）/ —（灰色）
+  - 漲跌點數：例如 `-488.54`
+- **顏色規則**：
+  - 上漲：紅色背景 `bg-[#FE6D73]/20`，紅色邊框和文字
+  - 下跌：綠色背景 `bg-[#9cffd9]/20`，綠色邊框和文字
+  - 平盤：灰色背景和邊框
+- **交互行為**：
+  - 點擊導航至 `/market-index`（大盤詳情頁）
 
-```tsx
-<div className="flex gap-2 mb-4">
-  {/* 多方 Tab */}
-  <button
-    onClick={() => setMarketType('bull')}
-    className={cn(
-      "flex-1 py-3 rounded-t-xl font-semibold transition-all",
-      marketType === 'bull'
-        ? "bg-gradient-to-r from-[#4A90E2] to-[#6BB6FF] text-white"
-        : "bg-muted text-muted-foreground"
-    )}
-  >
-    多方 Bull
-  </button>
+### 中間：多方/空方切換
+- **佈局**：絕對定位居中（`absolute left-1/2 -translate-x-1/2`）
+- **按鈕設計**：
+  - 選中狀態：前景色 `text-foreground`，底部小圓點（紅色/綠色）
+  - 未選中狀態：灰色 `text-muted-foreground`
+- **小圓點顏色**：
+  - 多方：紅色圓點 `bg-red-500`
+  - 空方：綠色圓點 `bg-green-500`
+- **切換行為**：
+  - 切換多方 → 自動切換到「站上週20MA」
+  - 切換空方 → 自動切換到「跌破週20MA」
 
-  {/* 空方 Tab */}
-  <button
-    onClick={() => setMarketType('bear')}
-    className={cn(
-      "flex-1 py-3 rounded-t-xl font-semibold transition-all",
-      marketType === 'bear'
-        ? "bg-gradient-to-r from-[#4A90E2] to-[#6BB6FF] text-white"
-        : "bg-muted text-muted-foreground"
-    )}
-  >
-    空方 Bear
-  </button>
-</div>
-```
+### 右側：工具按鈕組
+1. **視圖切換按鈕**
+   - 圖標：`LayoutGrid`（切換到卡片模式）/ `LayoutList`（切換到列表模式）
+   - 預設：列表模式
+   - 交互：點擊切換視圖
 
-### 切換行為
-- 切換市場類型時，自動切換到對應的默認策略
-- 重置高級篩選器的部分選項（211強勢/弱勢切換）
-- 切換領頭羊/落水狗產業顯示
+2. **編輯模式按鈕**
+   - 圖標：`Edit2`
+   - 選中狀態：藍色背景 `bg-primary`，黑色圖標
+   - 未選中狀態：灰色背景
+   - 功能：開啟後可批量加入自選股
+
+3. **搜尋按鈕**
+   - 圖標：`Search`
+   - 交互：點擊導航至 `/search`（搜尋頁面）
 
 ---
 
@@ -110,401 +113,227 @@
 | **跌破週20MA** | `below-ma` | `price < weeklyMa && weeklyDeviation < 5` | 價格跌破20週均線，乖離率<5% |
 | **弱勢週20MA** | `weak-ma` | `price < weeklyMa && weeklyDeviation < 0` | 價格跌破20週均線，且乖離率為負 |
 
-### Tab 設計
+### 視覺設計
+- **按鈕樣式**：無邊框，僅文字
+- **選中狀態**：
+  - 文字顏色：`text-foreground`
+  - 底部藍色漸層下劃線：`bg-gradient-to-r from-[#4A90E2] to-[#6BB6FF]`（高度 0.5px）
+- **未選中狀態**：
+  - 文字顏色：`text-muted-foreground`
 
-```tsx
-<div className="flex gap-4 mb-4 border-b border-border">
-  {/* 站上週20MA / 跌破週20MA */}
-  <button
-    onClick={() => setFilterType(marketType === 'bull' ? 'above-ma' : 'below-ma')}
-    className={cn(
-      "px-4 py-2 font-medium transition-all relative",
-      filterType === (marketType === 'bull' ? 'above-ma' : 'below-ma')
-        ? "text-[#4A90E2]"
-        : "text-muted-foreground"
-    )}
-  >
-    {marketType === 'bull' ? '站上週20MA' : '跌破週20MA'}
-    {filterType === (marketType === 'bull' ? 'above-ma' : 'below-ma') && (
-      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#4A90E2] to-[#6BB6FF]" />
-    )}
-  </button>
+### 右側按鈕組
 
-  {/* 強勢週20MA / 弱勢週20MA */}
-  <button
-    onClick={() => setFilterType(marketType === 'bull' ? 'strong-ma' : 'weak-ma')}
-    className={cn(
-      "px-4 py-2 font-medium transition-all relative",
-      filterType === (marketType === 'bull' ? 'strong-ma' : 'weak-ma')
-        ? "text-[#4A90E2]"
-        : "text-muted-foreground"
-    )}
-  >
-    {marketType === 'bull' ? '強勢週20MA' : '弱勢週20MA'}
-    {filterType === (marketType === 'bull' ? 'strong-ma' : 'weak-ma') && (
-      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#4A90E2] to-[#6BB6FF]" />
-    )}
-  </button>
-</div>
-```
+#### 1. 產業按鈕
+- **位置**：第二層右側第一個按鈕
+- **文字**：
+  - 未選中：「產業」
+  - 已選中：顯示產業名稱最後一部分（例：「電子上游-IC-設計」顯示為「設計」）
+- **圖標**：`ChevronDown`
+- **選中狀態**：
+  - 藍色背景 `bg-[#4A90E2]`，白色文字，陰影
+- **未選中狀態**：
+  - 灰色背景 `bg-muted`，灰色文字
+- **交互行為**：
+  - 點擊導航至 `/industry-selection?marketType={多方/空方}&selected={已選產業}`
+  - 在產業選擇頁面選擇後返回
+
+#### 2. 篩選按鈕（彈窗觸發器）
+- **位置**：第二層右側第二個按鈕
+- **功能**：打開高級篩選彈窗
+- **組件**：`AdvancedFilters`（renderMode="inline"）
 
 ---
 
-## 🎨 第三層：高級信號篩選
+## 🎨 第三層：高級篩選彈窗（AdvancedFilters）
 
-### 1️⃣ 領頭羊產業（多方專用）
+### 彈窗觸發方式
+點擊第二層右側的「篩選」按鈕，彈出篩選器彈窗。
 
-**字段名**：`leaderIndustry`
-**類型**：`string | null`
-**顯示時機**：僅在多方（Bull）市場顯示
-**按鈕文字**：「領頭羊產業」
-**排序優先級**：-1（永遠在最左邊）
+### 篩選選項
 
-**當期領頭羊產業（前10）**：
-1. 電子上游-IC設計
-2. 電子中游-被動元件
-3. 電子上游-IC通路
-4. 電子零組件-顯示面板
-5. 電腦週邊-電腦系統
-6. 電子上游-IC製造
-7. 電子中游-連接器
-8. 電子上游-記憶體
-9. 電子中游-光電元件
-10. 電子下游-網路通訊
+#### 1️⃣ 領頭羊產業（多方專用）/ 落水狗產業（空方專用）
 
-**前期領頭羊產業（前10）**：
-1. 電子中游-PCB-材料設備
-2. 電子上游-PCB-材料設備
-3. 電子上游-IC封測
-4. 電子上游-配線驅動雜
-5. 電子上游-連接元件
-6. 電子上游-PCB-製造
-7. 電子上游-配線處理設計
-8. 電子上游-感測元件
-9. 電子上游-IC製造
-10. 電子中游-電源管理
+**字段名**：`leaderIndustry`（多方）/ `loserIndustry`（空方）  
+**類型**：`string | null`  
+**顯示時機**：根據市場類型動態顯示  
 
 **篩選邏輯**：
-```typescript
-if (filters.leaderIndustry) {
-  stocks = stocks.filter(stock => 
-    stock.industry === filters.leaderIndustry
-  );
-}
-```
+- 根據選中的產業過濾股票
+- 僅保留該產業的股票
 
 ---
 
-### 2️⃣ 落水狗產業（空方專用）
+#### 2️⃣ 特殊篩選
 
-**字段名**：`loserIndustry`
-**類型**：`string | null`
-**顯示時機**：僅在空方（Bear）市場顯示
-**按鈕文字**：「落水狗產業」
-**排序優先級**：-1（永遠在最左邊）
+**字段名**：`specialFilter`  
+**類型**：`"hasFlame" | "highScore" | null`  
 
-**當期落水狗產業（前10）**：
-1. 傳產-塑膠工業
-2. 傳產-紡織纖維
-3. 金融-證券
-4. 傳產-航運
-5. 傳產-鋼鐵工業
-6. 傳產-水泥工業
-7. 金融-保險
-8. 傳產-化學工業
-9. 傳產-營建
-10. 傳產-觀光
+**選項**：
 
-**前期落水狗產業（前10）**：
-1. 傳產-貿易百貨
-2. 傳產-食品工業
-3. 金融-金控
-4. 傳產-汽車工業
-5. 傳產-造紙工業
-6. 傳產-電機機械
-7. 傳產-橡膠工業
-8. 傳產-玻璃陶瓷
-9. 金融-其他金融
-10. 傳產-其他
+| 選項 | 值 | 說明 | 篩選條件 |
+|------|-----|------|---------|
+| **火焰** | `hasFlame` | 顯示有火焰圖標的股票 | `stock.hasFlame === true` |
+| **高分** | `highScore` | 三部曲評分 ≥ 5 星 | `stock.trilogyScore >= 5` |
+
+**火焰圖標說明**：
+- **顯示時機**：僅在「強勢週20MA」或「弱勢週20MA」策略下顯示
+- **圖標**：`Flame`（紅色/綠色）
+- **含義**：該股票符合特定強勢/弱勢條件
 
 ---
 
-### 3️⃣ 211強勢股 / 211弱勢股
+#### 3️⃣ 爆量篩選
 
-**字段名**：`specialFilter`
-**值選項**：`"211" | "210" | null`
-**多方文字**：「211強勢股」
-**空方文字**：「211弱勢股」
-**排序優先級**：0
+**字段名**：`volumePeriod`、`volumeMultiple`  
+**類型**：`("weekly" | "monthly" | null)`、`(number | null)`  
 
-**211形態定義**：
-- **多方（強勢）**：連續2根紅K，然後1根綠K回調，顯示強勢整理形態
-- **空方（弱勢）**：連續2根綠K，然後1根紅K反彈，顯示弱勢整理形態
-
-**篩選邏輯**：
-```typescript
-if (filters.specialFilter === "211") {
-  stocks = stocks.filter(stock => {
-    if (marketType === "bull") {
-      return stock.has211BullPattern === true;
-    } else {
-      return stock.has211BearPattern === true;
-    }
-  });
-  
-  // 選中後，按211評分排序
-  stocks.sort((a, b) => b.pattern211Score - a.pattern211Score);
-}
-```
-
----
-
-### 4️⃣ 210起漲股 / 210起跌股
-
-**字段名**：`specialFilter`
-**值選項**：`"210"`
-**多方文字**：「210起漲股」
-**空方文字**：「210起跌股」
-**排序優先級**：0
-
-**210形態定義**：
-- **多方（起漲）**：連續2根紅K，然後1根十字星，顯示即將突破
-- **空方（起跌）**：連續2根綠K，然後1根十字星，顯示即將跌破
-
----
-
-### 5️⃣ 爆量篩選（多/空共用）
-
-**字段名**：`volumePeriod`, `volumeMultiple`
-**類型**：`("weekly" | "monthly" | null)`, `(1 | 2 | 4 | null)`
-**按鈕默認文字**：「當週爆量1倍」
-**排序優先級**：1
-
-**下拉選項**：
+**選項**：
 
 **週期選擇**：
 - 當週（`weekly`）
 - 當月（`monthly`）
 
 **倍數選擇**：
-- 1倍（`1`）
-- 2倍（`2`）
-- 4倍（`4`）
-
-**組合示例**：
-- 當週爆量1倍 → `{ volumePeriod: "weekly", volumeMultiple: 1 }`
-- 當週爆量2倍 → `{ volumePeriod: "weekly", volumeMultiple: 2 }`
-- 當週爆量4倍 → `{ volumePeriod: "weekly", volumeMultiple: 4 }`
+- 輸入數字（例：1、2、4）
 
 **篩選邏輯**：
-```typescript
-if (filters.volumePeriod && filters.volumeMultiple) {
-  stocks = stocks.filter(stock => {
-    if (filters.volumePeriod === "weekly") {
-      return stock.weeklyVolumeMultiple >= filters.volumeMultiple!;
-    } else {
-      return stock.monthlyVolumeMultiple >= filters.volumeMultiple!;
-    }
-  });
-}
-```
+- 根據週期和倍數過濾股票
+- 檢查 `stock.weeklyVolumeMultiple` 或 `stock.monthlyVolumeMultiple` 是否 ≥ 設定倍數
 
 ---
 
-### 6️⃣ 股本大小篩選（多/空共用）
+#### 4️⃣ 股本篩選
 
-**字段名**：`marketCap`
-**類型**：`"above20B" | "below20B" | null`
-**按鈕默認文字**：「股本大於20億」
-**排序優先級**：2
+**字段名**：`marketCap`  
+**類型**：`"above20B" | "above100B" | "below20B" | null`  
+**預設值**：`"above20B"`（股本大於20億）  
 
-**下拉選項**：
-- 股本大於20億（`above20B`）
-- 股本小於20億（`below20B`）
+**選項**：
 
-**篩選邏輯**：
-```typescript
-if (filters.marketCap) {
-  stocks = stocks.filter(stock => {
-    if (filters.marketCap === "above20B") {
-      return stock.capitalBillion >= 20;
-    } else {
-      return stock.capitalBillion < 20;
-    }
-  });
-}
-```
+| 選項 | 值 | 篩選條件 |
+|------|-----|---------|
+| **大於20億** | `above20B` | `stock.capitalBillion >= 20` |
+| **大於100億** | `above100B` | `stock.capitalBillion >= 100` |
+| **小於20億** | `below20B` | `stock.capitalBillion < 20` |
 
 ---
 
-### 7️⃣ 周均量大小篩選（多/空共用）
+#### 5️⃣ 周均量篩選
 
-**字段名**：`avgVolume`
-**類型**：`"above1000" | "below1000" | null`
-**按鈕默認文字**：「周均量大於1000張」
-**排序優先級**：3
+**字段名**：`avgVolume`  
+**類型**：`"above1000" | "above5000" | "above10000" | null`  
+**預設值**：`"above1000"`（周均量大於1000張）  
 
-**下拉選項**：
-- 周均量大於1000張（`above1000`）
-- 周均量小於1000張（`below1000`）
+**選項**：
 
-**篩選邏輯**：
-```typescript
-if (filters.avgVolume) {
-  stocks = stocks.filter(stock => {
-    if (filters.avgVolume === "above1000") {
-      return stock.weeklyVolume >= 1000;
-    } else {
-      return stock.weeklyVolume < 1000;
-    }
-  });
-}
-```
+| 選項 | 值 | 篩選條件 |
+|------|-----|---------|
+| **大於1000張** | `above1000` | `stock.weeklyVolume >= 1000` |
+| **大於5000張** | `above5000` | `stock.weeklyVolume >= 5000` |
+| **大於10000張** | `above10000` | `stock.weeklyVolume >= 10000` |
 
 ---
 
 ## 🔗 AND 交集篩選邏輯
 
+所有篩選條件為 **AND 關係**，即必須同時滿足所有選中的條件。
+
 ### 篩選執行順序
 
-```typescript
-// 1. 第一層：市場類型篩選
-let stocks = allStocks;
+1. **基礎策略篩選**（第二層）
+   - 根據市場類型和策略過濾（站上週20MA / 強勢週20MA / 跌破週20MA / 弱勢週20MA）
 
-// 2. 第二層：基礎策略篩選
-stocks = stocks.filter(stock => {
-  if (marketType === "bull") {
-    if (filterType === "above-ma") {
-      return stock.price > stock.weeklyMa && stock.weeklyDeviation > -5;
-    } else if (filterType === "strong-ma") {
-      return stock.price > stock.weeklyMa && stock.weeklyDeviation > 0;
-    }
-  } else {
-    if (filterType === "below-ma") {
-      return stock.price < stock.weeklyMa && stock.weeklyDeviation < 5;
-    } else if (filterType === "weak-ma") {
-      return stock.price < stock.weeklyMa && stock.weeklyDeviation < 0;
-    }
-  }
-  return true;
-});
+2. **領頭羊/落水狗產業篩選**
+   - 若選中產業，僅保留該產業股票
 
-// 3. 第三層：高級信號篩選（AND 交集）
-// 3.1 產業篩選
-if (marketType === "bull" && filters.leaderIndustry) {
-  stocks = stocks.filter(stock => stock.industry === filters.leaderIndustry);
-}
+3. **特殊篩選**
+   - 火焰：僅保留 `hasFlame === true` 的股票
+   - 高分：僅保留 `trilogyScore >= 5` 的股票
 
-if (marketType === "bear" && filters.loserIndustry) {
-  stocks = stocks.filter(stock => stock.industry === filters.loserIndustry);
-}
+4. **爆量篩選**
+   - 若設定週期和倍數，檢查對應的量能倍數
 
-// 3.2 特殊形態篩選
-if (filters.specialFilter === "211") {
-  stocks = stocks.filter(stock => 
-    marketType === "bull" ? stock.has211BullPattern : stock.has211BearPattern
-  );
-}
+5. **股本篩選**
+   - 根據股本大小過濾
 
-// 3.3 爆量篩選
-if (filters.volumePeriod && filters.volumeMultiple) {
-  stocks = stocks.filter(stock => {
-    const volumeMultiple = filters.volumePeriod === "weekly"
-      ? stock.weeklyVolumeMultiple
-      : stock.monthlyVolumeMultiple;
-    return volumeMultiple >= filters.volumeMultiple!;
-  });
-}
+6. **周均量篩選**
+   - 根據周均量大小過濾
 
-// 3.4 股本篩選
-if (filters.marketCap) {
-  stocks = stocks.filter(stock => 
-    filters.marketCap === "above20B" 
-      ? stock.capitalBillion >= 20 
-      : stock.capitalBillion < 20
-  );
-}
+7. **計算恩如三部曲評分**
+   - 為每支股票計算 `trilogyScore`
 
-// 3.5 周均量篩選
-if (filters.avgVolume) {
-  stocks = stocks.filter(stock => 
-    filters.avgVolume === "above1000" 
-      ? stock.weeklyVolume >= 1000 
-      : stock.weeklyVolume < 1000
-  );
-}
+8. **搜尋過濾**
+   - 若有搜尋關鍵字，過濾股票代號或名稱
 
-// 4. 計算恩如三部曲評分
-stocks = stocks.map(stock => ({
-  ...stock,
-  trilogyScore: calculateTrilogyScore(stock, marketType, filterType)
-}));
-
-// 5. 排序
-stocks.sort((a, b) => 
-  b.trilogyScore - a.trilogyScore || 
-  b.changePercent - a.changePercent
-);
-```
+9. **排序**
+   - 預設：三部曲評分（降序）→ 漲跌幅（降序）
+   - 可點擊表頭切換排序欄位和方向
 
 ---
 
 ## ⭐ 恩如三部曲評分系統
 
 ### 評分結構
+- **總分**：0-6 星
+- **三部曲1**：0-2 星
+- **三部曲2**：0-2 星
+- **三部曲3**：0-2 星
 
-```typescript
-interface TrilogyScore {
-  total: number;        // 總分（0-6）
-  trilogy1: number;     // 挑噴出/回檔（0-2星）
-  trilogy2: number;     // 看型態（0-2星）
-  trilogy3: number;     // 看量找動能（0-2星）
-}
-```
+### 星星顯示
+- **金色星星**：已獲得的星星（`fill-[#D4AF37]`）
+- **灰色星星**：未獲得的星星（`text-muted-foreground`）
+- **格式**：例如 ⭐⭐⭐⭐☆☆ 4/6
 
-### 評分規則（多方）
+### ⚠️ 工程師需要實現的評分邏輯
 
-#### 1️⃣ 挑噴出/回檔（最多2星）
+詳細的評分邏輯請參考 CMoney 提供的策略編號和條件判斷。
 
-**站上週20MA**：
-- 若 5122133（蓄勢待發）內含該股 → 加 **2星**
-- 否則若 6086866（逆轉勝）內含該股 → 加 **1星**
+---
 
-**強勢週20MA**：
-- 若（過去9天最低價 > 領頭羊）且（今日最低價與領頭羊差距 < 2%）且（收盤價 > 領頭羊）→ 加 **2星**
-- 否則若（收盤價 ≥ 領頭羊）且（昨日收盤 ≤ 領頭羊 或 今日最低價 ≤ 領頭羊）→ 加 **1星**
+## 📋 股票列表顯示
 
-#### 2️⃣ 看型態（最多2星）
+### 視圖模式
 
-- 若 6086867（海闊天空）或 6086869（庸中佼佼）內含該股 → 加 **1星**
-- 若 6086884（一往直前）或 103664275（直道而行）內含該股 → 再加 **1星**
+#### 1. 列表模式（預設）
+- **組件**：`StockTable`
+- **顯示方式**：表格形式
+- **可排序欄位**：
+  - 排名（綜合評分）
+  - 股票代碼
+  - 股票名稱
+  - 價格
+  - 三部曲評分
+  - 股本
+  - 週20MA
+  - 週乖離率
+  - 周均量
+  - 週量能倍數
+  - 產業
 
-#### 3️⃣ 看量找動能（最多2星）
+#### 2. 卡片模式
+- **組件**：`StockCard`
+- **佈局**：Grid 網格
+  - 手機：2 欄
+  - 平板：3 欄
+  - 桌面：4-5 欄
+- **每張卡片顯示**：
+  - 股票代碼和名稱
+  - 當前價格
+  - 漲跌值和漲跌幅
+  - 三部曲評分（星星圖標）
+  - 三部曲詳細分數（1、2、3）
+  - 週乖離率
+  - 火焰圖標（若有）
+  - 愛心按鈕（加入自選股）
 
-- 若 6086650（真金烈火）或 6086870（後起新秀）內含該股 → 加 **1星**
-- 若 5975178（金玉其質）或 6086872（前程萬里）內含該股 → 再加 **1星**
-
-### 星星顯示設計
-
-```tsx
-<div className="flex items-center gap-1">
-  {[...Array(stock.trilogyScore)].map((_, i) => (
-    <Star 
-      key={i} 
-      className="w-4 h-4 fill-[#D4AF37] text-[#D4AF37]" 
-    />
-  ))}
-  {[...Array(6 - stock.trilogyScore)].map((_, i) => (
-    <Star 
-      key={i + stock.trilogyScore} 
-      className="w-4 h-4 text-muted-foreground" 
-    />
-  ))}
-  <span className="text-sm text-muted-foreground ml-1">
-    {stock.trilogyScore}/6
-  </span>
-</div>
-```
+### 編輯模式
+- **開啟方式**：點擊頂部編輯按鈕
+- **功能**：
+  - 列表模式：顯示愛心按鈕，點擊加入自選股
+  - 卡片模式：顯示愛心按鈕，點擊加入自選股
+- **愛心狀態**：
+  - 已加入：紅色實心愛心
+  - 未加入：灰色空心愛心
 
 ---
 
@@ -514,80 +343,172 @@ interface TrilogyScore {
 
 | 功能 | VIP版 | 一般版 |
 |------|--------|--------|
-| **顯示股票數** | ✅ 全部 | ⚠️ 僅前3支 |
+| **顯示股票數** | ✅ 全部 | ⚠️ 前3支 + 12支鎖定 |
 | **第4支以後** | ✅ 正常顯示 | ⚠️ 模糊 + 金色鎖頭 |
 | **篩選功能** | ✅ 完整使用 | ✅ 完整使用 |
-| **恩如三部曲** | ✅ 完整顯示 | ✅ 完整顯示 |
+| **排序功能** | ✅ 完整使用 | ✅ 完整使用 |
+| **搜尋功能** | ✅ 完整使用 | ✅ 完整使用 |
+| **加入自選股** | ✅ 無限制 | ⚠️ 最多10支 |
 
-### 鎖定視覺效果
+### 鎖定視覺效果（一般版）
 
-```tsx
-{/* 一般版：第4支以後模糊 */}
-{!user?.isVIP && index >= 3 && (
-  <div className="absolute inset-0 backdrop-blur-md bg-black/60 flex items-center justify-center rounded-lg">
-    <div className="text-center space-y-2">
-      {/* 金色鎖頭 */}
-      <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-[#D4AF37] to-[#F4D03F] flex items-center justify-center">
-        <Lock className="w-8 h-8 text-white" />
-      </div>
-      
-      {/* 提示文字 */}
-      <p className="text-white font-semibold">升級 VIP</p>
-      <p className="text-white/80 text-sm">查看更多股票</p>
-      
-      {/* 升級按鈕 */}
-      <button 
-        onClick={() => navigate('/purchase')}
-        className="px-6 py-2 rounded-full bg-gradient-to-r from-[#4A90E2] to-[#D4AF37] text-white font-medium hover:shadow-lg transition-all"
-      >
-        立即升級
-      </button>
-    </div>
-  </div>
-)}
-```
+**列表模式**：
+- 第4支以後：整行模糊（`backdrop-blur-md`）+ 黑色半透明遮罩
+- 中央顯示金色鎖頭圖標
+- 提示文字：「升級 VIP 查看更多股票」
+- 升級按鈕：藍金漸層按鈕
+
+**卡片模式**：
+- 前3張正常顯示
+- 第4張以後：模糊 + 金色鎖頭
+- 提示文字和升級按鈕與列表模式相同
+
+---
+
+## 🔍 搜尋功能
+
+### 搜尋入口
+點擊頂部右側的搜尋按鈕，導航至 `/search`（獨立搜尋頁面）
+
+### 搜尋範圍
+- 股票代碼（例：2330）
+- 股票名稱（例：台積電）
+
+### 搜尋邏輯
+- 即時過濾，不區分大小寫
+- 模糊搜尋，支援部分匹配
+
+---
+
+## 🌐 URL 參數支援
+
+### 從首頁跳轉（領頭羊類股）
+**URL 格式**：`/stock-picker?industry=電子上游-IC設計`
+
+**行為**：
+- 自動設定 `leaderIndustry` 為指定產業
+- 市場類型保持多方
+- 基礎策略保持「站上週20MA」
+
+### 從首頁跳轉（落水狗類股）
+**URL 格式**：`/stock-picker?loserIndustry=傳產-塑膠工業&side=short`
+
+**行為**：
+- 自動設定 `loserIndustry` 為指定產業
+- 市場類型切換到空方
+- 基礎策略切換到「跌破週20MA」
+
+---
+
+## 🎭 空狀態處理
+
+### 無結果提示
+當篩選結果為空時，顯示：
+- **文字**：「找不到符合條件的股票」
+- **副標題**：「請嘗試其他搜索條件」
+- **按鈕**：「恢復預設篩選」
+  - 點擊後重置所有篩選條件
+  - 恢復到預設：股本大於20億 + 周均量大於1000張
 
 ---
 
 ## 📱 響應式設計
 
 ### 手機版（< 768px）
-- 篩選按鈕：橫向滾動，固定高度
-- 股票列表：卡片式佈局，單欄
-- 恩如三部曲：簡化顯示
+- Header：緊湊佈局，按鈕尺寸縮小
+- 篩選按鈕：橫向滾動
+- 列表模式：簡化表格，隱藏部分欄位
+- 卡片模式：2 欄網格
 
 ### 平板版（768px - 1024px）
+- Header：舒適佈局
 - 篩選按鈕：橫向滾動
-- 股票列表：表格式佈局
-- 恩如三部曲：完整顯示
+- 列表模式：完整表格
+- 卡片模式：3 欄網格
 
 ### 桌面版（> 1024px）
-- 篩選按鈕：完整顯示，自動換行
-- 股票列表：表格式佈局，固定表頭
-- 恩如三部曲：完整顯示 + 詳細說明
+- Header：寬鬆佈局
+- 篩選按鈕：完整顯示
+- 列表模式：固定表頭，完整欄位
+- 卡片模式：4-5 欄網格
+
+---
+
+## ⚠️ 工程師需要實現的功能
+
+### 1. 策略數據來源（CMoney API）
+
+#### 多方策略
+**站上週20MA**：
+- `dtnoNum`: `6038991`
+- `paramStr`: `SPMode=0;DTMode=0;`
+- `assignSpid`: ``
+- `keyMap`: ``
+- `filterNumber`: `0`
+
+**強勢週20MA**：
+- `dtnoNum`: `5893528`
+- `paramStr`: `SPMode=0;DTMode=0;`
+- `assignSpid`: ``
+- `keyMap`: ``
+- `filterNumber`: `0`
+
+#### 空方策略
+**跌破週20MA**：
+- `dtnoNum`: `6279677`
+- `paramStr`: `SPMode=0;DTMode=0;`
+- `assignSpid`: ``
+- `keyMap`: ``
+- `filterNumber`: `0`
+
+**弱勢週20MA**：
+- `dtnoNum`: `6279696`
+- `paramStr`: `SPMode=0;DTMode=0;`
+- `assignSpid`: ``
+- `keyMap`: ``
+- `filterNumber`: `0`
+
+### 2. 即時價格更新
+- 使用 WebSocket 訂閱股票即時報價
+- 更新股票列表中的價格、漲跌值、漲跌幅
+
+### 3. 恩如三部曲評分計算
+- 根據 CMoney 提供的策略編號計算評分
+- 詳細邏輯請參考策略文檔
+
+### 4. 火焰圖標判斷
+- 根據特定條件判斷股票是否顯示火焰
+- 僅在強勢/弱勢策略下顯示
+
+### 5. 產業數據
+- 領頭羊產業排名（當期/前期）
+- 落水狗產業排名（當期/前期）
+- 產業分類和股票歸屬
 
 ---
 
 ## 📝 注意事項
 
 ### 顏色使用
-- 選中的篩選按鈕：藍金漸層
-- 未選中的篩選按鈕：灰色
-- 清除按鈕：紅色邊框
-
-### 按鈕排序
-- 選中的篩選器自動移到左邊
-- 產業篩選（領頭羊/落水狗）永遠在最左邊
+- ✅ 必須嚴格遵循台股紅漲綠跌規則
+- ✅ 藍色用於主色調（按鈕、圖標）
+- ✅ 金色用於強調色（鎖頭、星星）
 
 ### 性能優化
 - 使用 `useMemo` 緩存篩選結果
 - 使用 `React.memo` 避免不必要的重渲染
+- 虛擬滾動（大量股票時）
+
+### 用戶體驗
+- 篩選條件變更時，立即更新結果
+- 排序切換時，平滑過渡
+- 加載狀態提示
 
 ---
 
 ## 📚 相關文檔
 
-- **信號篩選邏輯**：`/SIGNAL_FILTERING_LOGIC.md`
 - **整體概覽**：`00_APP_OVERVIEW.md`
 - **首頁標籤**：`01_HOME_PAGE.md`
 - **自選標籤**：`03_WATCHLIST_PAGE.md`
+- **會員標籤**：`06_MORE_PAGE.md`

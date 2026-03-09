@@ -7,46 +7,65 @@
 
 ## 🎯 頁面概述
 
-**會員頁**是用戶管理個人資料、查看會員等級、購買專業版、設定偏好的中心頁面。
+**會員頁**是用戶管理個人資料、查看會員等級、購買 VIP 版、設定偏好的中心頁面。
 
 ### 路由資訊
 - **路徑**：`/home/more`
 - **組件**：`MorePage`
 - **底部導覽圖標**：👤 User（會員）
-- **是否需要登入**：是
+- **是否需要登入**：否（訪客也可查看，但顯示預設資料）
 - **有無底部導覽列**：有
 
 ---
 
 ## 📐 頁面結構
 
+### 實際功能區塊
+
 ```
 ┌─────────────────────────────────────────────────┐
 │              個人資料卡片                        │
 │   ┌──────────────────────────────────────┐    │
-│   │  👤 頭像                              │    │
-│   │  林恩如                                │    │
-│   │  queen_dtno@cmoney.com.tw            │    │
-│   │  💎 專業版會員  有效期至 2026/12/31   │    │
-│   │  [ 編輯個人資料 ]                      │    │
+│   │  👤 頭像（林恩如照片）                  │    │
+│   │  名稱：vausb6xb0q                     │    │
+│   │  📧 sonia_chen@cmoney.com.tw         │    │
+│   │  📅 加入時間：2024/01/15              │    │
+│   │                                        │    │
+│   │  ✨ 專業版會員 / 試用版                │    │
+│   │     訂閱期限：2026/1/1 - 2026/3/31   │    │
+│   │     （點擊可打開訂閱管理彈窗）         │    │
 │   └──────────────────────────────────────┘    │
 └─────────────────────────────────────────────────┘
-                      ↓
+                       ↓
 ┌─────────────────────────────────────────────────┐
-│              功能選單列表                        │
+│              帳戶設定                            │
 │   ┌──────────────────────────────────────┐    │
-│   │  🛒 購買專業版                         │    │
-│   │  🔔 通知設定                           │    │
-│   │  🎨 主題設定                           │    │
-│   │  🌐 語言設定                           │    │
-│   │  💬 客服中心                           │    │
-│   │  ❓ 幫助中心                           │    │
-│   │  📄 服務條款                           │    │
-│   │  🔒 隱私政策                           │    │
-│   │  ⚖️ 版權政策                          │    │
-│   │  ℹ️ 關於我們                           │    │
-│   │  🚪 登出                               │    │
+│   │  👤 編輯個人資料                       │    │
 │   └──────────────────────────────────────┘    │
+└─────────────────────────────────────────────────┘
+                       ↓
+┌─────────────────────────────────────────────────┐
+│              支援與幫助                          │
+│   ┌──────────────────────────────────────┐    │
+│   │  📖 新手導覽                           │    │
+│   │  🎧 線上客服                           │    │
+│   │  ⭐ App 評分                          │    │
+│   │  ❓ 幫助中心                           │    │
+│   │  📤 分享給好友                         │    │
+│   └──────────────────────────────────────┘    │
+└─────────────────────────────────────────────────┘
+                       ↓
+┌─────────────────────────────────────────────────┐
+│              登出按鈕（紅色）                    │
+│   🚪 登出                                       │
+└─────────────────────────────────────────────────┘
+                       ↓
+┌─────────────────────────────────────────────────┐
+│              頁腳資訊                            │
+│   🛡️ 長線聚寶盆                                │
+│   CMoney 全曜財經資訊股份有限公司               │
+│   統編：80004909                                │
+│   Version 1.0.11                                │
 └─────────────────────────────────────────────────┘
 ```
 
@@ -54,344 +73,139 @@
 
 ## 👤 個人資料卡片
 
-### 專業版用戶卡片
+### 顯示內容
 
-```tsx
-<Card className="bg-gradient-to-br from-[#4A90E2]/20 to-[#D4AF37]/10 border border-[#4A90E2]/30">
-  <CardContent className="p-6">
-    <div className="flex items-center gap-4 mb-4">
-      {/* 頭像 */}
-      <Avatar className="w-20 h-20 border-4 border-[#D4AF37]">
-        <AvatarImage src={user?.avatar} />
-        <AvatarFallback className="text-2xl font-bold">
-          {user?.name[0]}
-        </AvatarFallback>
-      </Avatar>
+#### 未登入（訪客模式）
+- **頭像**：林恩如頭像圖片
+- **名稱**：vausb6xb0q
+- **郵箱**：sonia_chen@cmoney.com.tw
+- **加入時間**：2024/01/15
+- **會員等級**：試用版（灰色徽章）
+- **無訂閱期限顯示**
 
-      {/* 用戶資訊 */}
-      <div className="flex-1">
-        <h2 className="text-2xl font-bold mb-1">{user?.name}</h2>
-        <p className="text-sm text-muted-foreground mb-2">{user?.email}</p>
+#### 已登入
+- **頭像**：用戶上傳的頭像或預設頭像
+- **名稱**：用戶真實名稱
+- **郵箱**：用戶註冊郵箱
+- **加入時間**：用戶註冊日期
+- **會員等級**：
+  - **專業版會員**：藍色漸層徽章 + 皇冠圖標
+  - **試用版**：灰色徽章
+- **訂閱期限**（專業版才顯示）：2026/1/1 - 2026/3/31
 
-        {/* 專業版徽章 */}
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] text-white text-sm font-semibold">
-          <Crown className="w-4 h-4" />
-          專業版會員
-        </div>
-      </div>
-    </div>
-
-    {/* 會員到期日 */}
-    <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 mb-3">
-      <span className="text-sm text-muted-foreground">會員有效期</span>
-      <span className="text-sm font-semibold">
-        至 {format(user?.vipExpiryDate, 'yyyy/MM/dd')}
-      </span>
-    </div>
-
-    {/* 編輯個人資料按鈕 */}
-    <Button
-      onClick={() => navigate('/edit-profile')}
-      variant="outline"
-      className="w-full"
-    >
-      <Edit className="w-4 h-4 mr-2" />
-      編輯個人資料
-    </Button>
-  </CardContent>
-</Card>
-```
-
-### 試用版用戶卡片
-
-```tsx
-<Card className="bg-gradient-to-br from-muted/50 to-muted/20 border border-border">
-  <CardContent className="p-6">
-    <div className="flex items-center gap-4 mb-4">
-      {/* 頭像 */}
-      <Avatar className="w-20 h-20">
-        <AvatarImage src={user?.avatar} />
-        <AvatarFallback className="text-2xl font-bold">
-          {user?.name[0]}
-        </AvatarFallback>
-      </Avatar>
-
-      {/* 用戶資訊 */}
-      <div className="flex-1">
-        <h2 className="text-2xl font-bold mb-1">{user?.name}</h2>
-        <p className="text-sm text-muted-foreground mb-2">{user?.email}</p>
-
-        {/* 試用版徽章 */}
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted text-muted-foreground text-sm font-semibold">
-          <Clock className="w-4 h-4" />
-          試用版用戶
-        </div>
-      </div>
-    </div>
-
-    {/* 升級提示 */}
-    <div className="p-4 rounded-lg bg-gradient-to-br from-[#4A90E2]/10 to-[#D4AF37]/10 border border-[#4A90E2]/30 mb-3">
-      <p className="text-sm font-semibold mb-2">🎁 升級專業版，享受完整功能</p>
-      <p className="text-xs text-muted-foreground mb-3">
-        無限制選股、VIP內容、無廣告體驗
-      </p>
-      <Button
-        onClick={() => navigate('/purchase')}
-        className="w-full bg-gradient-to-r from-[#4A90E2] to-[#D4AF37]"
-      >
-        <Crown className="w-4 h-4 mr-2" />
-        立即升級
-      </Button>
-    </div>
-
-    {/* 編輯個人資料按鈕 */}
-    <Button
-      onClick={() => navigate('/edit-profile')}
-      variant="outline"
-      className="w-full"
-    >
-      <Edit className="w-4 h-4 mr-2" />
-      編輯個人資料
-    </Button>
-  </CardContent>
-</Card>
-```
-
----
-
-## 🛒 購買專業版
-
-### 購買選單項
-
-```tsx
-<button
-  onClick={() => navigate('/purchase')}
-  className="w-full flex items-center justify-between p-4 rounded-lg hover:bg-muted transition-colors"
->
-  <div className="flex items-center gap-3">
-    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#F4D03F] flex items-center justify-center">
-      <ShoppingCart className="w-5 h-5 text-white" />
-    </div>
-    <div className="text-left">
-      <p className="font-semibold">購買專業版</p>
-      <p className="text-xs text-muted-foreground">解鎖所有功能</p>
-    </div>
-  </div>
-  <ChevronRight className="w-5 h-5 text-muted-foreground" />
-</button>
-```
-
-### 購買頁面（PurchasePage）
-
-**審查模式（狀態碼 2）**：
-- 導向原生 App Store IAP
-- 使用 `nativeBridge.openAppStore()`
-
-**正常模式（狀態碼 1）**：
-- 導向網頁購買頁面（`/web-purchase`）
-- 或原生 IAP（根據配置）
+### 會員等級點擊行為
+點擊會員等級區塊，會打開「訂閱管理彈窗」：
+- **專業版用戶**：顯示「管理訂閱」選項，可查看訂閱詳情或取消訂閱
+- **試用版用戶**：顯示「升級專業版」選項，可前往購買頁面
 
 ---
 
 ## ⚙️ 功能選單列表
 
-### 選單項設計
+### 1️⃣ 帳戶設定區塊
 
-```tsx
-const menuItems = [
-  {
-    icon: Bell,
-    label: '通知設定',
-    description: '管理推播通知',
-    path: '/notification-settings',
-    color: '#4A90E2'
-  },
-  {
-    icon: Palette,
-    label: '主題設定',
-    description: '深色/淺色模式',
-    path: '/theme-settings',
-    color: '#D4AF37'
-  },
-  {
-    icon: Globe,
-    label: '語言設定',
-    description: '繁體中文',
-    path: '/language-settings',
-    color: '#9cffd9'
-  },
-  {
-    icon: MessageCircle,
-    label: '客服中心',
-    description: '聯繫客服團隊',
-    path: '/customer-service',
-    color: '#FE6D73'
-  },
-  {
-    icon: HelpCircle,
-    label: '幫助中心',
-    description: '常見問題與教學',
-    path: '/help-center',
-    color: '#FFD93D'
-  }
-];
+| 圖標 | 功能名稱 | 說明 | 路徑 |
+|------|---------|------|------|
+| 👤 | 編輯個人資料 | 編輯姓名、頭像、聯絡方式 | `/edit-profile` |
 
-{menuItems.map((item) => (
-  <button
-    key={item.path}
-    onClick={() => navigate(item.path)}
-    className="w-full flex items-center justify-between p-4 rounded-lg hover:bg-muted transition-colors"
-  >
-    <div className="flex items-center gap-3">
-      <div 
-        className="w-10 h-10 rounded-full flex items-center justify-center"
-        style={{ backgroundColor: `${item.color}20` }}
-      >
-        <item.icon className="w-5 h-5" style={{ color: item.color }} />
-      </div>
-      <div className="text-left">
-        <p className="font-semibold">{item.label}</p>
-        <p className="text-xs text-muted-foreground">{item.description}</p>
-      </div>
-    </div>
-    <ChevronRight className="w-5 h-5 text-muted-foreground" />
-  </button>
-))}
-```
+### 2️⃣ 支援與幫助區塊
+
+| 圖標 | 功能名稱 | 說明 | 原生功能 | 路徑 |
+|------|---------|------|---------|------|
+| 📖 | 新手導覽 | 引導新用戶了解功能 | ❌ | `/guide` |
+| 🎧 | 線上客服 | 聯繫客服團隊 | ❌ | `/customer-service` |
+| ⭐ | App 評分 | 為應用程式評分 | ✅ | 原生橋接 |
+| ❓ | 幫助中心 | 常見問題與教學 | ❌ | `/help-center` |
+| 📤 | 分享給好友 | 分享應用程式 | ✅ | 原生橋接 |
+
+### 原生橋接功能說明
+
+#### App 評分
+- **功能**：打開原生 App Store 評分頁面
+- **iOS**：使用 `SKStoreReviewController` 或 App Store URL
+- **Android**：使用 In-App Review API 或 Google Play URL
+- **實現位置**：`/lib/nativeBridge.ts` 的 `openAppRating()` 函數
+
+#### 分享給好友
+- **功能**：分享應用程式連結
+- **分享內容**：
+  - 標題：恩如選股 App
+  - 文字：推薦你使用恩如選股 App，精準選股，輕鬆投資！
+  - 連結：https://www.cmoney.tw/app/itemcontent.aspx?id=3627
+- **iOS**：使用原生分享面板
+- **Android**：使用 Android Share Intent
+- **Web 降級**：使用瀏覽器 Share API 或複製到剪貼簿
+- **實現位置**：`/lib/nativeBridge.ts` 的 `shareToFriend()` 函數
 
 ---
 
 ## 🚪 登出功能
 
 ### 登出按鈕
-
-```tsx
-<button
-  onClick={() => setShowLogoutConfirm(true)}
-  className="w-full flex items-center justify-between p-4 rounded-lg hover:bg-red-500/10 text-red-500 transition-colors"
->
-  <div className="flex items-center gap-3">
-    <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center">
-      <LogOut className="w-5 h-5" />
-    </div>
-    <div className="text-left">
-      <p className="font-semibold">登出</p>
-      <p className="text-xs opacity-80">退出當前帳號</p>
-    </div>
-  </div>
-  <ChevronRight className="w-5 h-5" />
-</button>
-```
+- **位置**：所有選單區塊的最下方
+- **顏色**：紅色（`text-destructive`，背景 `bg-destructive/20`）
+- **圖標**：🚪 LogOut
+- **文字**：登出（粗體）
 
 ### 登出確認彈窗
+點擊登出按鈕後，會顯示確認彈窗：
+- **標題**：確定要登出嗎？
+- **說明**：登出後需要重新登入才能使用所有功能
+- **按鈕**：
+  - 取消（灰色）
+  - 確定登出（紅色）
 
-```tsx
-<AlertDialog open={showLogoutConfirm} onOpenChange={setShowLogoutConfirm}>
-  <AlertDialogContent>
-    <AlertDialogHeader>
-      <AlertDialogTitle>確認登出</AlertDialogTitle>
-      <AlertDialogDescription>
-        確定要登出目前的帳號嗎？
-      </AlertDialogDescription>
-    </AlertDialogHeader>
-    <AlertDialogFooter>
-      <AlertDialogCancel>取消</AlertDialogCancel>
-      <AlertDialogAction
-        onClick={handleLogout}
-        className="bg-red-500 hover:bg-red-600"
-      >
-        登出
-      </AlertDialogAction>
-    </AlertDialogFooter>
-  </AlertDialogContent>
-</AlertDialog>
-```
-
-### 登出邏輯
-
-```typescript
-const handleLogout = async () => {
-  try {
-    // 清除用戶資料
-    await logout();
-
-    // 清除 Local Storage
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('user');
-
-    // 顯示成功提示
-    toast.success('已成功登出');
-
-    // 導航至登入頁面
-    navigate('/login');
-  } catch (error) {
-    toast.error('登出失敗，請稍後再試');
-  }
-};
-```
+### 登出行為
+1. 清除用戶資料（Context）
+2. 清除 Token（Local Storage）
+3. 跳轉至啟動頁面（`/`）
 
 ---
 
-## 📄 政策與條款頁面
+## 📱 訂閱管理彈窗
 
-### 服務條款（TermsOfServicePage）
-**路徑**：`/terms-of-service`
-**內容**：
-- 服務範圍
-- 用戶權利與義務
-- 免責聲明
-- 爭議解決
+### 彈窗觸發
+點擊個人資料卡片中的「專業版會員」或「試用版」區塊
 
-### 隱私政策（PrivacyPolicyPage）
-**路徑**：`/privacy-policy`
-**內容**：
-- 資料收集範圍
-- 資料使用方式
-- 資料保護措施
-- 用戶權利
+### 專業版用戶彈窗內容
+- **標題**：訂閱管理
+- **訂閱狀態**：✓ 專業版會員
+- **訂閱期限**：2026/1/1 - 2026/3/31
+- **功能權益列表**：
+  - ✓ 完整顯示所有選股結果
+  - ✓ VIP 專屬社團內容
+  - ✓ 無限制影音觀看
+  - ✓ 無上限自選股清單
+- **管理選項**：
+  - 📋 查看購買紀錄
+  - ❌ 取消訂閱（會降級為試用版）
 
-### 版權政策（CopyrightPolicyPage）
-**路徑**：`/copyright-policy`
-**內容**：
-- 內容版權聲明
-- 使用限制
-- 侵權處理流程
-- 投訴管道
+### 試用版用戶彈窗內容
+- **標題**：升級專業版
+- **當前狀態**：試用版用戶
+- **限制說明**：
+  - ⚠️ 選股結果僅顯示前 3 支
+  - ⚠️ 無法查看 VIP 社團內容
+  - ⚠️ 影音內容觀看限制
+  - ⚠️ 自選股最多 10 支
+- **升級優勢**：
+  - ✓ 解鎖所有選股結果
+  - ✓ 專屬 VIP 討論群
+  - ✓ 無限制影音學習
+  - ✓ 自選股無上限
+- **行動按鈕**：
+  - 💎 立即升級（金色漸層按鈕，前往購買頁面）
 
 ---
 
-## ℹ️ 關於我們
+## 📄 頁腳資訊
 
-### 應用資訊
-
-```tsx
-<Card>
-  <CardContent className="p-6 text-center">
-    {/* App Logo */}
-    <div className="w-24 h-24 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-[#4A90E2] to-[#6BB6FF] flex items-center justify-center">
-      <span className="text-4xl font-bold text-white">林</span>
-    </div>
-
-    {/* App 名稱 */}
-    <h3 className="text-2xl font-bold mb-2">長線聚寶盆 Plus</h3>
-    <p className="text-sm text-muted-foreground mb-4">
-      專業選股 · 智慧投資
-    </p>
-
-    {/* 版本號 */}
-    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted text-sm">
-      <span className="text-muted-foreground">版本</span>
-      <span className="font-semibold">1.0.11</span>
-    </div>
-
-    {/* 開發資訊 */}
-    <div className="mt-6 pt-6 border-t border-border text-sm text-muted-foreground">
-      <p>© 2026 CMoney Inc.</p>
-      <p className="mt-1">台灣設計 · 專業開發</p>
-    </div>
-  </CardContent>
-</Card>
-```
+### 顯示內容
+- **圖標**：🛡️ 盾牌圖標（藍金漸層）
+- **應用名稱**：長線聚寶盆
+- **公司名稱**：CMoney 全曜財經資訊股份有限公司
+- **統一編號**：80004909
+- **應用版本**：Version 1.0.11
 
 ---
 
@@ -399,18 +213,17 @@ const handleLogout = async () => {
 
 ### 手機版（< 768px）
 - 個人資料卡片：單欄顯示
+- 頭像大小：80px（w-20 h-20）
 - 選單列表：單欄顯示
-- 頭像大小：64px
+- 圖標圓形背景：40px（w-10 h-10）
 
 ### 平板版（768px - 1024px）
-- 個人資料卡片：單欄顯示
-- 選單列表：單欄顯示
-- 頭像大小：80px
+- 與手機版相同
 
 ### 桌面版（> 1024px）
-- 個人資料卡片：單欄顯示，置中
-- 選單列表：雙欄顯示（可選）
-- 頭像大小：96px
+- 內容最大寬度：1280px（`max-w-screen-xl`）
+- 置中顯示
+- 其他與手機版相同
 
 ---
 
@@ -418,34 +231,82 @@ const handleLogout = async () => {
 
 ### 需要登入的頁面
 - ✅ 編輯個人資料（`/edit-profile`）
-- ✅ 通知設定（`/notification-settings`）
-- ✅ 購買專業版（`/purchase`）
-- ✅ 客服中心（`/customer-service`）
+- ✅ 線上客服（`/customer-service`）
 
 ### 無需登入的頁面
+- ✅ 新手導覽（`/guide`）
 - ✅ 幫助中心（`/help-center`）
-- ✅ 服務條款（`/terms-of-service`）
-- ✅ 隱私政策（`/privacy-policy`）
-- ✅ 版權政策（`/copyright-policy`）
+
+### 訪客模式行為
+- 顯示預設用戶資料（vausb6xb0q）
+- 會員等級顯示為「試用版」
+- 可查看所有選單項目
+- 點擊需要登入的功能時，會跳轉至登入頁面
+
+---
+
+## 🎨 視覺設計規範
+
+### 顏色使用
+
+#### 個人資料卡片
+- **背景漸層**：
+  - 專業版：藍色漸層 `from-primary/20 to-transparent`
+  - 試用版：灰色 `from-card via-card to-card/80`
+- **邊框**：
+  - 專業版：藍色 `border-primary/20`
+  - 試用版：灰色 `border-primary/20`
+
+#### 會員等級徽章
+- **專業版**：
+  - 背景：藍色漸層 `from-[#4A90E2]/20 to-[#6BB6FF]/20`
+  - 文字：藍色漸層 `from-[#4A90E2] to-[#6BB6FF]`
+  - 圖標：✨ Sparkles（藍色）
+- **試用版**：
+  - 背景：灰色 `bg-muted/30`
+  - 文字：灰色 `text-muted-foreground`
+  - 圖標：✨ Sparkles（灰色）
+
+#### 選單項目
+- **背景**：`bg-card/80`，毛玻璃效果 `backdrop-blur-xl`
+- **圖標背景**：`bg-muted/50`，hover 時 `bg-primary/20`
+- **圖標顏色**：`text-foreground/70`，hover 時 `text-primary`
+
+#### 登出按鈕
+- **背景**：`bg-card/80`
+- **圖標背景**：`bg-destructive/20`，hover 時 `bg-destructive/30`
+- **文字**：`text-destructive`（紅色）
+
+### 間距與圓角
+- **卡片圓角**：`rounded-3xl`（24px）
+- **選單項目圓角**：`rounded-2xl`（16px）
+- **圖標背景圓角**：`rounded-xl`（12px）
+- **內邊距**：
+  - 卡片：`p-6`（24px）
+  - 選單項目：`px-5 py-4`（水平 20px，垂直 16px）
 
 ---
 
 ## 📝 注意事項
 
-### 顏色使用
-- 專業版徽章：金色漸層
-- 試用版徽章：灰色
-- 登出按鈕：紅色
+### 功能已移除
+以下功能在原始 PRD 中提到，但目前**未實現**：
+- ❌ 通知設定
+- ❌ 主題設定
+- ❌ 語言設定
+- ❌ 服務條款
+- ❌ 隱私政策
+- ❌ 版權政策
+- ❌ 關於我們
 
-### 導航行為
-- 編輯資料：推入新頁面
-- 購買專業版：根據審查模式決定
-- 登出：返回登入頁面
+### 購買流程
+- 點擊「升級專業版」後，會根據應用狀態（App Status）決定：
+  - **審查模式（狀態碼 2）**：導向原生 App Store IAP
+  - **正常模式（狀態碼 1）**：導向 `/purchase` 或 `/web-purchase`
 
-### 數據存儲
-- 用戶資料存儲在 Context
-- Token 存儲在 Local Storage
-- 設定存儲在 Local Storage
+### 測試用戶轉換
+- 當前實現了一個測試功能：可以在訂閱管理彈窗中「取消訂閱」，會將專業版降級為試用版
+- 這是為了方便測試不同權限狀態的功能
 
 ---
 
@@ -454,3 +315,4 @@ const handleLogout = async () => {
 - **整體概覽**：`00_APP_OVERVIEW.md`
 - **首頁標籤**：`01_HOME_PAGE.md`
 - **登入流程**：`07_AUTH_WELCOME_FLOW.md`
+- **權限控制**：`00_APP_OVERVIEW.md` - VIP 權限控制系統

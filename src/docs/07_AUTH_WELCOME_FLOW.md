@@ -11,27 +11,23 @@
 
 ---
 
-## 🚀 完整流程圖（根據圖片）
+## 🚀 完整流程圖
 
 ```mermaid
 flowchart TD
     Start([App Launch]) --> LaunchVC[Launch VC<br/>啟動頁面<br/>path: /]
     
-    LaunchVC --> AppStatus{App Status<br/>檢查應用狀態}
+    LaunchVC --> Wait3s[等待 3 秒]
     
-    AppStatus --> |狀態正常| AutoLogin{Auto Login<br/>自動登入成功?}
-    AppStatus --> |需要更新| UpdateDialog[顯示更新彈窗]
-    AppStatus --> |系統維護| MaintenanceScreen[顯示維護頁面]
+    Wait3s --> LoginVC[Login VC<br/>登入頁面<br/>path: /login]
     
-    AutoLogin --> |成功| CheckVIP{檢查 VIP 權限}
-    AutoLogin --> |失敗| LoginVC[Login VC<br/>登入頁面<br/>path: /login]
+    LoginVC --> |點擊立即登入| CMoney[CMoney 登入連結<br/>App 內網頁]
+    LoginVC --> |點擊訪客快速體驗| MainTab[Main Tab Controller<br/>主應用<br/>path: /home]
     
-    CheckVIP --> MainTab[Main Tab Controller<br/>主應用<br/>path: /home]
-    
-    LoginVC --> |點擊登入| CMoney[CMoney 登入連結<br/>App 內網頁]
-    
-    CMoney --> |登入成功| CheckVIP
+    CMoney --> |登入成功| CheckVIP{檢查 VIP 權限}
     CMoney --> |登入失敗| LoginVC
+    
+    CheckVIP --> MainTab
     
     MainTab --> |每頁都會重新檢查| CheckVIPOnPage{檢查 VIP 權限}
     
@@ -39,8 +35,6 @@ flowchart TD
     CheckVIPOnPage --> |無 VIP| ShowNormalContent[顯示一般內容]
     
     style LaunchVC fill:#4A90E2,color:#fff
-    style AppStatus fill:#FFD93D,color:#333
-    style AutoLogin fill:#9cffd9,color:#333
     style LoginVC fill:#D4AF37,color:#fff
     style CMoney fill:#FE6D73,color:#fff
     style CheckVIP fill:#A78BFA,color:#fff
@@ -54,82 +48,27 @@ flowchart TD
 ### 路由資訊
 - **路徑**：`/`
 - **組件**：`LaunchScreen`
-- **主要功能**：App Status 檢查 + Auto Login
+- **主要功能**：顯示品牌 Logo + 等待 3 秒 + 自動跳轉至登入頁
 
-### 視覺設計
+### 實際實現功能
 
-```tsx
-export function LaunchScreen() {
-  const navigate = useNavigate();
-  const [status, setStatus] = useState<'loading' | 'checking' | 'success' | 'error'>('loading');
+#### 視覺元素
+1. **品牌文字**：「長線聚寶盆」
+2. **副標題**：「專業選股 · 智慧投資」
+3. **Loading 圓形進度指示器**：藍色旋轉圓圈
+4. **版本號**：「Version 1.0.11」（顯示於底部）
 
-  useEffect(() => {
-    checkAppStatusAndLogin();
-  }, []);
+#### 流程行為
+1. 用戶打開 App
+2. 顯示啟動頁面（品牌 Logo + Loading 動畫）
+3. **等待 3 秒**
+4. 自動跳轉至登入頁面（`/login`）
 
-  const checkAppStatusAndLogin = async () => {
-    try {
-      // 1. 檢查應用狀態
-      setStatus('checking');
-      const appStatus = await checkAppStatus();
-
-      if (appStatus.statusCode !== 1) {
-        // 狀態碼不是 1，顯示對應的錯誤或更新頁面
-        handleAppStatus(appStatus);
-        return;
-      }
-
-      // 2. 狀態正常，執行自動登入
-      const autoLoginResult = await autoLogin();
-
-      if (autoLoginResult.success) {
-        // 自動登入成功，檢查 VIP 權限
-        const vipStatus = await checkVIPStatus();
-        updateVIPStatus(vipStatus);
-
-        // 跳轉至主應用
-        navigate('/home');
-      } else {
-        // 自動登入失敗，跳轉至登入頁
-        navigate('/login');
-      }
-    } catch (error) {
-      console.error('Launch error:', error);
-      // 發生錯誤，跳轉至登入頁
-      navigate('/login');
-    }
-  };
-
-  return (
-    <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-background via-background to-muted/20">
-      {/* 品牌文字 */}
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold mb-2">長線聚寶盆</h1>
-        <p className="text-muted-foreground">專業選股 · 智慧投資</p>
-      </div>
-
-      {/* Loading 圓形進度指示器 */}
-      <div className="relative w-16 h-16">
-        <div className="absolute inset-0 border-4 border-muted rounded-full"></div>
-        <div className="absolute inset-0 border-4 border-[#4A90E2] rounded-full border-t-transparent animate-spin"></div>
-      </div>
-
-      {/* 狀態文字 */}
-      <p className="mt-4 text-sm text-muted-foreground">
-        {status === 'loading' && '載入中...'}
-        {status === 'checking' && '檢查應用狀態...'}
-        {status === 'success' && '登入成功！'}
-        {status === 'error' && '發生錯誤'}
-      </p>
-
-      {/* 版本號 */}
-      <div className="absolute bottom-8 text-center">
-        <p className="text-sm text-muted-foreground">Version 1.0.11</p>
-      </div>
-    </div>
-  );
-}
-```
+#### 設計規範
+- **背景漸層**：從 `background` 到 `muted/20`
+- **文字顏色**：白色主標題 + 灰色副標題
+- **Loading 顏色**：藍色（`#4A90E2`）
+- **底部版本號**：灰色小字
 
 ---
 
@@ -138,306 +77,237 @@ export function LaunchScreen() {
 ### 路由資訊
 - **路徑**：`/login`
 - **組件**：`LoginPage`
-- **主要功能**：CMoney 登入連結
+- **主要功能**：CMoney 登入 + 訪客快速體驗
 
-### 視覺設計特點
-- **背景特效**：宇宙黑洞或超新星爆炸特效
-- **CMoney 登入按鈕**：藍金漸層按鈕
+### 實際實現功能
 
-### CMoney 登入流程
+#### 視覺元素
+1. **背景**：純黑色（`bg-black`）
+2. **林恩如頭像**：置中顯示，高度 128px
+3. **品牌名稱**：「長線聚寶盆」白色大標題
+4. **副標題**：「專業選股 · 智慧投資」灰色文字
+5. **立即登入按鈕**：藍色漸層（`from-[#4A90E2] to-[#6BB6FF]`）
+6. **訪客快速體驗按鈕**：透明背景 + 白色邊框
+7. **提示文字**：「登入後可使用完整功能」
+8. **版本號**：「Version 1.0.11」（顯示於底部）
 
-```tsx
-export function LoginPage() {
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+#### 按鈕功能
 
-  const handleCMoneyLogin = async () => {
-    try {
-      setLoading(true);
+##### 立即登入按鈕
+- **點擊行為**：調用 `openCMoneyLogin()` 原生橋接函數
+- **功能**：在 App 內用 WebView 打開 CMoney 登入網頁
+- **登入成功後**：
+  1. CMoney 網頁回傳用戶資料（Token、userInfo、isVIP）
+  2. App 監聽 `cmoney-login-success` 事件
+  3. 儲存用戶資料到 authContext
+  4. 自動跳轉至主應用（`/home`）
 
-      // 1. 打開 CMoney 登入網頁（在 app 內使用 WebView）
-      const loginResult = await openCMoneyLoginPage();
+##### 訪客快速體驗按鈕
+- **點擊行為**：直接導航至 `/home`
+- **功能**：不需登入，以訪客身份進入
+- **權限**：訪客身份為「一般版」，功能受限
 
-      if (loginResult.success) {
-        // 2. 登入成功，接收 CMoney 回傳的用戶資料
-        const userData = loginResult.data;
+#### App Status 彈窗
 
-        // 3. 保存用戶資料
-        await saveUserData(userData);
+##### 系統維護中（狀態碼 0）
+- **顯示時機**：當 App Status API 返回狀態碼 0
+- **視覺**：
+  - 黃色警告圖標
+  - 標題：「系統維護中」
+  - 說明文字：來自 API 的維護訊息
+  - 預計恢復時間（如有提供）
+  - 重新整理按鈕
+- **行為**：無法登入，只能重新整理或退出
 
-        // 4. 檢查 VIP 權限
-        const vipStatus = await checkVIPStatus(userData);
-        updateVIPStatus(vipStatus);
+##### 強制更新（狀態碼 -1）
+- **顯示時機**：當 App Status API 返回狀態碼 -1
+- **視覺**：
+  - 紅色警告圖標
+  - 標題：「需要更新」
+  - 說明文字：來自 API 的更新訊息
+  - 最新版本號顯示
+  - 立即更新按鈕（金色）
+- **行為**：
+  - 無法關閉彈窗
+  - 唯一操作：點擊「立即更新」跳轉至 App Store
+  - 阻擋所有應用功能
 
-        // 5. 跳轉至主應用
-        navigate('/home');
-
-        toast.success('登入成功！');
-      } else {
-        toast.error('登入失敗，請稍後再試');
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      toast.error('登入失敗，請稍後再試');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="h-screen relative overflow-hidden">
-      {/* 宇宙黑洞背景 */}
-      <canvas id="cosmic-bg" className="absolute inset-0" />
-
-      {/* 登入內容 */}
-      <div className="relative z-10 h-full flex flex-col items-center justify-center p-8">
-        {/* 品牌 Logo */}
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-white mb-3">長線聚寶盆</h1>
-          <p className="text-lg text-white/80">專業選股 · 智慧投資</p>
-        </div>
-
-        {/* CMoney 登入按鈕 */}
-        <button
-          onClick={handleCMoneyLogin}
-          disabled={loading}
-          className="w-full max-w-md py-4 rounded-xl font-semibold text-lg text-white shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-          style={{
-            background: 'linear-gradient(90deg, #4A90E2 0%, #D4AF37 100%)'
-          }}
-        >
-          {loading ? '登入中...' : '🔐 使用 CMoney 帳號登入'}
-        </button>
-
-        {/* 提示文字 */}
-        <p className="mt-6 text-sm text-white/60 text-center max-w-md">
-          點擊登入後，將在 app 內開啟 CMoney 登入頁面
-        </p>
-      </div>
-    </div>
-  );
-}
-```
-
-### CMoney 登入原生橋接
-
-```typescript
-// /lib/nativeBridge.ts
-
-/**
- * 打開 CMoney 登入網頁（在 app 內使用 WebView）
- */
-export async function openCMoneyLoginPage(): Promise<LoginResult> {
-  if (window.NativeBridge && window.NativeBridge.openCMoneyLogin) {
-    // 原生端實現
-    return window.NativeBridge.openCMoneyLogin();
-  } else {
-    // Web fallback - 在瀏覽器中打開
-    window.location.href = CMONEY_LOGIN_URL;
-    return { success: false, message: 'Web fallback' };
-  }
-}
-
-/**
- * 處理 CMoney 登入回傳
- */
-export function setupCMoneyLoginCallback(callback: (userData: UserData) => void) {
-  if (window.NativeBridge) {
-    window.NativeBridge.onCMoneyLoginSuccess = callback;
-  }
-}
-```
-
-**原生端需實現（iOS - Swift）**：
-
-```swift
-// 打開 CMoney 登入頁面
-func openCMoneyLogin() {
-    let loginURL = "https://www.cmoney.tw/app/login?returnUrl=app://login-callback"
-    
-    // 使用 WKWebView 在 app 內打開
-    let webView = WKWebView(frame: view.bounds)
-    webView.load(URLRequest(url: URL(string: loginURL)!))
-    present(webView, animated: true)
-    
-    // 監聽登入成功回調
-    webView.navigationDelegate = self
-}
-
-// 接收 CMoney 登入回調
-func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-    if let url = navigationAction.request.url, url.scheme == "app" && url.host == "login-callback" {
-        // 解析用戶資料
-        let userData = parseUserDataFromURL(url)
-        
-        // 回傳給 JS
-        let script = """
-        if (window.NativeBridge && window.NativeBridge.onCMoneyLoginSuccess) {
-            window.NativeBridge.onCMoneyLoginSuccess(\(userData));
-        }
-        """
-        webView.evaluateJavaScript(script)
-        
-        // 關閉 WebView
-        webView.dismiss(animated: true)
-        
-        decisionHandler(.cancel)
-        return
-    }
-    
-    decisionHandler(.allow)
-}
-```
-
-**原生端需實現（Android - Kotlin）**：
-
-```kotlin
-// 打開 CMoney 登入頁面
-@JavascriptInterface
-fun openCMoneyLogin() {
-    val loginURL = "https://www.cmoney.tw/app/login?returnUrl=app://login-callback"
-    
-    // 使用 WebView 在 app 內打開
-    val webView = WebView(context)
-    webView.settings.javaScriptEnabled = true
-    webView.webViewClient = object : WebViewClient() {
-        override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
-            val url = request.url.toString()
-            
-            if (url.startsWith("app://login-callback")) {
-                // 解析用戶資料
-                val userData = parseUserDataFromURL(url)
-                
-                // 回傳給 JS
-                val script = """
-                if (window.NativeBridge && window.NativeBridge.onCMoneyLoginSuccess) {
-                    window.NativeBridge.onCMoneyLoginSuccess($userData);
-                }
-                """
-                webView.evaluateJavascript(script, null)
-                
-                // 關閉 WebView
-                (view.parent as? ViewGroup)?.removeView(view)
-                
-                return true
-            }
-            
-            return false
-        }
-    }
-    
-    webView.loadUrl(loginURL)
-}
-```
+##### 建議更新（狀態碼 -2）
+- **顯示時機**：當 App Status API 返回狀態碼 -2 且未被用戶標記為稍後提醒
+- **視覺**：
+  - 藍色通知圖標
+  - 標題：「發現新版本」
+  - 說明文字：來自 API 的更新訊息
+  - 更新亮點列表（如有提供）
+  - 最新版本號顯示
+  - 兩個按鈕：「稍後提醒」（灰色） + 「立即更新」（藍色漸層）
+  - 右上角關閉按鈕（X）
+- **行為**：
+  - 可關閉彈窗
+  - 點擊「稍後提醒」會記錄時間戳，24 小時內不再顯示
+  - 點擊「立即更新」跳轉至 App Store
+  - 可繼續使用應用
 
 ---
 
-## 🔐 3. VIP 權限檢查邏輯
+## ⚙️ 3. 工程師需要實現的原生橋接功能
+
+以下功能在 `/lib/nativeBridge.ts` 中定義介面，需要原生端（iOS / Android）實現：
+
+### 3.1 CMoney 登入橋接
+
+#### 函數：`openCMoneyLogin()`
+**功能**：在 App 內用 WebView 打開 CMoney 登入網頁
+
+**實現方式**：
+- **iOS (Swift)**：使用 `WKWebView` 在 App 內打開登入頁面
+- **Android (Kotlin)**：使用 `WebView` 在 App 內打開登入頁面
+- **登入 URL**：由配置文件 `CMONEY_LOGIN_URL` 提供
+
+**回調處理**：
+- CMoney 登入成功後，網頁會跳轉至特殊 URL（例：`app://login-callback?token=xxx&...`）
+- 原生端攔截此 URL，解析參數
+- 觸發 JavaScript 事件 `cmoney-login-success`，並傳遞用戶資料：
+  ```javascript
+  {
+    token: "xxx",
+    userInfo: {
+      name: "用戶名稱",
+      email: "user@example.com",
+      avatar: "頭像URL"
+    },
+    isVIP: true/false
+  }
+  ```
+- 前端監聽此事件，處理登入邏輯
+
+#### iOS 實現重點
+```swift
+// 1. 使用 WKWebView 打開登入頁面
+// 2. 設置 navigationDelegate 監聽 URL 變化
+// 3. 攔截 app://login-callback URL
+// 4. 解析參數並回傳給 JavaScript
+// 5. 觸發自定義事件 cmoney-login-success
+// 6. 關閉 WebView
+```
+
+#### Android 實現重點
+```kotlin
+// 1. 使用 WebView 打開登入頁面
+// 2. 設置 WebViewClient 監聽 URL 變化
+// 3. 在 shouldOverrideUrlLoading 中攔截 app://login-callback URL
+// 4. 解析參數並回傳給 JavaScript
+// 5. 觸發自定義事件 cmoney-login-success
+// 6. 關閉 WebView
+```
+
+### 3.2 App Store 橋接
+
+#### 函數：`openAppStore()`
+**功能**：打開 App Store 應用程式頁面，讓用戶更新 App
+
+**實現方式**：
+- **iOS**：使用 `SKStoreProductViewController` 或直接打開 App Store URL
+- **Android**：使用 Intent 打開 Google Play Store
+- **App Store URL**：由配置文件 `APP_STORE_URL` 提供
+
+### 3.3 App 評分橋接
+
+#### 函數：`openAppRating()`
+**功能**：打開 App Store 評分頁面
+
+**實現方式**：
+- **iOS**：使用 `SKStoreReviewController.requestReview()` 或 App Store URL
+- **Android**：使用 In-App Review API 或 Google Play URL
+
+### 3.4 分享功能橋接
+
+#### 函數：`shareToFriend()`
+**功能**：分享應用程式給好友
+
+**分享內容**：
+- 標題：「恩如選股 App」
+- 文字：「推薦你使用恩如選股 App，精準選股，輕鬆投資！」
+- 連結：`https://www.cmoney.tw/app/itemcontent.aspx?id=3627`
+
+**實現方式**：
+- **iOS**：使用原生分享面板（`UIActivityViewController`）
+- **Android**：使用 Android Share Intent
+- **Web 降級**：使用瀏覽器 Share API 或複製到剪貼簿
+
+### 3.5 App 狀態檢查
+
+#### 函數：`checkAppStatus()`
+**功能**：檢查應用狀態（維護、更新等）
+
+**API 端點**：`GET /api/app/status`
+
+**返回數據結構**：
+```typescript
+interface AppStatusResponse {
+  statusCode: number;  // 2: 審查模式, 1: 正常, 0: 維護, -1: 強制更新, -2: 建議更新
+  message: string;     // 顯示給用戶的訊息
+  data?: {
+    latestVersion?: string;      // 最新版本號
+    estimatedEndTime?: string;   // 維護預計結束時間（ISO8601）
+    features?: string[];         // 更新亮點列表
+  }
+}
+```
+
+**檢查時機**：
+1. 應用啟動時（啟動頁）
+2. 從背景恢復時
+3. 定期檢查（每 30 分鐘）
+
+---
+
+## 🔐 4. VIP 權限檢查邏輯
 
 ### 檢查時機
 
 1. **登入成功後立即檢查**：在 CMoney 登入成功後
 2. **每一頁都重新檢查**：在每個頁面載入時
-3. **購買 VIP 後檢查**：在 app 內購買 VIP 後
+3. **購買 VIP 後檢查**：在 App 內購買 VIP 後
+4. **從背景恢復時檢查**：應用從背景切回前景時
 
-### VIP 權限判斷
+### VIP 權限數據結構
 
 ```typescript
 interface VIPStatus {
   isVIP: boolean;           // 是否為 VIP
-  expiryDate?: string;      // 到期日（ISO8601格式）
-  productId?: string;       // 產品ID
-}
-
-async function checkVIPStatus(userData?: UserData): Promise<VIPStatus> {
-  // 如果沒有傳入 userData，從 Context 獲取
-  if (!userData) {
-    const user = getCurrentUser();
-    if (!user) {
-      return { isVIP: false };
-    }
-    userData = user;
-  }
-
-  // 1. 檢查是否有 VIP 權限
-  if (!userData.vipStatus || !userData.vipStatus.hasPremium) {
-    return {
-      isVIP: false
-    };
-  }
-
-  // 2. 檢查是否過期
-  if (userData.vipStatus.expiryDate) {
-    const now = new Date();
-    const expiry = new Date(userData.vipStatus.expiryDate);
-    
-    // 已過期
-    if (expiry < now) {
-      // 撤銷 VIP 權限
-      await revokeVIPStatus(userData.id);
-      
-      return {
-        isVIP: false
-      };
-    }
-    
-    // 即將過期（7天內）
-    const daysUntilExpiry = Math.floor(
-      (expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
-    );
-    
-    if (daysUntilExpiry <= 7) {
-      showExpiryWarning(daysUntilExpiry);
-    }
-  }
-
-  // 3. 有效的 VIP
-  return {
-    isVIP: true,
-    expiryDate: userData.vipStatus.expiryDate,
-    productId: userData.vipStatus.productId
-  };
+  expiryDate?: string;      // 到期日（ISO8601 格式）
+  productId?: string;       // 產品 ID
 }
 ```
 
-### 每頁都重新檢查 VIP
+### VIP 權限判斷流程
 
-```typescript
-// 在每個頁面組件中使用
-export function SomePage() {
-  const { user, updateVIPStatus } = useAuth();
-  const [isVIP, setIsVIP] = useState(false);
+1. **檢查是否有 VIP 權限**：
+   - 若無 VIP 權限 → 返回 `isVIP: false`
 
-  useEffect(() => {
-    // 每次進入頁面時檢查 VIP 權限
-    checkAndUpdateVIPStatus();
-  }, []);
+2. **檢查是否過期**：
+   - 若有到期日且已過期 → 撤銷 VIP 權限，返回 `isVIP: false`
+   - 若即將過期（7 天內）→ 顯示過期警告
 
-  const checkAndUpdateVIPStatus = async () => {
-    const vipStatus = await checkVIPStatus();
-    setIsVIP(vipStatus.isVIP);
-    updateVIPStatus(vipStatus);
-  };
+3. **有效的 VIP**：
+   - 返回 `isVIP: true` + 到期日 + 產品 ID
 
-  return (
-    <div>
-      {isVIP ? (
-        <VIPContent />
-      ) : (
-        <NormalContent />
-      )}
-    </div>
-  );
-}
-```
+### 權限檢查實現
+
+每個頁面組件在 `useEffect` 中調用權限檢查：
+- 調用 `checkVIPStatus()` 函數
+- 更新本地狀態 `isVIP`
+- 更新 authContext 的 VIP 狀態
+- 根據 `isVIP` 顯示不同內容（VIP 內容 vs 一般內容）
 
 ---
 
-## 🎭 4. 權限差異說明
+## 🎭 5. 權限差異說明
 
-### VIP版 vs 一般版
+### VIP 版 vs 一般版
 
-| 功能區域 | VIP版 | 一般版 |
+| 功能區域 | VIP 版 | 一般版 |
 |---------|-------|--------|
 | **選股頁面** | ✅ 完整顯示所有股票 | ⚠️ 僅顯示前 3 支，其餘模糊 + 金色鎖頭 |
 | **社團功能** | ✅ 可看「長線精英討論群」 | ⚠️ 無法看「長線精英討論群」 |
@@ -449,67 +319,61 @@ export function SomePage() {
 
 ---
 
-## 🔄 5. 自動登入邏輯
+## 🔄 6. 自動登入邏輯（未實現）
 
-### Auto Login 流程
+### 說明
+目前應用**不支援自動登入**功能。每次打開 App 都會：
+1. 顯示啟動頁（3 秒）
+2. 跳轉至登入頁
+3. 需要用戶手動點擊「立即登入」或「訪客快速體驗」
 
-```typescript
-async function autoLogin(): Promise<{ success: boolean; data?: UserData }> {
-  try {
-    // 1. 檢查本地是否有 Token
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      return { success: false };
-    }
+### 未來實現（工程師參考）
 
-    // 2. 驗證 Token 有效性
-    const response = await fetch('/api/auth/verify', {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
+如果未來需要實現自動登入，流程如下：
 
-    if (!response.ok) {
-      // Token 無效，清除本地資料
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('user');
-      return { success: false };
-    }
+1. **檢查本地 Token**：
+   - 從 `localStorage` 讀取 `authToken`
+   - 若無 Token → 跳轉至登入頁
 
-    // 3. 取得用戶資料
-    const userData = await response.json();
+2. **驗證 Token 有效性**：
+   - 調用 API：`POST /api/auth/verify`，附帶 Token
+   - 若 API 返回成功 → 獲取用戶資料
+   - 若 API 返回失敗 → 清除本地資料，跳轉至登入頁
 
-    // 4. 更新 Context
-    updateUser(userData);
-
-    return { success: true, data: userData };
-  } catch (error) {
-    console.error('Auto login failed:', error);
-    return { success: false };
-  }
-}
-```
+3. **更新用戶資料**：
+   - 更新 authContext
+   - 檢查 VIP 權限
+   - 跳轉至主應用（`/home`）
 
 ---
 
 ## 📝 注意事項
 
 ### 登入流程重點
-1. ✅ 使用 CMoney 登入連結，在 app 內用 WebView 打開
+1. ✅ 使用 CMoney 登入連結，在 App 內用 WebView 打開
 2. ✅ 登入成功後，CMoney 網頁回傳用戶資料
 3. ✅ App 接收資料後立即檢查 VIP 權限
 4. ✅ 每一頁都會重新檢查 VIP 權限
+5. ✅ 訪客模式：可直接進入 App，但權限受限（一般版）
 
 ### VIP 權限重點
 1. ✅ 社團：VIP 可看「長線精英討論群」，其他功能無差異
 2. ✅ 內容：VIP 可看所有內容，一般版看部分內容
 3. ❌ 所有版本都沒有離線下載功能
-4. ✅ 在 app 內購買 VIP 後，跳到其他頁面會立即擁有 VIP 權限
+4. ✅ 在 App 內購買 VIP 後，跳到其他頁面會立即擁有 VIP 權限
+
+### App Status 重點
+1. ✅ 狀態碼 0（系統維護）：阻擋登入，顯示維護頁面
+2. ✅ 狀態碼 -1（強制更新）：阻擋所有功能，強制更新
+3. ✅ 狀態碼 -2（建議更新）：可關閉，24 小時後再次提醒
+4. ✅ 狀態碼 1（正常）：正常使用
+5. ✅ 狀態碼 2（審查模式）：購買功能導向原生 App Store
 
 ### 數據存儲
-- Token 存儲在 Local Storage
-- 用戶資料存儲在 Context
-- VIP 狀態存儲在 Context + Local Storage
+- **Token**：存儲在 `localStorage` 的 `authToken`
+- **用戶資料**：存儲在 authContext
+- **VIP 狀態**：存儲在 authContext + `localStorage`
+- **更新提醒時間戳**：存儲在 `localStorage` 的 `lastUpdateDismiss`
 
 ---
 
@@ -525,12 +389,16 @@ async function autoLogin(): Promise<{ success: boolean; data?: UserData }> {
 
 ## 🎯 測試檢查清單
 
-- [ ] 啟動頁 App Status 檢查正常
-- [ ] 自動登入功能正常
-- [ ] CMoney 登入網頁在 app 內正確打開
+- [ ] 啟動頁顯示正確，3 秒後自動跳轉至登入頁
+- [ ] 登入頁兩個按鈕功能正常
+- [ ] CMoney 登入網頁在 App 內正確打開
 - [ ] CMoney 登入成功後正確回傳用戶資料
+- [ ] 訪客快速體驗功能正常
 - [ ] VIP 權限判斷正確
 - [ ] 每一頁都會重新檢查 VIP 權限
-- [ ] 在 app 內購買 VIP 後權限立即生效
+- [ ] 在 App 內購買 VIP 後權限立即生效
 - [ ] VIP 過期後權限正確撤銷
-- [ ] 登出後返回登入頁面
+- [ ] App Status 各種狀態彈窗顯示正確
+- [ ] 強制更新彈窗無法關閉
+- [ ] 建議更新彈窗可關閉且 24 小時後再次顯示
+- [ ] 登出後返回啟動頁面

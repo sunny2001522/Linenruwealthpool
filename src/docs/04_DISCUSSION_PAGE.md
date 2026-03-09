@@ -7,7 +7,7 @@
 
 ## 🎯 頁面概述
 
-**社團頁**是VIP會員的討論互動平台，提供發文、回文、表情反應、檢舉等社群功能。
+**社團頁**是會員的討論互動平台，提供恩如專區和VIP社團兩大區域，支持發文、回文、表情反應、檢舉等社群功能。
 
 ### 路由資訊
 - **路徑**：`/home/discussion`
@@ -18,425 +18,452 @@
 
 ---
 
-## 📐 頁面結構
+## 📐 完整頁面結構
 
 ```
 ┌─────────────────────────────────────────────────┐
-│              頂部：社團名稱 + 發文按鈕            │
-│          「VIP 社團」      [ + 發表貼文 ]        │
+│              頂部標題 + 發文按鈕                  │
+│        「社團」          [ + 發表貼文 ]          │
 └─────────────────────────────────────────────────┘
-                      ↓
+                       ↓
+┌─────────────────────────────────────────────────┐
+│              主標籤區域                          │
+│         [ 恩如專區 ]  [ VIP社團 ]               │
+└─────────────────────────────────────────────────┘
+                       ↓
+┌─────────────────────────────────────────────────┐
+│              子標籤區域                          │
+│   [ 超粉QA問答區 ]  [ 長線菁英討論群 🔒VIP ]    │
+└─────────────────────────────────────────────────┘
+                       ↓
 ┌─────────────────────────────────────────────────┐
 │              貼文列表（時間軸）                   │
 │   ┌───────────────────────────────────────┐    │
-│   │ 👤 林恩如                3小時前       │    │
+│   │ 👤 林恩如           3小時前  [⋮ 更多]  │    │
 │   │ 今天大盤站上18000點，多方趨勢確立...   │    │
-│   │ [圖片]                                │    │
-│   │ ❤️ 125  👍 85  💪 42  🔥 38  🎉 22   │    │
-│   │ 💬 38則回覆                            │    │
+│   │ [圖片預覽]                            │    │
+│   │ ❤️ 125  👍 85  💪 42  📊 38           │    │
+│   │ 💬 38則回覆    [查看全部回覆]           │    │
+│   └───────────────────────────────────────┘    │
+│   ┌───────────────────────────────────────┐    │
+│   │ 👤 投資達人          5小時前           │    │
+│   │ 【獨家】AI伺服器供應鏈深度解析...      │    │
+│   │ ❤️ 89  👍 52  🔥 31                   │    │
+│   │ 💬 22則回覆                            │    │
 │   └───────────────────────────────────────┘    │
 └─────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 💬 發文功能
+## 🎨 頂部區域
 
-### 發文按鈕
+### 左側：標題
+- **文字**：「社團」
+- **樣式**：大標題字體
 
-```tsx
-<button
-  onClick={() => setShowCreatePostModal(true)}
-  className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#4A90E2] to-[#6BB6FF] text-white font-medium hover:shadow-lg transition-all flex items-center gap-2"
->
-  <Plus className="w-5 h-5" />
-  發表貼文
-</button>
-```
+### 右側：發表貼文按鈕
+- **文字**：「+ 發表貼文」
+- **樣式**：藍色漸層按鈕 `bg-gradient-to-r from-[#4A90E2] to-[#6BB6FF]`
+- **交互**：
+  - 點擊打開發文彈窗（`CreatePostModal`）
+  - 可輸入文字、上傳圖片
+  - 選擇發布到哪個區域（恩如專區 / VIP社團）
+
+---
+
+## 📑 主標籤區域
+
+### 標籤設計
+
+| 標籤 | ID | 說明 | 權限 |
+|------|-----|------|------|
+| **恩如專區** | `enru` | 林恩如老師的專屬貼文區 | ✅ 所有會員 |
+| **VIP社團** | `vip` | VIP會員專屬討論區 | ⚠️ 需要VIP |
+
+### 視覺設計
+- **選中狀態**：
+  - 藍色漸層背景 `bg-gradient-to-r from-[#4A90E2] to-[#6BB6FF]`
+  - 白色文字
+  - 圓角 `rounded-lg`
+- **未選中狀態**：
+  - 透明背景
+  - 灰色文字 `text-muted-foreground`
+
+### VIP社團權限控制
+- **VIP會員**：可正常訪問
+- **一般會員**：
+  - 點擊後彈出升級提示彈窗
+  - 顯示 VIP 權益說明
+  - 提供「立即升級」按鈕
+
+---
+
+## 📂 子標籤區域
+
+### 恩如專區的子標籤
+
+僅有一個：
+- **超粉QA問答區**（`qa`）
+  - 所有會員可訪問
+  - 用於提問和討論
+
+### VIP社團的子標籤
+
+| 子標籤 | ID | 說明 | 權限 |
+|--------|-----|------|------|
+| **超粉QA問答區** | `qa` | 一般討論區 | ✅ 所有VIP |
+| **長線菁英討論群** | `elite` | VIP專屬高級討論區 | ⚠️ 需要VIP |
+
+### 視覺設計
+- **選中狀態**：
+  - 前景色 `text-foreground`
+  - 底部藍色下劃線 `bg-gradient-to-r from-[#4A90E2] to-[#6BB6FF]`（高度 2px）
+- **未選中狀態**：
+  - 灰色文字 `text-muted-foreground`
+- **鎖定狀態**（需要VIP）：
+  - 顯示鎖頭圖標 🔒
+  - 文字後綴「VIP」
+
+### 長線菁英討論群權限控制
+- **VIP會員**：可正常訪問
+- **一般會員**：
+  - 點擊後彈出升級提示彈窗
+  - 提示：「升級 VIP 解鎖長線菁英討論群」
+  - 提供「立即升級」按鈕
+
+---
+
+## 💬 貼文列表
+
+### 貼文卡片結構
+
+每個貼文卡片包含：
+
+#### 1. 頂部資訊欄
+- **作者頭像**：圓形，左側
+- **作者名稱**：粗體
+- **發布時間**：灰色小字（例：「3小時前」）
+- **更多按鈕**：右側「⋮」圖標
+  - 點擊彈出選單：
+    - 檢舉（Report）
+    - 封鎖用戶（Block User）
+    - 編輯（僅作者可見）
+    - 刪除（僅作者可見）
+
+#### 2. 貼文內容
+- **文字內容**：最多顯示 3 行，超過則顯示「...查看更多」
+- **圖片**：
+  - 最多顯示 4 張預覽圖
+  - 排列方式：
+    - 1 張：全寬
+    - 2 張：2 欄網格
+    - 3 張：1 大 2 小
+    - 4 張：2x2 網格
+  - 點擊圖片打開全螢幕瀏覽（圖片輪播）
+
+#### 3. 互動欄
+**表情反應按鈕**（最多顯示前 5 種）：
+- ❤️ 愛心
+- 👍 讚
+- 💪 加油
+- 🔥 火
+- 📊 圖表
+- ... 更多
+
+**顯示格式**：
+- 圖標 + 數字（例：❤️ 125）
+- 點擊後：
+  - 已反應：取消反應，數字 -1
+  - 未反應：新增反應，數字 +1
+  - 即時更新（樂觀更新）
+
+#### 4. 回覆區域
+- **回覆數量**：「💬 38則回覆」
+- **按鈕**：「查看全部回覆」
+  - 點擊後導航至貼文詳情頁（`/post/:id`）
+  - 顯示完整貼文和所有回覆
+
+---
+
+## ✏️ 發表貼文功能
+
+### 觸發方式
+點擊頂部右側的「+ 發表貼文」按鈕
 
 ### 發文彈窗（CreatePostModal）
 
-```tsx
-<Dialog open={showCreatePostModal} onOpenChange={setShowCreatePostModal}>
-  <DialogContent className="max-w-2xl">
-    <DialogHeader>
-      <DialogTitle>發表貼文</DialogTitle>
-    </DialogHeader>
+#### 彈窗結構
+1. **標題**：「發表貼文」
+2. **文字輸入框**：
+   - 多行文字框（`textarea`）
+   - 佔位符：「分享你的想法...」
+   - 最多 3000 字
+3. **圖片上傳**：
+   - 按鈕：「📷 上傳圖片」
+   - 支援格式：JPG、PNG、GIF
+   - 最多上傳 9 張
+   - 圖片預覽（可刪除）
+4. **發布設定**：
+   - 下拉選單：選擇發布區域
+     - 恩如專區
+     - VIP社團
+5. **操作按鈕**：
+   - **取消**：關閉彈窗
+   - **發布**：藍色漸層按鈕
 
-    {/* 貼文內容 */}
-    <Textarea
-      placeholder="分享你的想法..."
-      value={postContent}
-      onChange={(e) => setPostContent(e.target.value)}
-      className="min-h-[200px]"
-    />
-
-    {/* 上傳圖片 */}
-    <div className="flex items-center gap-2">
-      <button className="p-2 rounded-lg hover:bg-muted">
-        <Image className="w-5 h-5" />
-        <input type="file" accept="image/*" className="hidden" />
-      </button>
-      <p className="text-sm text-muted-foreground">最多上傳 4 張圖片</p>
-    </div>
-
-    {/* 標籤選擇 */}
-    <div className="flex items-center gap-2">
-      <Tag className="w-5 h-5 text-muted-foreground" />
-      <Select value={selectedTag} onValueChange={setSelectedTag}>
-        <SelectTrigger className="w-[200px]">
-          <SelectValue placeholder="選擇標籤" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="market">市場分析</SelectItem>
-          <SelectItem value="stock">個股討論</SelectItem>
-          <SelectItem value="strategy">策略分享</SelectItem>
-          <SelectItem value="news">新聞快訊</SelectItem>
-        </SelectContent>
-      </Select>
-    </div>
-
-    {/* 發文按鈕 */}
-    <DialogFooter>
-      <Button variant="outline" onClick={() => setShowCreatePostModal(false)}>
-        取消
-      </Button>
-      <Button
-        onClick={handleCreatePost}
-        disabled={!postContent.trim()}
-        className="bg-gradient-to-r from-[#4A90E2] to-[#6BB6FF]"
-      >
-        發表
-      </Button>
-    </DialogFooter>
-  </DialogContent>
-</Dialog>
-```
+#### 發布流程
+1. 輸入文字和/或上傳圖片
+2. 選擇發布區域
+3. 點擊「發布」
+4. 顯示載入中狀態
+5. 發布成功：
+   - 關閉彈窗
+   - 顯示成功提示
+   - 貼文列表頂部插入新貼文
+6. 發布失敗：
+   - 顯示錯誤訊息
+   - 保留彈窗內容
 
 ---
 
-## 📝 貼文卡片設計
+## 💬 回覆功能
 
-```tsx
-<Card className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-4 mb-4">
-  {/* 作者資訊 */}
-  <div className="flex items-center justify-between mb-3">
-    <div className="flex items-center gap-3">
-      <Avatar>
-        <AvatarImage src={post.author.avatar} />
-        <AvatarFallback>{post.author.name[0]}</AvatarFallback>
-      </Avatar>
-      <div>
-        <p className="font-semibold">{post.author.name}</p>
-        <p className="text-sm text-muted-foreground">
-          {formatDistanceToNow(post.createdAt, { locale: zhTW, addSuffix: true })}
-        </p>
-      </div>
-    </div>
+### 觸發方式
+1. 點擊貼文卡片的「查看全部回覆」按鈕
+2. 導航至貼文詳情頁（`/post/:id`）
 
-    {/* 更多選單 */}
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button className="p-2 rounded-lg hover:bg-muted">
-          <MoreVertical className="w-5 h-5" />
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        {user?.id === post.author.id && (
-          <>
-            <DropdownMenuItem onClick={() => handleEditPost(post)}>
-              <Edit className="w-4 h-4 mr-2" />
-              編輯貼文
-            </DropdownMenuItem>
-            <DropdownMenuItem 
-              onClick={() => handleDeletePost(post.id)}
-              className="text-red-500"
-            >
-              <Trash2 className="w-4 h-4 mr-2" />
-              刪除貼文
-            </DropdownMenuItem>
-          </>
-        )}
-        {user?.id !== post.author.id && (
-          <DropdownMenuItem onClick={() => handleReportPost(post)}>
-            <Flag className="w-4 h-4 mr-2" />
-            檢舉貼文
-          </DropdownMenuItem>
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  </div>
+### 貼文詳情頁
 
-  {/* 貼文內容 */}
-  <p className="text-base leading-relaxed mb-3">
-    {post.content}
-  </p>
+#### 頂部
+- **返回按鈕**：左上角「←」圖標
+- **標題**：「貼文詳情」
 
-  {/* 圖片輪播（如有） */}
-  {post.images && post.images.length > 0 && (
-    <div className="mb-3 rounded-lg overflow-hidden">
-      <Carousel>
-        {post.images.map((img, i) => (
-          <img key={i} src={img} alt="" className="w-full h-auto" />
-        ))}
-      </Carousel>
-    </div>
-  )}
+#### 貼文區域
+- 完整顯示原貼文（與列表中相同結構）
 
-  {/* 表情反應列 */}
-  <div className="flex items-center gap-4 py-3 border-t border-border">
-    <button 
-      onClick={() => toggleReaction(post.id, 'love')}
-      className={cn(
-        "flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all",
-        post.userReaction === 'love' 
-          ? "bg-pink-500/20 text-pink-500" 
-          : "hover:bg-muted"
-      )}
-    >
-      <Heart className="w-4 h-4" />
-      <span className="text-sm font-medium">{post.reactions.love}</span>
-    </button>
+#### 回覆列表
+- **排序**：依時間降序（最新在上）
+- **每則回覆顯示**：
+  - 作者頭像 + 名稱
+  - 回覆時間
+  - 回覆內容（文字 + 圖片）
+  - 表情反應按鈕
+  - 更多按鈕（檢舉、封鎖）
 
-    <button 
-      onClick={() => toggleReaction(post.id, 'like')}
-      className={cn(
-        "flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all",
-        post.userReaction === 'like' 
-          ? "bg-blue-500/20 text-blue-500" 
-          : "hover:bg-muted"
-      )}
-    >
-      <ThumbsUp className="w-4 h-4" />
-      <span className="text-sm font-medium">{post.reactions.like}</span>
-    </button>
-
-    <button 
-      onClick={() => toggleReaction(post.id, 'strong')}
-      className={cn(
-        "flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all",
-        post.userReaction === 'strong' 
-          ? "bg-purple-500/20 text-purple-500" 
-          : "hover:bg-muted"
-      )}
-    >
-      <Zap className="w-4 h-4" />
-      <span className="text-sm font-medium">{post.reactions.strong}</span>
-    </button>
-
-    <button 
-      onClick={() => toggleReaction(post.id, 'fire')}
-      className={cn(
-        "flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all",
-        post.userReaction === 'fire' 
-          ? "bg-orange-500/20 text-orange-500" 
-          : "hover:bg-muted"
-      )}
-    >
-      <Flame className="w-4 h-4" />
-      <span className="text-sm font-medium">{post.reactions.fire}</span>
-    </button>
-
-    <button 
-      onClick={() => toggleReaction(post.id, 'party')}
-      className={cn(
-        "flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all",
-        post.userReaction === 'party' 
-          ? "bg-yellow-500/20 text-yellow-500" 
-          : "hover:bg-muted"
-      )}
-    >
-      <PartyPopper className="w-4 h-4" />
-      <span className="text-sm font-medium">{post.reactions.party}</span>
-    </button>
-  </div>
-
-  {/* 回覆區 */}
-  <div className="pt-3 border-t border-border">
-    <button
-      onClick={() => navigate(`/post/${post.id}`)}
-      className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-    >
-      <MessageCircle className="w-4 h-4" />
-      <span>{post.replyCount} 則回覆</span>
-    </button>
-  </div>
-</Card>
-```
+#### 底部回覆框（固定）
+- **輸入框**：「寫下你的回覆...」
+- **圖片按鈕**：上傳圖片
+- **發送按鈕**：藍色圓形按鈕
 
 ---
 
-## ❤️ 表情反應系統
+## 🚨 檢舉與封鎖功能
 
-### 支援的表情類型
+### 檢舉貼文/回覆
 
-| 表情 | 圖標 | 值 | 顏色 | 說明 |
-|------|------|-----|------|------|
-| ❤️ | Heart | `love` | 粉紅色 | 愛心 |
-| 👍 | ThumbsUp | `like` | 藍色 | 讚 |
-| 💪 | Zap | `strong` | 紫色 | 強 |
-| 🔥 | Flame | `fire` | 橘色 | 火 |
-| 🎉 | PartyPopper | `party` | 黃色 | 慶祝 |
+#### 觸發方式
+點擊貼文/回覆右上角的「⋮」→ 選擇「檢舉」
 
-### 反應邏輯
+#### 檢舉彈窗
+1. **標題**：「檢舉此貼文」
+2. **檢舉原因**（單選）：
+   - 垃圾訊息
+   - 不當內容
+   - 騷擾或霸凌
+   - 虛假資訊
+   - 其他（需填寫說明）
+3. **說明欄位**：
+   - 多行文字框
+   - 選擇「其他」時必填
+4. **操作按鈕**：
+   - **取消**
+   - **送出檢舉**：紅色按鈕
 
-```typescript
-const toggleReaction = async (postId: string, type: ReactionType) => {
-  // 如果已經是該反應，則取消
-  if (post.userReaction === type) {
-    await removeReaction(postId);
-    setPost(prev => ({
-      ...prev,
-      userReaction: null,
-      reactions: {
-        ...prev.reactions,
-        [type]: prev.reactions[type] - 1
-      }
-    }));
-  } else {
-    // 如果是其他反應，先取消原反應，再加入新反應
-    if (post.userReaction) {
-      await updateReaction(postId, type);
-      setPost(prev => ({
-        ...prev,
-        userReaction: type,
-        reactions: {
-          ...prev.reactions,
-          [prev.userReaction!]: prev.reactions[prev.userReaction!] - 1,
-          [type]: prev.reactions[type] + 1
-        }
-      }));
-    } else {
-      // 第一次反應
-      await addReaction(postId, type);
-      setPost(prev => ({
-        ...prev,
-        userReaction: type,
-        reactions: {
-          ...prev.reactions,
-          [type]: prev.reactions[type] + 1
-        }
-      }));
-    }
-  }
-};
-```
+#### 檢舉流程
+1. 選擇檢舉原因
+2. （選填）填寫詳細說明
+3. 點擊「送出檢舉」
+4. 顯示成功提示：「已送出檢舉，感謝您的回報」
+5. 關閉彈窗
+
+### 封鎖用戶
+
+#### 觸發方式
+點擊貼文/回覆右上角的「⋮」→ 選擇「封鎖用戶」
+
+#### 確認彈窗
+- **文字**：「確定要封鎖此用戶嗎？封鎖後將不會再看到該用戶的貼文。」
+- **按鈕**：
+  - **取消**
+  - **確定封鎖**：紅色按鈕
+
+#### 封鎖後行為
+- 該用戶的所有貼文和回覆立即從列表中隱藏
+- 封鎖清單保存在 LocalStorage
+- 可在「會員 → 設定 → 封鎖清單」中管理
 
 ---
 
 ## 🔐 VIP 權限控制
 
-### 專業版 vs 試用版
+### VIP版 vs 一般版
 
-| 功能 | 專業版 | 試用版 |
+| 功能 | VIP版 | 一般版 |
 |------|--------|--------|
-| **發文** | ✅ 無限制 | ⚠️ 每日 3 則 |
-| **回文** | ✅ 無限制 | ✅ 無限制 |
-| **表情反應** | ✅ 完整功能 | ✅ 完整功能 |
-| **上傳圖片** | ✅ 每則最多 4 張 | ⚠️ 每則最多 1 張 |
-| **編輯歷史** | ✅ 可查看 | ✅ 可查看 |
-| **檢舉功能** | ✅ 完整功能 | ✅ 完整功能 |
+| **恩如專區 - 超粉QA** | ✅ 可訪問 | ✅ 可訪問 |
+| **VIP社團** | ✅ 可訪問 | ❌ 顯示鎖定 |
+| **長線菁英討論群** | ✅ 可訪問 | ❌ 顯示鎖定 |
+| **發表貼文** | ✅ 可發布 | ✅ 可發布（僅恩如專區） |
+| **回覆貼文** | ✅ 可回覆 | ✅ 可回覆 |
+| **表情反應** | ✅ 可使用 | ✅ 可使用 |
+| **檢舉功能** | ✅ 可使用 | ✅ 可使用 |
+| **封鎖功能** | ✅ 可使用 | ✅ 可使用 |
 
-### 試用版限制提示
+### 升級提示彈窗
 
-```tsx
-{!user?.isPro && dailyPostCount >= 3 && (
-  <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 mb-4">
-    <div className="flex items-start gap-3">
-      <AlertTriangle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
-      <div className="flex-1">
-        <p className="font-semibold text-yellow-500 mb-1">今日發文已達上限</p>
-        <p className="text-sm text-muted-foreground mb-3">
-          試用版每日最多發表 3 則貼文，升級專業版即可無限制發文。
-        </p>
-        <button
-          onClick={() => navigate('/purchase')}
-          className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#4A90E2] to-[#D4AF37] text-white font-medium hover:shadow-lg transition-all text-sm"
-        >
-          立即升級
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-```
+當一般會員嘗試訪問 VIP 專屬區域時：
+
+#### 彈窗內容
+- **圖標**：金色鎖頭 🔒
+- **標題**：「升級 VIP 解鎖專屬內容」
+- **說明**：
+  - VIP 可訪問「長線菁英討論群」
+  - 與資深投資者交流
+  - 獲得更多投資策略
+- **按鈕**：
+  - **取消**
+  - **立即升級**：金色漸層按鈕
+    - 導航至 `/purchase`（購買頁面）
 
 ---
 
-## 🚩 檢舉功能
+## 📱 響應式設計
 
-### 檢舉理由選項
+### 手機版（< 768px）
+- 主標籤：固定寬度，橫向排列
+- 子標籤：橫向滾動
+- 貼文卡片：單欄佈局
+- 圖片預覽：
+  - 1 張：全寬
+  - 2-4 張：2 欄網格
 
-| 理由 | 說明 |
-|------|------|
-| **不當內容** | 包含色情、暴力等不當內容 |
-| **垃圾訊息** | 廣告、詐騙等垃圾訊息 |
-| **騷擾攻擊** | 人身攻擊、騷擾他人 |
-| **虛假資訊** | 散播不實資訊或謠言 |
-| **侵犯版權** | 侵犯他人版權或智慧財產權 |
-| **其他** | 其他違規行為 |
+### 平板版（768px - 1024px）
+- 標籤：舒適間距
+- 貼文卡片：單欄佈局，較寬
+- 圖片預覽：與手機版相同
 
-### 檢舉彈窗（ReportModal）
+### 桌面版（> 1024px）
+- 標籤：寬鬆間距
+- 貼文卡片：最大寬度 800px，居中
+- 圖片預覽：
+  - 3 張：1 大 2 小佈局
+  - 4 張：2x2 網格
 
-```tsx
-<Dialog open={showReportModal} onOpenChange={setShowReportModal}>
-  <DialogContent>
-    <DialogHeader>
-      <DialogTitle>檢舉貼文</DialogTitle>
-      <DialogDescription>
-        請選擇檢舉理由，我們會盡快處理。
-      </DialogDescription>
-    </DialogHeader>
+---
 
-    <RadioGroup value={reportReason} onValueChange={setReportReason}>
-      <div className="flex items-center space-x-2">
-        <RadioGroupItem value="inappropriate" id="inappropriate" />
-        <Label htmlFor="inappropriate">不當內容</Label>
-      </div>
-      <div className="flex items-center space-x-2">
-        <RadioGroupItem value="spam" id="spam" />
-        <Label htmlFor="spam">垃圾訊息</Label>
-      </div>
-      <div className="flex items-center space-x-2">
-        <RadioGroupItem value="harassment" id="harassment" />
-        <Label htmlFor="harassment">騷擾攻擊</Label>
-      </div>
-      <div className="flex items-center space-x-2">
-        <RadioGroupItem value="false-info" id="false-info" />
-        <Label htmlFor="false-info">虛假資訊</Label>
-      </div>
-      <div className="flex items-center space-x-2">
-        <RadioGroupItem value="copyright" id="copyright" />
-        <Label htmlFor="copyright">侵犯版權</Label>
-      </div>
-      <div className="flex items-center space-x-2">
-        <RadioGroupItem value="other" id="other" />
-        <Label htmlFor="other">其他</Label>
-      </div>
-    </RadioGroup>
+## ⚠️ 工程師需要實現的功能
 
-    <Textarea
-      placeholder="請詳細說明檢舉原因..."
-      value={reportDetail}
-      onChange={(e) => setReportDetail(e.target.value)}
-      className="min-h-[100px]"
-    />
+### 1. 貼文 API
 
-    <DialogFooter>
-      <Button variant="outline" onClick={() => setShowReportModal(false)}>
-        取消
-      </Button>
-      <Button
-        onClick={handleSubmitReport}
-        disabled={!reportReason}
-        className="bg-red-500 hover:bg-red-600"
-      >
-        提交檢舉
-      </Button>
-    </DialogFooter>
-  </DialogContent>
-</Dialog>
-```
+#### 獲取貼文列表
+- **端點**：`GET /api/discussions/{tab}/posts`
+- **參數**：
+  - `tab`：`enru` 或 `vip`
+  - `subTab`：`qa` 或 `elite`
+  - `page`：頁碼
+  - `limit`：每頁數量
+- **回應**：貼文陣列 + 總頁數
+
+#### 發表貼文
+- **端點**：`POST /api/discussions/posts`
+- **參數**：
+  - `tab`：發布區域
+  - `content`：文字內容
+  - `images`：圖片陣列（Base64 或 URL）
+- **回應**：新貼文物件
+
+#### 刪除貼文
+- **端點**：`DELETE /api/discussions/posts/:id`
+- **權限**：僅作者可刪除
+
+### 2. 回覆 API
+
+#### 獲取回覆列表
+- **端點**：`GET /api/discussions/posts/:id/comments`
+- **回應**：回覆陣列
+
+#### 發表回覆
+- **端點**：`POST /api/discussions/posts/:id/comments`
+- **參數**：
+  - `content`：文字內容
+  - `images`：圖片陣列
+- **回應**：新回覆物件
+
+### 3. 表情反應 API
+
+#### 新增/取消反應
+- **端點**：`POST /api/discussions/posts/:id/reactions`
+- **參數**：
+  - `emoji`：表情符號
+  - `action`：`add` 或 `remove`
+- **回應**：更新後的反應統計
+
+### 4. 檢舉 API
+
+#### 送出檢舉
+- **端點**：`POST /api/discussions/reports`
+- **參數**：
+  - `targetType`：`post` 或 `comment`
+  - `targetId`：目標 ID
+  - `reason`：檢舉原因
+  - `description`：詳細說明
+- **回應**：成功訊息
+
+### 5. 封鎖功能
+
+#### 封鎖用戶
+- **端點**：`POST /api/users/block`
+- **參數**：
+  - `userId`：要封鎖的用戶 ID
+- **回應**：成功訊息
+
+#### 獲取封鎖清單
+- **端點**：`GET /api/users/blocked`
+- **回應**：封鎖用戶 ID 陣列
+
+### 6. 圖片上傳
+
+#### 上傳圖片
+- **端點**：`POST /api/upload/image`
+- **參數**：
+  - `image`：圖片檔案（multipart/form-data）
+  - `type`：`post` 或 `comment`
+- **回應**：圖片 URL
+
+---
+
+## 📝 注意事項
+
+### 顏色使用
+- ✅ 藍色漸層用於主要按鈕和選中狀態
+- ✅ 金色用於 VIP 鎖頭和升級按鈕
+- ✅ 紅色用於刪除和檢舉按鈕
+
+### 性能優化
+- 分頁載入貼文（每頁 20 則）
+- 圖片懶加載（Lazy Loading）
+- 無限滾動（Infinite Scroll）
+
+### 用戶體驗
+- 樂觀更新（表情反應、發表貼文）
+- 載入狀態提示
+- 錯誤處理和提示
+
+### 內容審核
+- 貼文和回覆需經過內容審核
+- 敏感詞過濾
+- 檢舉後由管理員審核
 
 ---
 
@@ -444,4 +471,5 @@ const toggleReaction = async (postId: string, type: ReactionType) => {
 
 - **整體概覽**：`00_APP_OVERVIEW.md`
 - **首頁標籤**：`01_HOME_PAGE.md`
-- **內容標籤**：`05_CONTENT_PAGE.md`
+- **會員標籤**：`06_MORE_PAGE.md`
+- **認證流程**：`07_AUTH_WELCOME_FLOW.md`

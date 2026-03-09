@@ -95,7 +95,6 @@ flowchart TD
 **組件**：`LaunchScreen`
 **功能**：
 1. 顯示品牌「長線聚寶盆」
-2. 顯示 Loading 圓形進度指示器
 3. 顯示版本號（例：Version 1.0.11）
 4. 檢查應用狀態（App Status）
 5. 如果狀態正常，執行自動登入（Auto Login）
@@ -402,7 +401,6 @@ flowchart TD
 | `/login` | LoginPage | 登入頁面（CMoney 登入連結） | ❌ |
 | `/guide` | GuidePage | 新手教學 | ✅ |
 | `/edit-profile` | EditProfilePage | 編輯個人資料 | ✅ |
-| `/customer-service` | CustomerServicePage | 客服中心 | ✅ |
 | `/help-center` | HelpCenterPage | 幫助中心 | ❌ |
 | `/purchase` | PurchasePage | 購買頁面（原生 App Store） | ✅ |
 | `/web-purchase` | WebPurchasePage | 網頁購買頁面 | ✅ |
@@ -445,24 +443,6 @@ flowchart TD
 4. **接收 CMoney 登入回傳**
 5. **打開 App Store**
 
----
-
-## 📱 響應式設計
-
-### 桌面版（Desktop）
-- **寬度**：最大 1280px
-- **佈局**：三欄式（左側導航 + 主內容 + 右側資訊）
-- **底部導覽**：隱藏，改用左側導航欄
-
-### 平板版（Tablet）
-- **寬度**：768px - 1024px
-- **佈局**：兩欄式（主內容 + 側邊資訊）
-- **底部導覽**：顯示
-
-### 手機版（Mobile）
-- **寬度**：< 768px
-- **佈局**：單欄式
-- **底部導覽**：固定顯示，高度 64px
 
 ---
 
@@ -534,10 +514,6 @@ flowchart TD
 ---
 
 ## 📞 聯絡資訊
-
-**測試帳號**：
-- 郵箱：`queen_dtno@cmoney.com.tw`
-- 密碼：`cmoney1234`
 
 **產品名稱**：林恩如-長線聚寶盆Plus
 
