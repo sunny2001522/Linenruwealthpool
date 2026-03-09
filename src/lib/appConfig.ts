@@ -14,6 +14,9 @@ export const WEB_PURCHASE_URL = "https://www.cmoney.tw/app/itemcontent.aspx?id=3
 // 線上客服連結
 export const CUSTOMER_SERVICE_URL = "https://www.cmoney.tw/app/customer-service";
 
+// CMoney 登入連結
+export const CMONEY_LOGIN_URL = "https://www.cmoney.tw/app/login";
+
 export const APP_CONFIG = {
   // 開發模式：true = 使用本地配置測試, false = 使用 API
   isDevelopment: true,

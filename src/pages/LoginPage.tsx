@@ -2,21 +2,39 @@ import { useNavigate } from "react-router";
 import { useAuth } from "../lib/authContext";
 import { useEffect, useState } from "react";
 import { checkAppStatus, recordUpdateDismiss, shouldShowUpdateReminder } from "../lib/appStatusService";
-import { openAppStore } from "../lib/nativeBridge";
+import { openAppStore, openCMoneyLogin } from "../lib/nativeBridge";
 import { AppStatusResponse } from "../lib/appConfig";
 import { AlertTriangle, RefreshCw, Bell, X } from "lucide-react";
+import { motion } from "motion/react";
 import enruAvatar from "figma:asset/2667c4f82d8bc2f45dc2b5735f4adc5c09586576.png";
 
-export function WelcomePage() {
+export function LoginPage() {
   const navigate = useNavigate();
-  const { login, loginAsGuest } = useAuth();
+  const { login } = useAuth();
   const [appStatus, setAppStatus] = useState<AppStatusResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showSuggestUpdate, setShowSuggestUpdate] = useState(false);
 
   useEffect(() => {
     checkStatus();
-  }, []);
+    
+    // 監聽 CMoney 登入成功事件
+    const handleLoginSuccess = (event: CustomEvent) => {
+      const { token, userInfo, isVIP } = event.detail;
+      
+      // 使用 authContext 的 login 函數
+      login(userInfo.email || "cmoney@user.com", token);
+      
+      // 跳轉到主頁
+      navigate("/home");
+    };
+    
+    window.addEventListener('cmoney-login-success', handleLoginSuccess as EventListener);
+    
+    return () => {
+      window.removeEventListener('cmoney-login-success', handleLoginSuccess as EventListener);
+    };
+  }, [navigate, login]);
 
   const checkStatus = async () => {
     setIsLoading(true);
@@ -44,23 +62,8 @@ export function WelcomePage() {
       return; // 強制更新不允許進入
     }
 
-    // 直接登入為專業版用戶
-    login("pro@example.com", "123456");
-    navigate("/home");
-  };
-
-  const handleGuestTrial = () => {
-    // 檢查狀態是否允許進入
-    if (appStatus?.statusCode === 0) {
-      return; // 維護中不允許進入
-    }
-    if (appStatus?.statusCode === -1) {
-      return; // 強制更新不允許進入
-    }
-
-    // 以訪客身份快速體驗（試用版）
-    loginAsGuest();
-    navigate("/home");
+    // 打開 CMoney 登入網頁
+    openCMoneyLogin();
   };
 
   const handleUpdate = () => {
@@ -117,36 +120,46 @@ export function WelcomePage() {
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-br from-[#2A1F1A] via-[#1C1410] to-black flex flex-col items-center justify-center px-6">
-        {/* Logo Section */}
-        <div className="flex flex-col items-center gap-6 mb-12">
-          <img 
-            src={enruAvatar} 
-            alt="林恩如" 
-            className="h-48 w-auto object-contain"
-          />
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-[#4A90E2] to-[#6BB6FF] bg-clip-text text-transparent">
-            長線聚寶盆
-          </h1>
-        </div>
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center px-6">
+        {/* 內容層 */}
+        <div className="w-full max-w-md">
+          {/* Logo Section */}
+          <div className="flex flex-col items-center gap-6 mb-12">
+            <img 
+              src={enruAvatar} 
+              alt="林恩如" 
+              className="h-32 w-auto object-contain"
+            />
+            <h1 className="text-4xl font-bold text-white">
+              長線聚寶盆
+            </h1>
+            <p className="text-white/60 text-lg">專業選股 · 智慧投資</p>
+          </div>
 
-        {/* Action Buttons */}
-        <div className="w-full max-w-md space-y-4">
-          <button
-            onClick={handleLogin}
-            disabled={appStatus?.statusCode === 0 || appStatus?.statusCode === -1}
-            className="w-full py-4 bg-gradient-to-r from-[#4A90E2] to-[#6BB6FF] text-white font-bold rounded-xl transition-all hover:opacity-90 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            登入
-          </button>
+          {/* Action Buttons */}
+          <div className="w-full space-y-4">
+            {/* 登入按鈕 */}
+            <button
+              onClick={handleLogin}
+              disabled={appStatus?.statusCode === 0 || appStatus?.statusCode === -1}
+              className="w-full py-4 bg-gradient-to-r from-[#4A90E2] to-[#6BB6FF] text-white font-bold rounded-xl transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              立即登入
+            </button>
 
-          <button
-            onClick={handleGuestTrial}
-            disabled={appStatus?.statusCode === 0 || appStatus?.statusCode === -1}
-            className="w-full py-4 bg-white/10 border border-white/20 text-white font-medium rounded-xl transition-all hover:bg-white/20 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            訪客快速體驗
-          </button>
+            {/* 訪客快速體驗按鈕 */}
+            <button
+              onClick={() => navigate("/home")}
+              className="w-full py-4 bg-transparent border-2 border-white/40 text-white font-semibold rounded-xl transition-all hover:bg-white/10 hover:border-white/60"
+            >
+              訪客快速體驗
+            </button>
+          </div>
+
+          {/* 提示文字 */}
+          <p className="text-center text-white/40 text-sm mt-6">
+            登入後可使用完整功能
+          </p>
         </div>
 
         {/* Footer */}

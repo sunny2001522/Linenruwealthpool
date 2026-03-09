@@ -176,3 +176,77 @@ export function openAppStore() {
     }
   }
 }
+
+/**
+ * 打開 CMoney 登入網頁（在 app 內打開 WebView）
+ * 
+ * iOS 實現：
+ * - 使用 WKWebView 打開登入網頁
+ * - window.webkit.messageHandlers.openCMoneyLogin.postMessage({ url: loginUrl })
+ * 
+ * Android 實現：
+ * - 使用 WebView 打開登入網頁
+ * - Android.openCMoneyLogin(loginUrl)
+ * 
+ * 登入成功後，CMoney 網頁會回傳登入資訊：
+ * - iOS: window.webkit.messageHandlers.handleLoginSuccess.postMessage({ token, userInfo, isVIP })
+ * - Android: Android.handleLoginSuccess(token, userInfo, isVIP)
+ */
+export function openCMoneyLogin() {
+  const CMONEY_LOGIN_URL = "https://www.cmoney.tw/app/login";
+  
+  // iOS 實現
+  if (window.webkit?.messageHandlers?.openCMoneyLogin) {
+    window.webkit.messageHandlers.openCMoneyLogin.postMessage({
+      url: CMONEY_LOGIN_URL
+    });
+    return;
+  }
+  
+  // Android 實現
+  if (window.Android?.openCMoneyLogin) {
+    window.Android.openCMoneyLogin(CMONEY_LOGIN_URL);
+    return;
+  }
+  
+  // 開發/測試環境
+  if (import.meta.env.DEV) {
+    console.log('🔐 [開發模式] 打開 CMoney 登入網頁');
+    alert('🔐 CMoney 登入\n\n此功能需要原生實現：\niOS: WKWebView\nAndroid: WebView\n\n登入成功後，請呼叫 handleCMoneyLoginCallback()');
+  } else {
+    // 生產環境降級：使用 window.open 打開新視窗
+    window.open(CMONEY_LOGIN_URL, '_blank');
+  }
+}
+
+/**
+ * 處理 CMoney 登入回傳
+ * 這個函數會被原生代碼呼叫，當登入成功時
+ * 
+ * @param token - 登入 token
+ * @param userInfo - 用戶資訊
+ * @param isVIP - 是否為 VIP 用戶
+ */
+export function handleCMoneyLoginCallback(
+  token: string,
+  userInfo: any,
+  isVIP: boolean
+) {
+  // 儲存登入資訊到 localStorage
+  localStorage.setItem('authToken', token);
+  localStorage.setItem('userInfo', JSON.stringify(userInfo));
+  localStorage.setItem('isVIP', String(isVIP));
+  
+  // 觸發自定義事件，通知應用登入成功
+  const event = new CustomEvent('cmoney-login-success', {
+    detail: { token, userInfo, isVIP }
+  });
+  window.dispatchEvent(event);
+  
+  console.log('✅ CMoney 登入成功', { token, userInfo, isVIP });
+}
+
+// 將函數暴露到全局作用域，供原生代碼呼叫
+if (typeof window !== 'undefined') {
+  (window as any).handleCMoneyLoginCallback = handleCMoneyLoginCallback;
+}

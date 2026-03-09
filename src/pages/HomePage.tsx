@@ -850,11 +850,13 @@ a.首圖
             <ResponsiveContainer width="100%" height={160}>
               <LineChart data={marketTrendData}>
                 <CartesianGrid
+                  key="grid"
                   strokeDasharray="3 3"
                   stroke="hsl(var(--border))"
                   opacity={0.2}
                 />
                 <XAxis
+                  key="xAxis"
                   dataKey="date"
                   stroke="hsl(var(--foreground))"
                   style={{ fontSize: "10px", fill: "hsl(var(--foreground))" }}
@@ -863,17 +865,17 @@ a.首圖
                   interval={3}
                 />
                 <YAxis
+                  key="yAxis"
                   stroke="hsl(var(--foreground))"
                   style={{ fontSize: "10px", fill: "hsl(var(--foreground))" }}
                   tickLine={false}
                   axisLine={{ stroke: "hsl(var(--border))" }}
                   domain={["dataMin - 200", "dataMax + 200"]}
-                  tickFormatter={(value) =>
-                    value.toLocaleString()
-                  }
+                  tickFormatter={(value) => value.toLocaleString()}
                 />
-                <Tooltip content={<CustomTooltip />} />
+                <Tooltip key="tooltip" content={<CustomTooltip />} />
                 <Line
+                  key="line"
                   type="monotone"
                   dataKey="value"
                   stroke={lineColor}

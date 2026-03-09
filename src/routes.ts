@@ -12,13 +12,19 @@ import { CustomerServicePage } from "./pages/CustomerServicePage";
 import { HelpCenterPage } from "./pages/HelpCenterPage";
 import { PurchasePage } from "./pages/PurchasePage";
 import { WebPurchasePage } from "./pages/WebPurchasePage";
-import { WelcomePage } from "./pages/WelcomePage";
+import { LoginPage } from "./pages/LoginPage";
+import { LaunchScreen } from "./pages/LaunchScreen";
+import { IndustrySelectionPage } from "./pages/IndustrySelectionPage";
 import { Layout } from "./components/Layout";
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    Component: WelcomePage,
+    Component: LaunchScreen,
+  },
+  {
+    path: "/login",
+    Component: LoginPage,
   },
   {
     path: "/guide",
@@ -43,6 +49,10 @@ export const router = createBrowserRouter([
   {
     path: "/web-purchase",
     Component: WebPurchasePage,
+  },
+  {
+    path: "/industry-selection",
+    Component: IndustrySelectionPage,
   },
   {
     path: "/home",
