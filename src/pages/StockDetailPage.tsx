@@ -626,7 +626,7 @@ function KLineChart({
   const CustomCandlestick = (props: any) => {
     const { x, y, width, height, payload } = props;
     const isRise = payload.close >= payload.open;
-    const color = isRise ? "#FE6D73" : "#9cffd9"; // 柔和紅和薄荷���
+    const color = isRise ? "#FE6D73" : "#9cffd9"; // 柔和紅和薄荷
     
     const bodyHeight = Math.abs(payload.close - payload.open) / (payload.high - payload.low) * height;
     const bodyY = isRise 
@@ -855,7 +855,7 @@ function VolumeChart() {
         >
           {data.map((entry, index) => (
             <Cell 
-              key={`cell-${index}`} 
+              key={`volume-cell-${entry.date}-${index}`} 
               fill={entry.isRise ? '#FE6D73' : '#9cffd9'}
               opacity={0.7}
             />

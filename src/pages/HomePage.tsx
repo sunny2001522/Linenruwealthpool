@@ -461,12 +461,12 @@ export function HomePage() {
     if (type === "loser") {
       // 落水狗类股：同时设置loserIndustry和空方
       navigate(
-        `/stock-picker?loserIndustry=${encodeURIComponent(industry)}&side=short`,
+        `/home/stock-picker?loserIndustry=${encodeURIComponent(industry)}&side=short`,
       );
     } else {
       // 领头羊类股：只设置industry
       navigate(
-        `/stock-picker?industry=${encodeURIComponent(industry)}`,
+        `/home/stock-picker?industry=${encodeURIComponent(industry)}`,
       );
     }
   };

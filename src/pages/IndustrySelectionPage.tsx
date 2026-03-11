@@ -207,13 +207,13 @@ export function IndustrySelectionPage() {
     const paramKey =
       marketType === "bull" ? "industry" : "loserIndustry";
     navigate(
-      `/stock-picker?tab=pick&marketType=${marketType}&${paramKey}=${encodeURIComponent(industryName)}`,
+      `/home/stock-picker?tab=pick&marketType=${marketType}&${paramKey}=${encodeURIComponent(industryName)}`,
     );
   };
 
   const handleSave = () => {
     // 保存并返回
-    navigate(`/stock-picker?tab=pick&marketType=${marketType}`);
+    navigate(`/home/stock-picker?tab=pick&marketType=${marketType}`);
   };
 
   return (
