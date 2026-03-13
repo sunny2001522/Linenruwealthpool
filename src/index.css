@@ -571,6 +571,10 @@
     right: calc(var(--spacing) * 2);
   }
 
+  .right-3 {
+    right: calc(var(--spacing) * 3);
+  }
+
   .right-4 {
     right: calc(var(--spacing) * 4);
   }
@@ -893,6 +897,10 @@
 
   .ml-1 {
     margin-left: calc(var(--spacing) * 1);
+  }
+
+  .ml-1\.5 {
+    margin-left: calc(var(--spacing) * 1.5);
   }
 
   .ml-2 {
@@ -2916,6 +2924,10 @@
     padding-right: calc(var(--spacing) * 4);
   }
 
+  .pr-10 {
+    padding-right: calc(var(--spacing) * 10);
+  }
+
   .pb-1 {
     padding-bottom: calc(var(--spacing) * 1);
   }
@@ -3883,6 +3895,12 @@
   }
 
   @media (hover: hover) {
+    .hover\:bg-background:hover {
+      background-color: var(--background);
+    }
+  }
+
+  @media (hover: hover) {
     .hover\:bg-black\/80:hover {
       background-color: #000c;
     }
@@ -4157,6 +4175,12 @@
   }
 
   @media (hover: hover) {
+    .hover\:fill-primary:hover {
+      fill: var(--primary);
+    }
+  }
+
+  @media (hover: hover) {
     .hover\:text-\[\#4A90E2\]\/80:hover {
       color: oklab(64.5988% -.03941 -.136718 / .8);
     }
@@ -4177,6 +4201,18 @@
   @media (hover: hover) {
     .hover\:text-primary:hover {
       color: var(--primary);
+    }
+  }
+
+  @media (hover: hover) {
+    .hover\:text-primary\/80:hover {
+      color: var(--primary);
+    }
+
+    @supports (color: color-mix(in lab, red, red)) {
+      .hover\:text-primary\/80:hover {
+        color: color-mix(in oklab, var(--primary) 80%, transparent);
+      }
     }
   }
 

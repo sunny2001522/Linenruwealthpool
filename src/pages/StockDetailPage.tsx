@@ -96,7 +96,10 @@ export function StockDetailPage() {
                 }`}
               />
             </button>
-            <button className="text-foreground hover:text-primary transition-colors">
+            <button 
+              onClick={() => navigate("/search")}
+              className="text-foreground hover:text-primary transition-colors"
+            >
               <Search className="w-5 h-5" />
             </button>
           </div>

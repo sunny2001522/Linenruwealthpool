@@ -396,7 +396,7 @@ export function WatchlistPage() {
             {/* 恩如選股區域 */}
             <div>
               <div className="flex flex-col gap-3">
-                {/* 第一排：大盤 + 多方/空方 + 工具按鈕 */}
+                {/* 第一排：大盤 + 工具按鈕 */}
                 <div className="pb-1">
                   <div className="flex items-center justify-between gap-3">
                     {/* 左側：大盤 */}
@@ -450,48 +450,6 @@ export function WatchlistPage() {
                         >
                           {Math.abs(marketChange).toFixed(2)}
                         </span>
-                      </button>
-                    </div>
-
-                    {/* 中間：多方/空方 */}
-                    <div className="flex items-center gap-3 absolute left-1/2 -translate-x-1/2">
-                      <button
-                        onClick={() =>
-                          handleMarketTypeChange("bull")
-                        }
-                        className="relative pb-1 transition-colors"
-                      >
-                        <span
-                          className={`text-base font-medium whitespace-nowrap ${
-                            marketType === "bull"
-                              ? "text-foreground"
-                              : "text-muted-foreground"
-                          }`}
-                        >
-                          多方
-                        </span>
-                        {marketType === "bull" && (
-                          <div className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-red-500" />
-                        )}
-                      </button>
-                      <button
-                        onClick={() =>
-                          handleMarketTypeChange("bear")
-                        }
-                        className="relative pb-1 transition-colors"
-                      >
-                        <span
-                          className={`text-base font-medium whitespace-nowrap ${
-                            marketType === "bear"
-                              ? "text-foreground"
-                              : "text-muted-foreground"
-                          }`}
-                        >
-                          空方
-                        </span>
-                        {marketType === "bear" && (
-                          <div className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-green-500" />
-                        )}
                       </button>
                     </div>
 

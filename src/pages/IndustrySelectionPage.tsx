@@ -5,6 +5,7 @@ import {
   ChevronUp,
   X,
   ChevronRight,
+  ArrowLeft,
 } from "lucide-react";
 
 type PeriodType = "current" | "previous";
@@ -224,7 +225,7 @@ export function IndustrySelectionPage() {
           onClick={() => navigate(-1)}
           className="p-2 -ml-2 text-white/70 hover:text-white transition-colors"
         >
-          <X className="w-5 h-5" />
+          <ArrowLeft className="w-5 h-5" />
         </button>
         <h1 className="text-base font-medium text-white">
           產業篩選
