@@ -1,7 +1,7 @@
 import { useState, useRef, TouchEvent } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "../lib/authContext";
-import { ChevronRight, Star, Flame, Sparkles, TrendingUp, TrendingDown } from "lucide-react";
+import { ChevronRight, Star, Flame, Sparkles, TrendingUp, TrendingDown, ArrowLeft } from "lucide-react";
 
 const guideSteps = [
   {
@@ -399,11 +399,19 @@ export function GuidePage() {
 
       {/* Header */}
       <div className="relative z-10 flex items-center justify-between p-5 shrink-0">
-        <div className="flex items-center gap-2">
-          <div className={`w-8 h-1 bg-gradient-to-r ${currentGuide.gradient} rounded-full shadow-lg`} />
-          <span className="text-xs font-bold text-white/90">
-            {currentStep + 1} / {guideSteps.length}
-          </span>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate("/home/more")}
+            className="p-2 -ml-2 text-white/80 hover:text-white hover:bg-white/10 rounded-full transition-all"
+          >
+            <ArrowLeft className="w-6 h-6" />
+          </button>
+          <div className="flex items-center gap-2">
+            <div className={`w-8 h-1 bg-gradient-to-r ${currentGuide.gradient} rounded-full shadow-lg`} />
+            <span className="text-xs font-bold text-white/90">
+              {currentStep + 1} / {guideSteps.length}
+            </span>
+          </div>
         </div>
         
         <button
