@@ -96,7 +96,7 @@ export function StockDetailPage() {
                 }`}
               />
             </button>
-            <button 
+            <button
               onClick={() => navigate("/search")}
               className="text-foreground hover:text-primary transition-colors"
             >
@@ -156,7 +156,6 @@ export function StockDetailPage() {
               </span>
             </div>
           </div>
-
         </div>
       </div>
 
@@ -246,7 +245,8 @@ function KLineTab({
   const [showShortMA, setShowShortMA] = useState(true); // 短均（黄色）
   const [showLongMA, setShowLongMA] = useState(true); // 长均（蓝色）
   // 選中的K線數據
-  const [selectedKLineData, setSelectedKLineData] = useState<any>(null);
+  const [selectedKLineData, setSelectedKLineData] =
+    useState<any>(null);
 
   // 生成最新K線數據用於顯示當前價格
   const generateCurrentData = () => {
@@ -297,27 +297,42 @@ function KLineTab({
             月
           </button>
         </div>
-        
       </div>
 
       {/* 當前價格資訊 - 常駐顯示 */}
       <div className="bg-card border border-border rounded-lg p-3 mb-4">
         <div className="grid grid-cols-4 gap-3">
           <div>
-            <p className="text-[10px] text-muted-foreground mb-0.5">開盤</p>
-            <p className="text-sm font-semibold">{currentData.open.toFixed(2)}</p>
+            <p className="text-[10px] text-muted-foreground mb-0.5">
+              開盤
+            </p>
+            <p className="text-sm font-semibold">
+              {currentData.open.toFixed(2)}
+            </p>
           </div>
           <div>
-            <p className="text-[10px] text-muted-foreground mb-0.5">最高</p>
-            <p className="text-sm font-semibold text-chart-2">{currentData.high.toFixed(2)}</p>
+            <p className="text-[10px] text-muted-foreground mb-0.5">
+              最高
+            </p>
+            <p className="text-sm font-semibold text-chart-2">
+              {currentData.high.toFixed(2)}
+            </p>
           </div>
           <div>
-            <p className="text-[10px] text-muted-foreground mb-0.5">最低</p>
-            <p className="text-sm font-semibold text-chart-3">{currentData.low.toFixed(2)}</p>
+            <p className="text-[10px] text-muted-foreground mb-0.5">
+              最低
+            </p>
+            <p className="text-sm font-semibold text-chart-3">
+              {currentData.low.toFixed(2)}
+            </p>
           </div>
           <div>
-            <p className="text-[10px] text-muted-foreground mb-0.5">收盤</p>
-            <p className={`text-sm font-semibold ${currentData.close >= currentData.open ? "text-chart-2" : "text-chart-3"}`}>
+            <p className="text-[10px] text-muted-foreground mb-0.5">
+              收盤
+            </p>
+            <p
+              className={`text-sm font-semibold ${currentData.close >= currentData.open ? "text-chart-2" : "text-chart-3"}`}
+            >
               {currentData.close.toFixed(2)}
             </p>
           </div>
@@ -331,16 +346,20 @@ function KLineTab({
           onClick={() => setShowShortMA(!showShortMA)}
           className="flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition-all active:scale-95"
           style={{
-            borderColor: showShortMA ? '#EAB308' : '#404040',
-            backgroundColor: showShortMA ? 'rgba(234, 179, 8, 0.1)' : 'transparent'
+            borderColor: showShortMA ? "#EAB308" : "#404040",
+            backgroundColor: showShortMA
+              ? "rgba(234, 179, 8, 0.1)"
+              : "transparent",
           }}
         >
           {/* 打勾框 */}
           <div
             className="w-5 h-5 rounded flex items-center justify-center border-2 transition-all flex-shrink-0"
             style={{
-              borderColor: showShortMA ? '#EAB308' : '#404040',
-              backgroundColor: showShortMA ? '#EAB308' : 'transparent'
+              borderColor: showShortMA ? "#EAB308" : "#404040",
+              backgroundColor: showShortMA
+                ? "#EAB308"
+                : "transparent",
             }}
           >
             {showShortMA && (
@@ -361,8 +380,15 @@ function KLineTab({
           </div>
           {/* 文字信息 */}
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-muted-foreground">短均</span>
-            <span className="text-xs font-medium" style={{ color: '#EAB308' }}>MA20</span>
+            <span className="text-[10px] text-muted-foreground">
+              短均
+            </span>
+            <span
+              className="text-xs font-medium"
+              style={{ color: "#EAB308" }}
+            >
+              MA20
+            </span>
             {showShortMA && selectedKLineData && (
               <span className="text-sm font-bold text-foreground">
                 {selectedKLineData.ma20.toFixed(2)}
@@ -381,16 +407,20 @@ function KLineTab({
           onClick={() => setShowLongMA(!showLongMA)}
           className="flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition-all active:scale-95"
           style={{
-            borderColor: showLongMA ? '#3B82F6' : '#404040',
-            backgroundColor: showLongMA ? 'rgba(59, 130, 246, 0.1)' : 'transparent'
+            borderColor: showLongMA ? "#3B82F6" : "#404040",
+            backgroundColor: showLongMA
+              ? "rgba(59, 130, 246, 0.1)"
+              : "transparent",
           }}
         >
           {/* 打勾框 */}
           <div
             className="w-5 h-5 rounded flex items-center justify-center border-2 transition-all flex-shrink-0"
             style={{
-              borderColor: showLongMA ? '#3B82F6' : '#404040',
-              backgroundColor: showLongMA ? '#3B82F6' : 'transparent'
+              borderColor: showLongMA ? "#3B82F6" : "#404040",
+              backgroundColor: showLongMA
+                ? "#3B82F6"
+                : "transparent",
             }}
           >
             {showLongMA && (
@@ -411,8 +441,15 @@ function KLineTab({
           </div>
           {/* 文字信息 */}
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-muted-foreground">長均</span>
-            <span className="text-xs font-medium" style={{ color: '#3B82F6' }}>MA100</span>
+            <span className="text-[10px] text-muted-foreground">
+              長均
+            </span>
+            <span
+              className="text-xs font-medium"
+              style={{ color: "#3B82F6" }}
+            >
+              MA100
+            </span>
             {showLongMA && selectedKLineData && (
               <span className="text-sm font-bold text-foreground">
                 {selectedKLineData.ma100.toFixed(2)}
@@ -445,38 +482,76 @@ function KLineTab({
         <div className="bg-card border border-border rounded-lg p-4 mb-4">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div>
-              <p className="text-xs text-muted-foreground mb-1">日期</p>
-              <p className="font-semibold text-sm">{selectedKLineData.date}</p>
+              <p className="text-xs text-muted-foreground mb-1">
+                日期
+              </p>
+              <p className="font-semibold text-sm">
+                {selectedKLineData.date}
+              </p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground mb-1">開盤</p>
-              <p className="font-semibold text-sm">{selectedKLineData.open.toFixed(2)}</p>
+              <p className="text-xs text-muted-foreground mb-1">
+                開盤
+              </p>
+              <p className="font-semibold text-sm">
+                {selectedKLineData.open.toFixed(2)}
+              </p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground mb-1">最高</p>
-              <p className="font-semibold text-sm text-chart-2">{selectedKLineData.high.toFixed(2)}</p>
+              <p className="text-xs text-muted-foreground mb-1">
+                最高
+              </p>
+              <p className="font-semibold text-sm text-chart-2">
+                {selectedKLineData.high.toFixed(2)}
+              </p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground mb-1">最低</p>
-              <p className="font-semibold text-sm text-chart-3">{selectedKLineData.low.toFixed(2)}</p>
+              <p className="text-xs text-muted-foreground mb-1">
+                最低
+              </p>
+              <p className="font-semibold text-sm text-chart-3">
+                {selectedKLineData.low.toFixed(2)}
+              </p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground mb-1">收盤</p>
-              <p className={`font-semibold text-sm ${selectedKLineData.close >= selectedKLineData.open ? "text-chart-2" : "text-chart-3"}`}>
+              <p className="text-xs text-muted-foreground mb-1">
+                收盤
+              </p>
+              <p
+                className={`font-semibold text-sm ${selectedKLineData.close >= selectedKLineData.open ? "text-chart-2" : "text-chart-3"}`}
+              >
                 {selectedKLineData.close.toFixed(2)}
               </p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground mb-1">MA20</p>
-              <p className="font-semibold text-sm" style={{ color: '#EAB308' }}>{selectedKLineData.ma20.toFixed(2)}</p>
+              <p className="text-xs text-muted-foreground mb-1">
+                MA20
+              </p>
+              <p
+                className="font-semibold text-sm"
+                style={{ color: "#EAB308" }}
+              >
+                {selectedKLineData.ma20.toFixed(2)}
+              </p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground mb-1">MA100</p>
-              <p className="font-semibold text-sm" style={{ color: '#3B82F6' }}>{selectedKLineData.ma100.toFixed(2)}</p>
+              <p className="text-xs text-muted-foreground mb-1">
+                MA100
+              </p>
+              <p
+                className="font-semibold text-sm"
+                style={{ color: "#3B82F6" }}
+              >
+                {selectedKLineData.ma100.toFixed(2)}
+              </p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground mb-1">成交量</p>
-              <p className="font-semibold text-sm">{(selectedKLineData.volume / 1000).toFixed(0)}K</p>
+              <p className="text-xs text-muted-foreground mb-1">
+                成交量
+              </p>
+              <p className="font-semibold text-sm">
+                {(selectedKLineData.volume / 1000).toFixed(0)}K
+              </p>
             </div>
           </div>
         </div>
@@ -537,7 +612,6 @@ function InfoTab({ stock }: { stock: any }) {
 
   return (
     <div>
-     
       <div className="space-y-0 border-t border-border">
         {infoItems.map((item, index) => (
           <div
@@ -583,24 +657,69 @@ function KLineChart({
     const data = [];
     let basePrice = stock.price * 0.85;
     const dates = [
-      "11/26", "11/27", "11/28", "11/29", "12/02", "12/03", "12/04", "12/05",
-      "12/06", "12/09", "12/10", "12/11", "12/12", "12/13", "12/16", "12/17",
-      "12/18", "12/19", "12/20", "12/23", "12/24", "12/25", "12/26", "12/27",
-      "12/30", "12/31", "01/02", "01/03", "01/06", "01/07", "01/08", "01/09",
-      "01/10", "01/13", "01/14", "01/15", "01/16", "01/17", "01/20", "01/21",
-      "01/22", "01/23", "01/24", "01/27", "01/28", "01/29", "01/30", "01/31",
-      "02/03", "02/04"
+      "11/26",
+      "11/27",
+      "11/28",
+      "11/29",
+      "12/02",
+      "12/03",
+      "12/04",
+      "12/05",
+      "12/06",
+      "12/09",
+      "12/10",
+      "12/11",
+      "12/12",
+      "12/13",
+      "12/16",
+      "12/17",
+      "12/18",
+      "12/19",
+      "12/20",
+      "12/23",
+      "12/24",
+      "12/25",
+      "12/26",
+      "12/27",
+      "12/30",
+      "12/31",
+      "01/02",
+      "01/03",
+      "01/06",
+      "01/07",
+      "01/08",
+      "01/09",
+      "01/10",
+      "01/13",
+      "01/14",
+      "01/15",
+      "01/16",
+      "01/17",
+      "01/20",
+      "01/21",
+      "01/22",
+      "01/23",
+      "01/24",
+      "01/27",
+      "01/28",
+      "01/29",
+      "01/30",
+      "01/31",
+      "02/03",
+      "02/04",
     ];
 
     for (let i = 0; i < dates.length; i++) {
       const trend = (i / dates.length) * 0.15; // 整體上漲趨勢
       const volatility = (Math.random() - 0.5) * 0.03;
-      
+
       const open = basePrice * (1 + trend + volatility);
       const close = open * (1 + (Math.random() - 0.45) * 0.04);
-      const high = Math.max(open, close) * (1 + Math.random() * 0.02);
-      const low = Math.min(open, close) * (1 - Math.random() * 0.02);
-      
+      const high =
+        Math.max(open, close) * (1 + Math.random() * 0.02);
+      const low =
+        Math.min(open, close) * (1 - Math.random() * 0.02);
+
       // 計算均線
       const ma20 = basePrice * (1 + trend * 0.8);
       const ma100 = basePrice * (1 + trend * 0.5);
@@ -630,14 +749,23 @@ function KLineChart({
     const { x, y, width, height, payload } = props;
     const isRise = payload.close >= payload.open;
     const color = isRise ? "#FE6D73" : "#9cffd9"; // 柔和紅和薄荷
-    
-    const bodyHeight = Math.abs(payload.close - payload.open) / (payload.high - payload.low) * height;
-    const bodyY = isRise 
-      ? y + (payload.high - payload.close) / (payload.high - payload.low) * height
-      : y + (payload.high - payload.open) / (payload.high - payload.low) * height;
-    
+
+    const bodyHeight =
+      (Math.abs(payload.close - payload.open) /
+        (payload.high - payload.low)) *
+      height;
+    const bodyY = isRise
+      ? y +
+        ((payload.high - payload.close) /
+          (payload.high - payload.low)) *
+          height
+      : y +
+        ((payload.high - payload.open) /
+          (payload.high - payload.low)) *
+          height;
+
     const wickX = x + width / 2;
-    
+
     return (
       <g>
         {/* 上下影線 */}
@@ -668,7 +796,7 @@ function KLineChart({
     if (active && payload && payload.length > 0) {
       const data = payload[0].payload;
       const isPositive = data.close >= data.open;
-      
+
       return (
         <div className="bg-card border border-border rounded-lg p-3 shadow-lg">
           <p className="text-sm font-semibold text-foreground mb-2">
@@ -676,34 +804,64 @@ function KLineChart({
           </p>
           <div className="space-y-1 text-xs">
             <div className="flex justify-between gap-4">
-              <span className="text-muted-foreground">開盤：</span>
-              <span className="font-medium">{data.open.toFixed(2)}</span>
+              <span className="text-muted-foreground">
+                開盤：
+              </span>
+              <span className="font-medium">
+                {data.open.toFixed(2)}
+              </span>
             </div>
             <div className="flex justify-between gap-4">
-              <span className="text-muted-foreground">最高：</span>
-              <span className="font-medium text-chart-2">{data.high.toFixed(2)}</span>
+              <span className="text-muted-foreground">
+                最高：
+              </span>
+              <span className="font-medium text-chart-2">
+                {data.high.toFixed(2)}
+              </span>
             </div>
             <div className="flex justify-between gap-4">
-              <span className="text-muted-foreground">最低：</span>
-              <span className="font-medium text-chart-3">{data.low.toFixed(2)}</span>
+              <span className="text-muted-foreground">
+                最低：
+              </span>
+              <span className="font-medium text-chart-3">
+                {data.low.toFixed(2)}
+              </span>
             </div>
             <div className="flex justify-between gap-4">
-              <span className="text-muted-foreground">收盤：</span>
-              <span className={`font-medium ${isPositive ? "text-chart-2" : "text-chart-3"}`}>
+              <span className="text-muted-foreground">
+                收盤：
+              </span>
+              <span
+                className={`font-medium ${isPositive ? "text-chart-2" : "text-chart-3"}`}
+              >
                 {data.close.toFixed(2)}
               </span>
             </div>
             <div className="border-t border-border my-1 pt-1" />
             {showShortMA && data.ma20 && (
               <div className="flex justify-between gap-4">
-                <span className="text-muted-foreground">MA20：</span>
-                <span className="font-medium" style={{ color: '#EAB308' }}>{data.ma20.toFixed(2)}</span>
+                <span className="text-muted-foreground">
+                  MA20：
+                </span>
+                <span
+                  className="font-medium"
+                  style={{ color: "#EAB308" }}
+                >
+                  {data.ma20.toFixed(2)}
+                </span>
               </div>
             )}
             {showLongMA && data.ma100 && (
               <div className="flex justify-between gap-4">
-                <span className="text-muted-foreground">MA100：</span>
-                <span className="font-medium" style={{ color: '#3B82F6' }}>{data.ma100.toFixed(2)}</span>
+                <span className="text-muted-foreground">
+                  MA100：
+                </span>
+                <span
+                  className="font-medium"
+                  style={{ color: "#3B82F6" }}
+                >
+                  {data.ma100.toFixed(2)}
+                </span>
               </div>
             )}
           </div>
@@ -715,46 +873,52 @@ function KLineChart({
 
   return (
     <div className="relative w-full h-full">
-
-
       {/* K線圖表 */}
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart
           data={data}
           margin={{ top: 30, right: 10, left: 0, bottom: 20 }}
           onClick={(e: any) => {
-            if (e && e.activePayload && e.activePayload.length > 0) {
+            if (
+              e &&
+              e.activePayload &&
+              e.activePayload.length > 0
+            ) {
               onSelectKLine(e.activePayload[0].payload);
             }
           }}
         >
           {/* 網格線 */}
-          <CartesianGrid 
-            strokeDasharray="3 3" 
+          <CartesianGrid
+            strokeDasharray="3 3"
             stroke="#333"
             vertical={false}
           />
-          
+
           {/* X軸 */}
           <XAxis
             dataKey="date"
-            tick={{ fill: '#666', fontSize: 10 }}
+            tick={{ fill: "#666", fontSize: 10 }}
             tickLine={false}
             axisLine={false}
             interval="preserveStartEnd"
             tickFormatter={(value, index) => {
               // 只顯示首尾和中間的日期
-              if (index === 0 || index === data.length - 1 || index === Math.floor(data.length / 2)) {
+              if (
+                index === 0 ||
+                index === data.length - 1 ||
+                index === Math.floor(data.length / 2)
+              ) {
                 return value;
               }
-              return '';
+              return "";
             }}
           />
-          
+
           {/* Y軸 */}
           <YAxis
-            domain={['auto', 'auto']}
-            tick={{ fill: '#666', fontSize: 10 }}
+            domain={["auto", "auto"]}
+            tick={{ fill: "#666", fontSize: 10 }}
             tickLine={false}
             axisLine={false}
             orientation="right"
@@ -762,7 +926,10 @@ function KLineChart({
           />
 
           {/* Tooltip */}
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }} />
+          <Tooltip
+            content={<CustomTooltip />}
+            cursor={{ fill: "rgba(255, 255, 255, 0.05)" }}
+          />
 
           {/* 短均線（黃色）- 加粗 */}
           {showShortMA && (
@@ -806,19 +973,62 @@ function VolumeChart() {
   const generateVolumeData = () => {
     const data = [];
     const dates = [
-      "11/26", "11/27", "11/28", "11/29", "12/02", "12/03", "12/04", "12/05",
-      "12/06", "12/09", "12/10", "12/11", "12/12", "12/13", "12/16", "12/17",
-      "12/18", "12/19", "12/20", "12/23", "12/24", "12/25", "12/26", "12/27",
-      "12/30", "12/31", "01/02", "01/03", "01/06", "01/07", "01/08", "01/09",
-      "01/10", "01/13", "01/14", "01/15", "01/16", "01/17", "01/20", "01/21",
-      "01/22", "01/23", "01/24", "01/27", "01/28", "01/29", "01/30", "01/31",
-      "02/03", "02/04"
+      "11/26",
+      "11/27",
+      "11/28",
+      "11/29",
+      "12/02",
+      "12/03",
+      "12/04",
+      "12/05",
+      "12/06",
+      "12/09",
+      "12/10",
+      "12/11",
+      "12/12",
+      "12/13",
+      "12/16",
+      "12/17",
+      "12/18",
+      "12/19",
+      "12/20",
+      "12/23",
+      "12/24",
+      "12/25",
+      "12/26",
+      "12/27",
+      "12/30",
+      "12/31",
+      "01/02",
+      "01/03",
+      "01/06",
+      "01/07",
+      "01/08",
+      "01/09",
+      "01/10",
+      "01/13",
+      "01/14",
+      "01/15",
+      "01/16",
+      "01/17",
+      "01/20",
+      "01/21",
+      "01/22",
+      "01/23",
+      "01/24",
+      "01/27",
+      "01/28",
+      "01/29",
+      "01/30",
+      "01/31",
+      "02/03",
+      "02/04",
     ];
 
     for (let i = 0; i < dates.length; i++) {
       const isRise = Math.random() > 0.45; // 55% 上漲概率
-      const volume = (Math.random() * 80000000 + 30000000);
-      
+      const volume = Math.random() * 80000000 + 30000000;
+
       data.push({
         date: dates[i],
         volume,
@@ -839,7 +1049,7 @@ function VolumeChart() {
       >
         {/* Y軸 */}
         <YAxis
-          tick={{ fill: '#666', fontSize: 10 }}
+          tick={{ fill: "#666", fontSize: 10 }}
           tickLine={false}
           axisLine={false}
           orientation="right"
@@ -852,14 +1062,11 @@ function VolumeChart() {
         />
 
         {/* 成交量柱狀圖 */}
-        <Bar
-          dataKey="volume"
-          isAnimationActive={false}
-        >
+        <Bar dataKey="volume" isAnimationActive={false}>
           {data.map((entry, index) => (
-            <Cell 
-              key={`volume-cell-${entry.date}-${index}`} 
-              fill={entry.isRise ? '#FE6D73' : '#9cffd9'}
+            <Cell
+              key={`volume-cell-${entry.date}-${index}`}
+              fill={entry.isRise ? "#FE6D73" : "#9cffd9"}
               opacity={0.7}
             />
           ))}
