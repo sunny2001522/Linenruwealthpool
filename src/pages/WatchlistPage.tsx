@@ -626,50 +626,9 @@ a.策略(Signal)
                         </>
                       )}
                     </div>
-                    
-                    {/* 產業 + 篩選按鈕組 */}
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => {
-                          const selectedIndustry = marketType === "bull" 
-                            ? advancedFilters.leaderIndustry 
-                            : advancedFilters.loserIndustry;
-                          navigate(`/industry-selection?marketType=${marketType}${selectedIndustry ? `&selected=${encodeURIComponent(selectedIndustry)}` : ''}`);
-                        }}
-                        className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${
-                          marketType === "bull"
-                            ? advancedFilters.leaderIndustry
-                              ? "bg-[#4A90E2] text-white shadow-md"
-                              : "bg-muted text-muted-foreground hover:bg-muted/80"
-                            : advancedFilters.loserIndustry
-                              ? "bg-[#4A90E2] text-white shadow-md"
-                              : "bg-muted text-muted-foreground hover:bg-muted/80"
-                        }`}
-                      >
-                        <span>
-                          {(() => {
-                            const selectedIndustry = marketType === "bull" 
-                              ? advancedFilters.leaderIndustry 
-                              : advancedFilters.loserIndustry;
-                            if (!selectedIndustry) return "產業";
-                            // 提取最后一部分，例如 "電子上游-IC-設計" -> "設計"
-                            const parts = selectedIndustry.split("-");
-                            return parts[parts.length - 1];
-                          })()}
-                        </span>
-                        <ChevronDown className="w-3 h-3" />
-                      </button>
-                      
-                      {/* 篩選按鈕 */}
-                      <AdvancedFilters
-                        filters={advancedFilters}
-                        onChange={setAdvancedFilters}
-                        marketType={marketType}
-                        renderMode="inline"
-                      />
-                    </div>
                   </div>
                 </div>
+                {/* 產業與篩選按鈕組被移除了，下方內容將自然往上頂部填補垂直空間 */}
               </div>
             </div>
           </div>
