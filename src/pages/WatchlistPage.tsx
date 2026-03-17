@@ -544,44 +544,8 @@ a.策略(Signal)
                     <div className="flex items-center gap-1">
                       {marketType === "bull" ? (
                         <>
-                          <button
-                            onClick={() =>
-                              setFilterType("above-ma")
-                            }
-                            className="relative px-4 py-1.5 text-base font-medium transition-colors whitespace-nowrap"
-                          >
-                            <span
-                              className={
-                                filterType === "above-ma"
-                                  ? "text-foreground"
-                                  : "text-muted-foreground"
-                              }
-                            >
-                              站上週20MA
-                            </span>
-                            {filterType === "above-ma" && (
-                              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#4A90E2] to-[#6BB6FF]" />
-                            )}
-                          </button>
-                          <button
-                            onClick={() =>
-                              setFilterType("strong-ma")
-                            }
-                            className="relative px-4 py-1.5 text-base font-medium transition-colors whitespace-nowrap"
-                          >
-                            <span
-                              className={
-                                filterType === "strong-ma"
-                                  ? "text-foreground"
-                                  : "text-muted-foreground"
-                              }
-                            >
-                              強勢週20MA
-                            </span>
-                            {filterType === "strong-ma" && (
-                              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#4A90E2] to-[#6BB6FF]" />
-                            )}
-                          </button>
+                          
+                          
                         </>
                       ) : (
                         <>
