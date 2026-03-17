@@ -496,12 +496,12 @@ export function WatchlistPage() {
                         <Edit2 className="w-5 h-5" />
                       </button>
 
-                      {/* 加入自選按鈕 */}
+                      {/* 搜尋按鈕 */}
                       <button
                         onClick={() => navigate("/search")}
                         className="p-2  text-muted-foreground hover:bg-muted rounded-full transition-colors"
                       >
-                        <Plus className="w-5 h-5 " />
+                        <Search className="w-5 h-5 " />
                       </button>
                     </div>
                   </div>
