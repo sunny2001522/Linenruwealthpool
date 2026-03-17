@@ -278,7 +278,12 @@ export function StockPickerPage() {
           comparison = 0;
       }
 
-      return sortDirection === "asc" ? -comparison : comparison;
+      if (comparison !== 0) {
+        return sortDirection === "asc" ? -comparison : comparison;
+      }
+      
+      // 同值時第二順位：依 stock id (code) 由小到大排列
+      return a.code.localeCompare(b.code);
     });
 
     return stocks;

@@ -347,6 +347,12 @@ export function WatchlistPage() {
       return sortDirection === "asc" ? -1 : 1;
     if (aValue > bValue)
       return sortDirection === "asc" ? 1 : -1;
+      
+    // 同值時第二順位：依 stock id (code) 由小到大排列
+    const aCode = a.code || "";
+    const bCode = b.code || "";
+    if (aCode < bCode) return -1;
+    if (aCode > bCode) return 1;
     return 0;
   });
   
