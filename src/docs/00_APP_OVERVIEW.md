@@ -22,6 +22,11 @@
 - ✅ **智能篩選系統**：多層級 AND 交集篩選，精準選股
 - ✅ **自選股管理**：個人化自選股清單，即時追蹤
 
+### 重要文件
+- ✅ **開發用圖片**：https://www.figma.com/design/DJXNXOHqATG7fVxSZrruWF/%E6%9E%97%E6%81%A9%E5%A6%82--%E9%95%B7%E7%B7%9A%E8%81%9A%E5%AF%B6%E7%9B%86APP?node-id=841-2&p=f&t=b6ZlMAR8FhNe4bE8-0
+- ✅ **github**：https://github.com/sunny2001522/Linenruwealthpool.git
+
+
 ---
 
 ## 🎨 設計系統
