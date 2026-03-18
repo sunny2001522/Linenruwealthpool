@@ -6,6 +6,7 @@ import { openAppStore, openCMoneyLogin } from "../lib/nativeBridge";
 import { AppStatusResponse } from "../lib/appConfig";
 import { AlertTriangle, RefreshCw, Bell, X } from "lucide-react";
 import { motion } from "motion/react";
+import LaunchBackground from "../imports/LaunchBackground-1443-970";
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -119,70 +120,14 @@ export function LoginPage() {
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-b from-[#034D99] via-[#002554] to-[#00356B] flex flex-col items-center justify-between px-6 py-12 relative overflow-hidden">
-        {/* 主要內容 */}
-        <div className="flex-1 flex flex-col items-center justify-center w-full max-w-md z-10">
-          {/* Logo 和品牌區域 */}
-          <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="flex flex-col items-center gap-8 mb-12"
-          >
-            {/* 金色品牌 Logo 圖示 - 簡化版本 */}
-            <div className="relative w-48 h-48 flex items-center justify-center">
-              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#FFE09E] via-[#EABA72] to-[#D4AF37] opacity-20 blur-2xl"></div>
-              <svg className="relative w-32 h-32" viewBox="0 0 100 100" fill="none">
-                {/* 簡化的寶石形狀 */}
-                <path 
-                  d="M50 10 L70 35 L60 70 L40 70 L30 35 Z" 
-                  fill="url(#logo-gradient)"
-                  stroke="url(#logo-stroke)"
-                  strokeWidth="1.5"
-                />
-                {/* 裝飾線條 */}
-                <line x1="50" y1="10" x2="50" y2="25" stroke="url(#logo-stroke)" strokeWidth="1" />
-                <line x1="30" y1="35" x2="45" y2="45" stroke="url(#logo-stroke)" strokeWidth="0.8" />
-                <line x1="70" y1="35" x2="55" y2="45" stroke="url(#logo-stroke)" strokeWidth="0.8" />
-                
-                <defs>
-                  <linearGradient id="logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#FFE09E" />
-                    <stop offset="50%" stopColor="#EABA72" />
-                    <stop offset="100%" stopColor="#D4AF37" />
-                  </linearGradient>
-                  <linearGradient id="logo-stroke" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#FFE4C3" />
-                    <stop offset="50%" stopColor="#FFF1C1" />
-                    <stop offset="100%" stopColor="#C9A676" />
-                  </linearGradient>
-                </defs>
-              </svg>
-            </div>
+      <div className="min-h-screen relative flex flex-col items-center justify-end px-6 pb-[20vh] overflow-hidden">
+        {/* Figma 背景 - 鋪滿並置底 */}
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <LaunchBackground />
+        </div>
 
-            {/* 品牌名稱 */}
-            <div className="text-center">
-              <h1 
-                className="text-5xl font-bold leading-tight mb-3"
-                style={{
-                  background: 'linear-gradient(135deg, #FFE09E 0%, #EABA72 50%, #D4AF37 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text'
-                }}
-              >
-                長線聚寶盆
-              </h1>
-              
-              {/* 林恩如名稱 */}
-              <div className="flex items-center justify-center gap-3 mt-4">
-                <div className="h-px w-16 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent"></div>
-                <p className="text-[#f5ce8a] text-lg tracking-wider font-medium">林恩如</p>
-                <div className="h-px w-16 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent"></div>
-              </div>
-            </div>
-          </motion.div>
-
+        {/* 主要內容 (互動按鈕) */}
+        <div className="w-full max-w-md z-10 flex flex-col items-center">
           {/* 按鈕區域 */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -213,37 +158,6 @@ export function LoginPage() {
             登入後可使用完整功能
           </p>
         </div>
-
-        {/* Footer - CMoney Branding */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="w-full max-w-md z-10"
-        >
-          <div className="flex flex-col items-center gap-3 pb-4">
-            {/* CMoney 文字標識 */}
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
-                <span className="text-white font-bold text-sm">C</span>
-              </div>
-              <span className="text-white font-semibold text-lg">CMoney</span>
-            </div>
-            <p className="text-white/70 text-sm tracking-wider">幫助每個人做好人生投資</p>
-            
-            {/* 進度條 */}
-            <div className="w-32 h-1 bg-white/20 rounded-full overflow-hidden mt-2">
-              <motion.div 
-                className="h-full bg-gradient-to-r from-[#D4AF37] to-white rounded-full"
-                initial={{ width: "0%" }}
-                animate={{ width: "70%" }}
-                transition={{ duration: 1.5, delay: 0.5, ease: "easeOut" }}
-              />
-            </div>
-          </div>
-
-          <p className="text-xs text-white/40 text-center">Version 1.0.11</p>
-        </motion.div>
       </div>
 
       {/* 強制更新彈窗 (狀態碼 -1) */}
