@@ -248,7 +248,6 @@ export function SearchPage() {
                       onClick={() => handleStockClick(stock.code, stock.name)}
                       className="flex-1 flex items-center gap-3 text-left"
                     >
-                      <KBar change={stock.change || 0} />
                       <div className="flex-1">
                         <div className="font-medium text-sm">{stock.name}</div>
                         <div className="text-xs text-muted-foreground">{stock.code}</div>

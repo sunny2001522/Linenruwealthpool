@@ -67,7 +67,10 @@ Firebase - Remote Config
 建立金鑰
 cc3f8a64-2a8c-430f-b2ac-44eddb99b9fb
 
----
+權限包編號：67024
+
+修改付費為2500/月
+
 
 ## 🎨 設計系統
 
