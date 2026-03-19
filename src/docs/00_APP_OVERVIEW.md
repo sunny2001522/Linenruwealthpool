@@ -71,6 +71,8 @@ cc3f8a64-2a8c-430f-b2ac-44eddb99b9fb
 
 修改付費為2500/月
 
+設定在https://docs.google.com/spreadsheets/d/1XBMY1AYcOXN9p8jjzHAtWrHHA4jB2sSmrihHo2Fx3b8/edit?usp=sharing
+
 
 ## 🎨 設計系統
 
