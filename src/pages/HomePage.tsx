@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { TrendingUp, ChevronRight, TrendingDown } from "lucide-react";
+import { TrendingUp, ChevronRight, TrendingDown, Search, Bell } from "lucide-react";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import {
   Facebook,
@@ -480,6 +480,23 @@ export function HomePage() {
 
   return (
     <div className="bg-background pb-16">
+      {/* 頂部工具列：搜尋 + 通知 */}
+      <div className="flex items-center justify-end gap-2 px-4 py-2">
+        <button
+          onClick={() => navigate("/search")}
+          className="w-9 h-9 rounded-full bg-muted hover:bg-muted/80 flex items-center justify-center transition-colors"
+        >
+          <Search className="w-4.5 h-4.5 text-muted-foreground" />
+        </button>
+        <button
+          onClick={() => navigate("/notifications")}
+          className="relative w-9 h-9 rounded-full bg-muted hover:bg-muted/80 flex items-center justify-center transition-colors"
+        >
+          <Bell className="w-4.5 h-4.5 text-muted-foreground" />
+          <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full" />
+        </button>
+      </div>
+
       {/* Header Banner */}
       <section className="relative border-b border-border bg-gradient-to-br from-background via-background to-primary/5">
         <div className="h-[140px] overflow-hidden">
@@ -569,6 +586,32 @@ a.首圖
 "columnName"："漲跌幅"}
 
 查看更多：跳轉選股頁，並預設顯示【多方】策略-站上週20MA AND 股本大於20億 AND 週均量大於1000張 篩選後結果(依據恩如三部曲星星多寡進行排序 */}
+
+      {/* 跑馬燈 */}
+      <div className="overflow-hidden border-b border-border/30 bg-muted/30 py-1.5">
+        <div className="marquee-scroll flex items-center gap-8 whitespace-nowrap text-xs text-muted-foreground">
+          <span>台積電(2330) 站上週20MA，恩如三部曲三顆星</span>
+          <span className="text-border">│</span>
+          <span>鴻海(2317) 週均量突破 5,000 張</span>
+          <span className="text-border">│</span>
+          <span>聯發科(2454) 型態突破，庸中佼佼選入</span>
+          <span className="text-border">│</span>
+          <span>台達電(2308) 蓄勢待發策略選入</span>
+          <span className="text-border">│</span>
+          <span>廣達(2382) 量能放大，後起新秀選入</span>
+          <span className="text-border">│</span>
+          <span>台積電(2330) 站上週20MA，恩如三部曲三顆星</span>
+          <span className="text-border">│</span>
+          <span>鴻海(2317) 週均量突破 5,000 張</span>
+          <span className="text-border">│</span>
+          <span>聯發科(2454) 型態突破，庸中佼佼選入</span>
+          <span className="text-border">│</span>
+          <span>台達電(2308) 蓄勢待發策略選入</span>
+          <span className="text-border">│</span>
+          <span>廣達(2382) 量能放大，後起新秀選入</span>
+        </div>
+      </div>
+
       <section className="px-4 py-4 border-b border-border/30">
         <div className="flex items-center justify-between mb-3 px-4">
           <h2 className="text-lg font-bold">熱門焦點股票</h2>

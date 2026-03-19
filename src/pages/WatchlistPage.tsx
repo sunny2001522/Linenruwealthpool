@@ -23,6 +23,7 @@ import {
   isInAnyWatchlist,
   removeFromWatchlist,
   addToWatchlist,
+  deleteWatchlistGroup,
 } from "../lib/watchlistStorage";
 import { RankStarRating } from "../components/RankStarRating";
 import { SearchStockModal } from "../components/SearchStockModal";
@@ -216,6 +217,7 @@ export function WatchlistPage() {
   const [newGroupName, setNewGroupName] = useState(""); // 新群組名稱
   const [totalGroups, setTotalGroups] = useState(5); // 總群組數，預設5個
   const [showEditGroupModal, setShowEditGroupModal] = useState(false); // 編輯群組名稱彈窗
+  const [showManageGroupsModal, setShowManageGroupsModal] = useState(false); // 管理群組彈窗
 
   // 篩選器狀態
   const [marketType, setMarketType] =
@@ -696,11 +698,11 @@ a.策略(Signal)
               </div>
             </div>
             
-            {/* 固定的新增群組按鈕 */}
+            {/* 固定的管理群組按鈕 */}
             <button
-              onClick={() => setShowAddGroupModal(true)}
+              onClick={() => setShowManageGroupsModal(true)}
               className="flex-shrink-0 p-2 hover:bg-muted rounded-lg transition-colors"
-              title="新增群組"
+              title="管理群組"
             >
               <Plus className="w-4 h-4 text-muted-foreground hover:text-primary" />
             </button>
@@ -1241,6 +1243,69 @@ c-8.產業名稱
         />
       )}
       
+      {/* 管理群組彈窗 */}
+      {showManageGroupsModal && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50">
+          <div className="bg-card border-t border-border rounded-t-2xl shadow-lg w-full max-w-screen-xl mx-auto animate-slide-up">
+            <div className="px-6 py-5 border-b border-border">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold">管理群組</h2>
+                <button
+                  onClick={() => setShowManageGroupsModal(false)}
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+            <div className="px-6 py-4 max-h-[60vh] overflow-y-auto">
+              <div className="space-y-2">
+                {Array.from({ length: totalGroups }, (_, i) => i + 1).map((groupIndex) => (
+                  <div
+                    key={groupIndex}
+                    className="flex items-center justify-between px-4 py-3 rounded-xl border border-border bg-background"
+                  >
+                    <span className="font-medium text-sm">
+                      {watchlistNames[groupIndex] || `自選${groupIndex}`}
+                    </span>
+                    {totalGroups > 1 && (
+                      <button
+                        onClick={() => {
+                          deleteWatchlistGroup(groupIndex, totalGroups);
+                          const newTotal = totalGroups - 1;
+                          setTotalGroups(newTotal);
+                          setWatchlistNames(getWatchlistNames());
+                          if (activeTab > newTotal) {
+                            setActiveTab(newTotal);
+                          } else if (activeTab >= groupIndex && activeTab > 1) {
+                            setActiveTab(activeTab > groupIndex ? activeTab - 1 : activeTab);
+                          }
+                        }}
+                        className="p-1.5 hover:bg-red-500/20 rounded-full transition-colors"
+                        title="刪除群組"
+                      >
+                        <Minus className="w-4 h-4 text-red-400" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="px-6 py-4 border-t border-border pb-24">
+              <button
+                onClick={() => {
+                  setShowManageGroupsModal(false);
+                  setShowAddGroupModal(true);
+                }}
+                className="w-full py-3 rounded-xl bg-primary hover:bg-primary/90 text-white font-medium transition-colors"
+              >
+                新增群組
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 新增群組彈窗 */}
       {showAddGroupModal && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50">

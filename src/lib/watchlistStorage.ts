@@ -158,6 +158,28 @@ export const isInAnyWatchlist = (code: string): number[] => {
   return lists;
 };
 
+// 刪除指定群組，並將後面的群組往前遞補
+export const deleteWatchlistGroup = (
+  groupIndex: number,
+  totalGroups: number
+): void => {
+  const data = getWatchlistData();
+  const names = getWatchlistNames();
+
+  // 將後面的群組往前移
+  for (let i = groupIndex; i < totalGroups; i++) {
+    data[i] = data[i + 1] || [];
+    names[i] = names[i + 1] || getDefaultWatchlistName(i);
+  }
+
+  // 刪除最後一個（已被往前搬移）
+  delete data[totalGroups];
+  delete names[totalGroups];
+
+  saveWatchlistData(data);
+  saveWatchlistNames(names);
+};
+
 // 獲取指定清單的股票
 export const getWatchlist = (listIndex: number): WatchlistItem[] => {
   const data = getWatchlistData();

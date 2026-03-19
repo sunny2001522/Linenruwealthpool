@@ -16,6 +16,7 @@ import { LoginPage } from "./pages/LoginPage";
 import { LaunchScreen } from "./pages/LaunchScreen";
 import { IndustrySelectionPage } from "./pages/IndustrySelectionPage";
 import { SearchPage } from "./pages/SearchPage";
+import { NotificationCenterPage } from "./pages/NotificationCenterPage";
 import { Layout } from "./components/Layout";
 
 export const router = createBrowserRouter([
@@ -26,6 +27,10 @@ export const router = createBrowserRouter([
   {
     path: "/search",
     Component: SearchPage,
+  },
+  {
+    path: "/notifications",
+    Component: NotificationCenterPage,
   },
   {
     path: "/login",
