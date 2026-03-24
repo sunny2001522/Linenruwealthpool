@@ -17,6 +17,7 @@ import { LaunchScreen } from "./pages/LaunchScreen";
 import { IndustrySelectionPage } from "./pages/IndustrySelectionPage";
 import { SearchPage } from "./pages/SearchPage";
 import { NotificationCenterPage } from "./pages/NotificationCenterPage";
+import { MarketIndexPage } from "./pages/MarketIndexPage";
 import { Layout } from "./components/Layout";
 
 export const router = createBrowserRouter([
@@ -75,6 +76,10 @@ export const router = createBrowserRouter([
       { path: "content", Component: ContentPage },
       { path: "more", Component: MorePage },
     ],
+  },
+  {
+    path: "/market-index",
+    Component: MarketIndexPage,
   },
   {
     path: "/stock/:code",

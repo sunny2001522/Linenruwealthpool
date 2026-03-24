@@ -1,6 +1,5 @@
 import { useNavigate, useSearchParams } from "react-router";
 import {
-  ChevronRight,
   ArrowLeft,
   RotateCcw,
 } from "lucide-react";
@@ -73,115 +72,77 @@ export function IndustrySelectionPage() {
         </button>
       </div>
 
-      {/* 领头羊/落水狗 前10 */}
-      <div className="pb-20">
-        <section className="py-4">
-          <div className="flex items-center justify-between mb-3 px-4">
-            <h2 className="text-base font-bold text-white">
-              {marketType === "bull" ? "領頭羊" : "落水狗"}
-            </h2>
-          </div>
-
+      {/* 左右兩欄：當期 / 前期 */}
+      <div className="pb-20 px-4 py-4">
+        <div className="flex gap-4">
           {/* 當期 */}
-          <div className="mb-4">
-            <div className="text-sm font-medium text-white/60 mb-2 px-4">當期</div>
-            <div className="flex gap-3 overflow-x-auto pb-2 px-4 scrollbar-hide">
+          <div className="flex-1">
+            <div className="text-sm font-medium text-white/60 mb-3 text-center">當期</div>
+            <div className="flex flex-col gap-2">
               {currentIndustries.map((industry, index) => {
-                const isSelected =
-                  currentSelection === industry.name;
+                const isSelected = currentSelection === industry.name;
                 const parts = industry.name.split("-");
                 const category = parts[0] || "";
-                const subCategory =
-                  parts.slice(1).join("-") || industry.name;
-
+                const subCategory = parts.slice(1).join("-") || industry.name;
                 return (
-                  <div
+                  <button
                     key={`current-${index}-${industry.name}`}
-                    onClick={() =>
-                      handleIndustrySelect(industry.name)
-                    }
-                    className={`flex-shrink-0 w-24 rounded-lg p-3 border transition-all cursor-pointer shadow-sm ${
+                    onClick={() => handleIndustrySelect(industry.name)}
+                    className={`w-full rounded-lg px-3 py-2 border text-left transition-all ${
                       isSelected
-                        ? "bg-[#4A90E2] border-[#4A90E2]"
-                        : "bg-card border-border hover:border-primary/50"
+                        ? "bg-[#4A90E2] border-[#4A90E2] text-white"
+                        : "bg-card border-border hover:border-primary/50 text-foreground"
                     }`}
                   >
-                    <div className="flex flex-col h-full items-center">
-                      <div
-                        className={`text-2xl font-bold mb-1.5 ${isSelected ? "text-white" : "text-primary"}`}
-                      >
-                        {index + 1}
-                      </div>
-                      <div
-                        className={`text-xs mb-1 text-center leading-tight ${isSelected ? "text-white/80" : "text-foreground/70"}`}
-                      >
-                        {category}
-                      </div>
-                      <div
-                        className={`text-sm font-medium mb-2 flex-1 text-center leading-tight ${isSelected ? "text-white" : "text-primary"}`}
-                      >
-                        {subCategory}
-                      </div>
-                      <ChevronRight
-                        className={`w-4 h-4 ${isSelected ? "text-white" : "text-primary"}`}
-                      />
+                    <div className={`text-[10px] leading-tight ${isSelected ? "text-white/70" : "text-foreground/50"}`}>
+                      {category}
                     </div>
-                  </div>
+                    <div className="flex items-center gap-1">
+                      <span className={`text-xs font-bold ${isSelected ? "text-white" : "text-primary"}`}>
+                        {index + 1}.
+                      </span>
+                      <span className="text-xs font-medium">{subCategory}</span>
+                    </div>
+                  </button>
                 );
               })}
             </div>
           </div>
 
           {/* 前期 */}
-          <div>
-            <div className="text-sm font-medium text-white/60 mb-2 px-4">前期</div>
-            <div className="flex gap-3 overflow-x-auto pb-2 px-4 scrollbar-hide">
+          <div className="flex-1">
+            <div className="text-sm font-medium text-white/60 mb-3 text-center">前期</div>
+            <div className="flex flex-col gap-2">
               {previousIndustries.map((industry, index) => {
-                const isSelected =
-                  currentSelection === industry.name;
+                const isSelected = currentSelection === industry.name;
                 const parts = industry.name.split("-");
                 const category = parts[0] || "";
-                const subCategory =
-                  parts.slice(1).join("-") || industry.name;
-
+                const subCategory = parts.slice(1).join("-") || industry.name;
                 return (
-                  <div
+                  <button
                     key={`previous-${index}-${industry.name}`}
-                    onClick={() =>
-                      handleIndustrySelect(industry.name)
-                    }
-                    className={`flex-shrink-0 w-24 rounded-lg p-3 border transition-all cursor-pointer shadow-sm ${
+                    onClick={() => handleIndustrySelect(industry.name)}
+                    className={`w-full rounded-lg px-3 py-2 border text-left transition-all ${
                       isSelected
-                        ? "bg-[#4A90E2] border-[#4A90E2]"
-                        : "bg-card border-border hover:border-primary/50"
+                        ? "bg-[#4A90E2] border-[#4A90E2] text-white"
+                        : "bg-card border-border hover:border-primary/50 text-foreground"
                     }`}
                   >
-                    <div className="flex flex-col h-full items-center">
-                      <div
-                        className={`text-2xl font-bold mb-1.5 ${isSelected ? "text-white" : "text-primary"}`}
-                      >
-                        {index + 1}
-                      </div>
-                      <div
-                        className={`text-xs mb-1 text-center leading-tight ${isSelected ? "text-white/80" : "text-foreground/70"}`}
-                      >
-                        {category}
-                      </div>
-                      <div
-                        className={`text-sm font-medium mb-2 flex-1 text-center leading-tight ${isSelected ? "text-white" : "text-primary"}`}
-                      >
-                        {subCategory}
-                      </div>
-                      <ChevronRight
-                        className={`w-4 h-4 ${isSelected ? "text-white" : "text-primary"}`}
-                      />
+                    <div className={`text-[10px] leading-tight ${isSelected ? "text-white/70" : "text-foreground/50"}`}>
+                      {category}
                     </div>
-                  </div>
+                    <div className="flex items-center gap-1">
+                      <span className={`text-xs font-bold ${isSelected ? "text-white" : "text-primary"}`}>
+                        {index + 1}.
+                      </span>
+                      <span className="text-xs font-medium">{subCategory}</span>
+                    </div>
+                  </button>
                 );
               })}
             </div>
           </div>
-        </section>
+        </div>
       </div>
     </div>
   );

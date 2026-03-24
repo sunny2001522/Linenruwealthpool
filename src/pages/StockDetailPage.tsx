@@ -9,6 +9,7 @@ import {
   Plus,
   Search,
   ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import {
   ComposedChart,
@@ -42,6 +43,19 @@ export function StockDetailPage() {
 
   // 找到對應的股票
   const stock = stocks.find((s) => s.code === code);
+  const currentIndex = stocks.findIndex((s) => s.code === code);
+
+  const goToPrevStock = () => {
+    if (currentIndex > 0) {
+      navigate(`/stock/${stocks[currentIndex - 1].code}`, { replace: true });
+    }
+  };
+
+  const goToNextStock = () => {
+    if (currentIndex < stocks.length - 1) {
+      navigate(`/stock/${stocks[currentIndex + 1].code}`, { replace: true });
+    }
+  };
 
   if (!stock) {
     return (
@@ -77,10 +91,24 @@ export function StockDetailPage() {
             <ArrowLeft className="w-6 h-6" />
           </button>
 
-          <div className="text-center">
+          <div className="flex items-center gap-1">
+            <button
+              onClick={goToNextStock}
+              disabled={currentIndex >= stocks.length - 1}
+              className="text-foreground/60 hover:text-primary disabled:text-foreground/20 transition-colors"
+            >
+              <ChevronDown className="w-4 h-4" />
+            </button>
             <h1 className="font-bold text-base">
               ({stock.code}) {stock.name}
             </h1>
+            <button
+              onClick={goToPrevStock}
+              disabled={currentIndex <= 0}
+              className="text-foreground/60 hover:text-primary disabled:text-foreground/20 transition-colors"
+            >
+              <ChevronUp className="w-4 h-4" />
+            </button>
           </div>
 
           <div className="flex items-center gap-2">
@@ -106,106 +134,43 @@ export function StockDetailPage() {
         </div>
       </div>
 
-      {/* 价格信息卡片 */}
-      <div className="px-4 pt-3 pb-2">
-        <div className="bg-card border border-border rounded-xl p-4">
-          {/* 状态标签 */}
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              {/* 已收盤、上市等狀態標籤暫時註解 */}
-            </div>
-          </div>
-
-          {/* 价格和涨跌 */}
-          <div className="flex items-baseline gap-3 mb-3">
-            <span
-              className={`text-4xl font-bold ${
-                isPositive
-                  ? "text-chart-2"
-                  : isNegative
-                    ? "text-chart-3"
-                    : "text-foreground"
-              }`}
-            >
-              {stock.price.toFixed(2)}
-            </span>
-            <div className="flex  gap-2">
-              <span
-                className={`text-sm font-semibold ${
-                  isPositive
-                    ? "text-chart-2"
-                    : isNegative
-                      ? "text-chart-3"
-                      : "text-muted-foreground"
-                }`}
-              >
-                {isPositive ? "▲" : isNegative ? "▼" : "—"}
-                {Math.abs(stock.change).toFixed(2)}
-              </span>
-              <span
-                className={`text-sm font-semibold ${
-                  isPositive
-                    ? "text-chart-2"
-                    : isNegative
-                      ? "text-chart-3"
-                      : "text-muted-foreground"
-                }`}
-              >
-                {isPositive ? "▲" : isNegative ? "▼" : "—"}
-                {Math.abs(stock.changePercent).toFixed(2)}%
-              </span>
-            </div>
-          </div>
+      {/* 價格 - 無背景無框，直接顯示 */}
+      <div className="px-3 pt-1">
+        <div className="flex items-baseline gap-2">
+          <span className={`text-4xl font-bold ${isPositive ? "text-[#FE6D73]" : isNegative ? "text-[#9cffd9]" : "text-foreground"}`}>
+            {stock.price.toFixed(2)}
+          </span>
+          <span className={`text-sm font-semibold ${isPositive ? "text-[#FE6D73]" : isNegative ? "text-[#9cffd9]" : "text-muted-foreground"}`}>
+            {isPositive ? "▲" : isNegative ? "▼" : "—"}{Math.abs(stock.change).toFixed(2)} ({isPositive ? "+" : isNegative ? "-" : ""}{Math.abs(stock.changePercent).toFixed(2)}%)
+          </span>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="px-4 pt-2">
-        <div className="flex gap-6 border-b border-border">
-          <button
-            onClick={() => setActiveTab("kline")}
-            className={`pb-2 text-sm font-medium transition-colors relative ${
-              activeTab === "kline"
-                ? "text-primary"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            K線
-            {activeTab === "kline" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
-            )}
-          </button>
-          <button
-            onClick={() => setActiveTab("realtime")}
-            className={`pb-2 text-sm font-medium transition-colors relative ${
-              activeTab === "realtime"
-                ? "text-primary"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            即時
-            {activeTab === "realtime" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
-            )}
-          </button>
-          <button
-            onClick={() => setActiveTab("info")}
-            className={`pb-2 text-sm font-medium transition-colors relative ${
-              activeTab === "info"
-                ? "text-primary"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            基本資訊
-            {activeTab === "info" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
-            )}
-          </button>
+      {/* Tabs - 膠囊樣式 */}
+      <div className="px-3 py-1">
+        <div className="flex items-center gap-0.5 bg-muted/30 rounded-lg p-0.5">
+          {[
+            { key: "kline", label: "日K" },
+            { key: "realtime", label: "即時" },
+            { key: "info", label: "基本資訊" },
+          ].map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key as Tab)}
+              className={`flex-1 px-2 py-1 rounded-md text-xs font-medium transition-all ${
+                activeTab === tab.key
+                  ? "bg-primary text-black"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
       </div>
 
       {/* Content */}
-      <div className="px-4 pt-4">
+      <div className="px-1 pt-1">
         {activeTab === "kline" && (
           <KLineTab
             stock={stock}
@@ -243,7 +208,9 @@ function KLineTab({
 }) {
   // 均线显示状态
   const [showShortMA, setShowShortMA] = useState(true); // 短均（黄色）
-  const [showLongMA, setShowLongMA] = useState(true); // 长均（蓝色）
+  const [showLongMA, setShowLongMA] = useState(true); // 长均（洋紅色）
+  // 強勢線顯示狀態
+  const [showLeaderLine, setShowLeaderLine] = useState(true); // 強勢線（當期+前期）
   // 選中的K線數據
   const [selectedKLineData, setSelectedKLineData] =
     useState<any>(null);
@@ -261,316 +228,111 @@ function KLineTab({
 
   const currentData = generateCurrentData();
 
+  // 顯示的數據（選中的 or 當前的）
+  const displayData = selectedKLineData || {
+    date: "2026/02/05",
+    ...currentData,
+    ma20: stock.price * 0.95,
+    ma100: stock.price * 0.85,
+    currentLeader: stock.price * 1.12,
+    prevLeader: stock.price * 1.15,
+  };
+
   return (
     <div>
-      {/* Timeframe Selector */}
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex gap-2">
-          <button
-            onClick={() => onTimeframeChange("day")}
-            className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-              timeframe === "day"
-                ? "bg-primary/20 text-primary"
-                : "bg-card text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            日
-          </button>
-          <button
-            onClick={() => onTimeframeChange("week")}
-            className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-              timeframe === "week"
-                ? "bg-primary/20 text-primary"
-                : "bg-card text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            週
-          </button>
-          <button
-            onClick={() => onTimeframeChange("month")}
-            className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-              timeframe === "month"
-                ? "bg-primary/20 text-primary"
-                : "bg-card text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            月
-          </button>
-        </div>
+      {/* 日期 + 開高低收 - 單行緊湊 */}
+      <div className="px-2 mb-0.5">
+        <p className="text-xs text-muted-foreground">
+          <span className="text-foreground font-medium">{displayData.date}</span>
+          {" "}開 {displayData.open.toFixed(2)}{" "}
+          高 <span className="text-[#FE6D73]">{displayData.high.toFixed(2)}</span>{" "}
+          低 <span className="text-[#9cffd9]">{displayData.low.toFixed(2)}</span>{" "}
+          收 {displayData.close.toFixed(2)}
+        </p>
       </div>
 
-      {/* 當前價格資訊 - 常駐顯示 */}
-      <div className="bg-card border border-border rounded-lg p-3 mb-4">
-        <div className="grid grid-cols-4 gap-3">
-          <div>
-            <p className="text-[10px] text-muted-foreground mb-0.5">
-              開盤
-            </p>
-            <p className="text-sm font-semibold">
-              {currentData.open.toFixed(2)}
-            </p>
-          </div>
-          <div>
-            <p className="text-[10px] text-muted-foreground mb-0.5">
-              最高
-            </p>
-            <p className="text-sm font-semibold text-chart-2">
-              {currentData.high.toFixed(2)}
-            </p>
-          </div>
-          <div>
-            <p className="text-[10px] text-muted-foreground mb-0.5">
-              最低
-            </p>
-            <p className="text-sm font-semibold text-chart-3">
-              {currentData.low.toFixed(2)}
-            </p>
-          </div>
-          <div>
-            <p className="text-[10px] text-muted-foreground mb-0.5">
-              收盤
-            </p>
-            <p
-              className={`text-sm font-semibold ${currentData.close >= currentData.open ? "text-chart-2" : "text-chart-3"}`}
-            >
-              {currentData.close.toFixed(2)}
-            </p>
-          </div>
-        </div>
+      {/* MA 數值 + 強勢線數值 - 2x2 grid */}
+      <div className="px-2 mb-0.5 grid grid-cols-2 gap-x-4 gap-y-0 text-xs">
+        {showShortMA && (
+          <span>
+            <span className="text-muted-foreground">MA20 </span>
+            <span style={{ color: "#EAB308" }}>{displayData.ma20.toFixed(2)}</span>
+          </span>
+        )}
+        {showLongMA && (
+          <span>
+            <span className="text-muted-foreground">MA100 </span>
+            <span style={{ color: "#E040FB" }}>{displayData.ma100.toFixed(2)}</span>
+          </span>
+        )}
+        {showLeaderLine && (
+          <span>
+            <span className="text-muted-foreground">當期領頭羊 </span>
+            <span style={{ color: "#FF9800" }}>{(displayData.currentLeader || stock.price * 1.12).toFixed(1)}</span>
+          </span>
+        )}
+        {showLeaderLine && (
+          <span>
+            <span className="text-muted-foreground">前期領頭羊 </span>
+            <span style={{ color: "#42A5F5" }}>{(displayData.prevLeader || stock.price * 1.15).toFixed(1)}</span>
+          </span>
+        )}
       </div>
 
-      {/* 均线信息 - 可点击切换 */}
-      <div className="flex items-center gap-3 mb-4">
-        {/* 短均MA20按钮（黄色） */}
-        <button
-          onClick={() => setShowShortMA(!showShortMA)}
-          className="flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition-all active:scale-95"
-          style={{
-            borderColor: showShortMA ? "#EAB308" : "#404040",
-            backgroundColor: showShortMA
-              ? "rgba(234, 179, 8, 0.1)"
-              : "transparent",
-          }}
-        >
-          {/* 打勾框 */}
-          <div
-            className="w-5 h-5 rounded flex items-center justify-center border-2 transition-all flex-shrink-0"
-            style={{
-              borderColor: showShortMA ? "#EAB308" : "#404040",
-              backgroundColor: showShortMA
-                ? "#EAB308"
-                : "transparent",
-            }}
-          >
-            {showShortMA && (
-              <svg
-                className="w-3.5 h-3.5 text-black"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={3}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-            )}
-          </div>
-          {/* 文字信息 */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-muted-foreground">
-              短均
-            </span>
-            <span
-              className="text-xs font-medium"
-              style={{ color: "#EAB308" }}
-            >
-              MA20
-            </span>
-            {showShortMA && selectedKLineData && (
-              <span className="text-sm font-bold text-foreground">
-                {selectedKLineData.ma20.toFixed(2)}
-              </span>
-            )}
-            {showShortMA && !selectedKLineData && (
-              <span className="text-sm font-bold text-foreground">
-                {(stock.price * 0.95).toFixed(2)}
-              </span>
-            )}
-          </div>
-        </button>
-
-        {/* 长均MA100按钮（蓝色） */}
-        <button
-          onClick={() => setShowLongMA(!showLongMA)}
-          className="flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition-all active:scale-95"
-          style={{
-            borderColor: showLongMA ? "#3B82F6" : "#404040",
-            backgroundColor: showLongMA
-              ? "rgba(59, 130, 246, 0.1)"
-              : "transparent",
-          }}
-        >
-          {/* 打勾框 */}
-          <div
-            className="w-5 h-5 rounded flex items-center justify-center border-2 transition-all flex-shrink-0"
-            style={{
-              borderColor: showLongMA ? "#3B82F6" : "#404040",
-              backgroundColor: showLongMA
-                ? "#3B82F6"
-                : "transparent",
-            }}
-          >
-            {showLongMA && (
-              <svg
-                className="w-3.5 h-3.5 text-white"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={3}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-            )}
-          </div>
-          {/* 文字信息 */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-muted-foreground">
-              長均
-            </span>
-            <span
-              className="text-xs font-medium"
-              style={{ color: "#3B82F6" }}
-            >
-              MA100
-            </span>
-            {showLongMA && selectedKLineData && (
-              <span className="text-sm font-bold text-foreground">
-                {selectedKLineData.ma100.toFixed(2)}
-              </span>
-            )}
-            {showLongMA && !selectedKLineData && (
-              <span className="text-sm font-bold text-foreground">
-                {(stock.price * 0.85).toFixed(2)}
-              </span>
-            )}
-          </div>
-        </button>
-      </div>
-
-      {/* K線圖表 - 左右填滿螢幕 */}
-      <div
-        className="bg-black rounded-lg -mx-4 px-1 py-3 mb-4"
-        style={{ height: "400px" }}
-      >
+      {/* K線圖表 - 填滿寬度 */}
+      <div className="-mx-1" style={{ height: "300px" }}>
         <KLineChart
           stock={stock}
           showShortMA={showShortMA}
           showLongMA={showLongMA}
+          showCurrentLeader={showLeaderLine}
+          showPrevLeader={showLeaderLine}
           onSelectKLine={setSelectedKLineData}
         />
       </div>
 
-      {/* 選中的K線詳細資訊 */}
-      {selectedKLineData && (
-        <div className="bg-card border border-border rounded-lg p-4 mb-4">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div>
-              <p className="text-xs text-muted-foreground mb-1">
-                日期
-              </p>
-              <p className="font-semibold text-sm">
-                {selectedKLineData.date}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground mb-1">
-                開盤
-              </p>
-              <p className="font-semibold text-sm">
-                {selectedKLineData.open.toFixed(2)}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground mb-1">
-                最高
-              </p>
-              <p className="font-semibold text-sm text-chart-2">
-                {selectedKLineData.high.toFixed(2)}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground mb-1">
-                最低
-              </p>
-              <p className="font-semibold text-sm text-chart-3">
-                {selectedKLineData.low.toFixed(2)}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground mb-1">
-                收盤
-              </p>
-              <p
-                className={`font-semibold text-sm ${selectedKLineData.close >= selectedKLineData.open ? "text-chart-2" : "text-chart-3"}`}
-              >
-                {selectedKLineData.close.toFixed(2)}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground mb-1">
-                MA20
-              </p>
-              <p
-                className="font-semibold text-sm"
-                style={{ color: "#EAB308" }}
-              >
-                {selectedKLineData.ma20.toFixed(2)}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground mb-1">
-                MA100
-              </p>
-              <p
-                className="font-semibold text-sm"
-                style={{ color: "#3B82F6" }}
-              >
-                {selectedKLineData.ma100.toFixed(2)}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground mb-1">
-                成交量
-              </p>
-              <p className="font-semibold text-sm">
-                {(selectedKLineData.volume / 1000).toFixed(0)}K
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* 成交量 */}
-      <div className="flex items-center justify-between text-xs mb-2">
-        <span className="text-foreground font-medium">
-          成交量 ▼
-        </span>
-        <span className="text-foreground font-semibold">
-          11,525,431
-        </span>
+      <div className="px-2">
+        <div className="flex items-center justify-between text-xs mb-0.5">
+          <span className="text-foreground font-medium">量: {(selectedKLineData?.volume || 71287914000).toLocaleString()}</span>
+        </div>
+        <div style={{ height: "60px" }}>
+          <VolumeChart />
+        </div>
       </div>
-      <div
-        className="bg-black rounded-lg p-3 mb-4"
-        style={{ height: "120px" }}
-      >
-        <VolumeChart />
+
+      {/* 底部技術線切換 - 簡單圓圈勾選 */}
+      <div className="flex items-center justify-between px-2 py-2 mt-1 border-t border-border">
+        <div className="flex items-center gap-4">
+          <span className="text-xs text-muted-foreground font-medium">技術線：</span>
+
+          {/* 短均 */}
+          <button onClick={() => setShowShortMA(!showShortMA)} className="flex items-center gap-1">
+            <div className="w-4 h-4 rounded-full border-2 flex items-center justify-center"
+              style={{ borderColor: "#EAB308", backgroundColor: showShortMA ? "#EAB308" : "transparent" }}>
+              {showShortMA && <div className="w-1.5 h-1.5 rounded-full bg-black" />}
+            </div>
+            <span className="text-xs text-foreground">短均</span>
+          </button>
+
+          {/* 長均 */}
+          <button onClick={() => setShowLongMA(!showLongMA)} className="flex items-center gap-1">
+            <div className="w-4 h-4 rounded-full border-2 flex items-center justify-center"
+              style={{ borderColor: "#E040FB", backgroundColor: showLongMA ? "#E040FB" : "transparent" }}>
+              {showLongMA && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+            </div>
+            <span className="text-xs text-foreground">長均</span>
+          </button>
+
+          {/* 強勢線 */}
+          <button onClick={() => setShowLeaderLine(!showLeaderLine)} className="flex items-center gap-1">
+            <div className="w-4 h-4 rounded-full border-2 flex items-center justify-center"
+              style={{ borderColor: "#4A90E2", backgroundColor: showLeaderLine ? "#4A90E2" : "transparent" }}>
+              {showLeaderLine && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+            </div>
+            <span className="text-xs text-foreground">強勢線</span>
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -645,11 +407,15 @@ function KLineChart({
   stock,
   showShortMA,
   showLongMA,
+  showCurrentLeader,
+  showPrevLeader,
   onSelectKLine,
 }: {
   stock: any;
   showShortMA: boolean;
   showLongMA: boolean;
+  showCurrentLeader: boolean;
+  showPrevLeader: boolean;
   onSelectKLine: (data: any) => void;
 }) {
   // 生成模擬K線數據
@@ -724,6 +490,10 @@ function KLineChart({
       const ma20 = basePrice * (1 + trend * 0.8);
       const ma100 = basePrice * (1 + trend * 0.5);
 
+      // 強勢線（領頭羊指標）- 趨勢向上，略高於股價
+      const currentLeader = basePrice * (1 + trend * 1.2 + 0.08 + Math.sin(i * 0.3) * 0.02);
+      const prevLeader = basePrice * (1 + trend * 1.1 + 0.12 + Math.sin(i * 0.25) * 0.015);
+
       data.push({
         date: dates[i],
         open,
@@ -732,6 +502,8 @@ function KLineChart({
         low,
         ma20,
         ma100,
+        currentLeader,
+        prevLeader,
         volume: Math.random() * 100000000 + 50000000,
       });
 
@@ -791,85 +563,6 @@ function KLineChart({
     );
   };
 
-  // 自定義Tooltip
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length > 0) {
-      const data = payload[0].payload;
-      const isPositive = data.close >= data.open;
-
-      return (
-        <div className="bg-card border border-border rounded-lg p-3 shadow-lg">
-          <p className="text-sm font-semibold text-foreground mb-2">
-            {data.date}
-          </p>
-          <div className="space-y-1 text-xs">
-            <div className="flex justify-between gap-4">
-              <span className="text-muted-foreground">
-                開盤：
-              </span>
-              <span className="font-medium">
-                {data.open.toFixed(2)}
-              </span>
-            </div>
-            <div className="flex justify-between gap-4">
-              <span className="text-muted-foreground">
-                最高：
-              </span>
-              <span className="font-medium text-chart-2">
-                {data.high.toFixed(2)}
-              </span>
-            </div>
-            <div className="flex justify-between gap-4">
-              <span className="text-muted-foreground">
-                最低：
-              </span>
-              <span className="font-medium text-chart-3">
-                {data.low.toFixed(2)}
-              </span>
-            </div>
-            <div className="flex justify-between gap-4">
-              <span className="text-muted-foreground">
-                收盤：
-              </span>
-              <span
-                className={`font-medium ${isPositive ? "text-chart-2" : "text-chart-3"}`}
-              >
-                {data.close.toFixed(2)}
-              </span>
-            </div>
-            <div className="border-t border-border my-1 pt-1" />
-            {showShortMA && data.ma20 && (
-              <div className="flex justify-between gap-4">
-                <span className="text-muted-foreground">
-                  MA20：
-                </span>
-                <span
-                  className="font-medium"
-                  style={{ color: "#EAB308" }}
-                >
-                  {data.ma20.toFixed(2)}
-                </span>
-              </div>
-            )}
-            {showLongMA && data.ma100 && (
-              <div className="flex justify-between gap-4">
-                <span className="text-muted-foreground">
-                  MA100：
-                </span>
-                <span
-                  className="font-medium"
-                  style={{ color: "#3B82F6" }}
-                >
-                  {data.ma100.toFixed(2)}
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
-      );
-    }
-    return null;
-  };
 
   return (
     <div className="relative w-full h-full">
@@ -925,11 +618,8 @@ function KLineChart({
             tickFormatter={(value) => value.toFixed(2)}
           />
 
-          {/* Tooltip */}
-          <Tooltip
-            content={<CustomTooltip />}
-            cursor={{ fill: "rgba(255, 255, 255, 0.05)" }}
-          />
+          {/* Tooltip disabled */}
+          <Tooltip content={() => null} cursor={false} />
 
           {/* 短均線（黃色）- 加粗 */}
           {showShortMA && (
@@ -943,15 +633,41 @@ function KLineChart({
             />
           )}
 
-          {/* 長均線（藍色）- 加粗 */}
+          {/* 長均線（洋紅色）- 加粗 */}
           {showLongMA && (
             <Line
               type="monotone"
               dataKey="ma100"
-              stroke="#3B82F6"
+              stroke="#E040FB"
               strokeWidth={3}
               dot={false}
               isAnimationActive={false}
+            />
+          )}
+
+          {/* 當期領頭羊指標（藍色） */}
+          {showCurrentLeader && (
+            <Line
+              type="monotone"
+              dataKey="currentLeader"
+              stroke="#FF9800"
+              strokeWidth={2}
+              dot={false}
+              isAnimationActive={false}
+              strokeDasharray="6 3"
+            />
+          )}
+
+          {/* 前期領頭羊指標（橘色） */}
+          {showPrevLeader && (
+            <Line
+              type="monotone"
+              dataKey="prevLeader"
+              stroke="#42A5F5"
+              strokeWidth={2}
+              dot={false}
+              isAnimationActive={false}
+              strokeDasharray="6 3"
             />
           )}
 

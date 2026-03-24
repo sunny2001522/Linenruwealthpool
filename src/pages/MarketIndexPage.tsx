@@ -4,20 +4,22 @@ import { useNavigate } from "react-router";
 
 export function MarketIndexPage() {
   const navigate = useNavigate();
-  const [selectedPeriod, setSelectedPeriod] = useState<"day" | "week" | "month" | "trend" | "discussion">("week"); // 預設為週K
   // 均线显示状态
-  const [showShortMA, setShowShortMA] = useState(true); // 短均（黄色）
-  const [showLongMA, setShowLongMA] = useState(true); // 长均（蓝色）
+  const [showShortMA, setShowShortMA] = useState(true);
+  const [showLongMA, setShowLongMA] = useState(true);
+  // 強勢線顯示狀態
+  const [showCurrentLeader, setShowCurrentLeader] = useState(true);
+  const [showPrevLeader, setShowPrevLeader] = useState(true);
   // 選中的K線數據
   const [selectedBarIndex, setSelectedBarIndex] = useState<number | null>(null);
-  
+
   // 模拟数据
   const indexPrice = 31801.27;
   const indexChange = -488.54;
   const indexChangePercent = -1.51;
   const isPositive = indexChange >= 0;
 
-  // 模拟K线数据（简化版）
+  // 模拟K线数据
   const candleData = [
     { x: 50, high: 27063, low: 26500, open: 27000, close: 26800, date: "11/26", ma20: 26850, ma100: 26200 },
     { x: 80, high: 28000, low: 27200, open: 27300, close: 27800, date: "12/03", ma20: 27450, ma100: 26500 },
@@ -31,248 +33,143 @@ export function MarketIndexPage() {
     { x: 320, high: 32100, low: 31000, open: 32000, close: 31400, date: "01/28", ma20: 31900, ma100: 29700 },
   ];
 
+  // 選中或預設顯示的數據
+  const displayCandle = selectedBarIndex !== null ? candleData[selectedBarIndex] : candleData[candleData.length - 1];
+
   return (
     <div className="flex flex-col h-full bg-background">
       {/* Header */}
       <div className="flex-none bg-background border-b border-border">
-        <div className="px-4 py-3 flex items-center justify-between">
+        <div className="px-4 py-2 flex items-center justify-between">
           <button
             onClick={() => navigate(-1)}
-            className="p-2 hover:bg-muted rounded-lg transition-colors"
+            className="p-1 hover:bg-muted rounded-lg transition-colors"
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
           <h1 className="text-lg font-bold">加權指數</h1>
-          <div className="w-10" /> {/* Spacer */}
+          <div className="w-10" />
         </div>
       </div>
 
-      {/* Price Info */}
-      <div className="flex-none px-4 pt-4 pb-3">
-        <div className="bg-card border border-border rounded-xl p-4">
-          {/* 价格和涨跌 */}
-          <div className="flex items-baseline gap-3 mb-4">
-            <span className={`text-4xl font-bold ${isPositive ? "text-[#FE6D73]" : "text-[#9cffd9]"}`}>
-              {indexPrice.toFixed(2)}
-            </span>
-            <div className="flex gap-2">
-              <span className={`text-sm font-semibold ${isPositive ? "text-[#FE6D73]" : "text-[#9cffd9]"}`}>
-                {isPositive ? "▲" : "▼"}
-                {Math.abs(indexChange).toFixed(2)}
-              </span>
-              <span className={`text-sm font-semibold ${isPositive ? "text-[#FE6D73]" : "text-[#9cffd9]"}`}>
-                {isPositive ? "▲" : "▼"}
-                {Math.abs(indexChangePercent).toFixed(2)}%
-              </span>
-            </div>
-          </div>
-
-         
-        </div>
-
-        {/* 均线信息 - 可点击切换 - 移到卡片外 */}
-        <div className="flex items-center gap-3 mt-3">
-          {/* 短均MA20按钮（黄色） */}
-          <button
-            onClick={() => setShowShortMA(!showShortMA)}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition-all active:scale-95"
-            style={{
-              borderColor: showShortMA ? '#EAB308' : '#404040',
-              backgroundColor: showShortMA ? 'rgba(234, 179, 8, 0.1)' : 'transparent'
-            }}
-          >
-            {/* 打勾框 */}
-            <div
-              className="w-5 h-5 rounded flex items-center justify-center border-2 transition-all flex-shrink-0"
-              style={{
-                borderColor: showShortMA ? '#EAB308' : '#404040',
-                backgroundColor: showShortMA ? '#EAB308' : 'transparent'
-              }}
-            >
-              {showShortMA && (
-                <svg
-                  className="w-3.5 h-3.5 text-black"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={3}
-                    d="M5 13l4 4L19 7"
-                    stroke="currentColor"
-                  />
-                </svg>
-              )}
-            </div>
-            {/* 文字信息 - 垂直排列 */}
-            <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] text-muted-foreground">短均</span>
-              <span className="text-xs font-medium" style={{ color: '#EAB308' }}>MA20</span>
-            </div>
-            {/* 数值显示 */}
-            {showShortMA && (
-              <span className="text-sm font-bold text-foreground">
-                31638.73
-              </span>
-            )}
-          </button>
-
-          {/* 长均MA100按钮（蓝色） */}
-          <button
-            onClick={() => setShowLongMA(!showLongMA)}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition-all active:scale-95"
-            style={{
-              borderColor: showLongMA ? '#3B82F6' : '#404040',
-              backgroundColor: showLongMA ? 'rgba(59, 130, 246, 0.1)' : 'transparent'
-            }}
-          >
-            {/* 打勾框 */}
-            <div
-              className="w-5 h-5 rounded flex items-center justify-center border-2 transition-all flex-shrink-0"
-              style={{
-                borderColor: showLongMA ? '#3B82F6' : '#404040',
-                backgroundColor: showLongMA ? '#3B82F6' : 'transparent'
-              }}
-            >
-              {showLongMA && (
-                <svg
-                  className="w-3.5 h-3.5 text-white"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={3}
-                    d="M5 13l4 4L19 7"
-                    stroke="currentColor"
-                  />
-                </svg>
-              )}
-            </div>
-            {/* 文字信息 - 垂直排列 */}
-            <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] text-muted-foreground">長均</span>
-              <span className="text-xs font-medium" style={{ color: '#3B82F6' }}>MA100</span>
-            </div>
-            {/* 数值显示 */}
-            {showLongMA && (
-              <span className="text-sm font-bold text-foreground">
-                28326.60
-              </span>
-            )}
-          </button>
+      {/* 價格 - 無背景無框 */}
+      <div className="px-3 pt-1">
+        <div className="flex items-baseline gap-2">
+          <span className={`text-4xl font-bold ${isPositive ? "text-[#FE6D73]" : "text-[#9cffd9]"}`}>
+            {indexPrice.toFixed(2)}
+          </span>
+          <span className={`text-sm font-semibold ${isPositive ? "text-[#FE6D73]" : "text-[#9cffd9]"}`}>
+            {isPositive ? "▲" : "▼"}{Math.abs(indexChange).toFixed(2)} ({isPositive ? "+" : "-"}{Math.abs(indexChangePercent).toFixed(2)}%)
+          </span>
         </div>
       </div>
 
-      {/* Period Tabs */}
-      <div className="flex-none px-4 pb-3">
-        <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-1">
+      {/* Tabs - 膠囊樣式 */}
+      <div className="px-3 py-1">
+        <div className="flex items-center gap-0.5 bg-muted/30 rounded-lg p-0.5">
           {[
             { key: "day", label: "日K" },
             { key: "week", label: "週K" },
             { key: "month", label: "月K" },
             { key: "trend", label: "走勢" },
             { key: "discussion", label: "討論區" },
-          ].map((period) => (
+          ].map((tab) => (
             <button
-              key={period.key}
-              onClick={() => setSelectedPeriod(period.key as any)}
-              className={`flex-1 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                selectedPeriod === period.key
+              key={tab.key}
+              className={`flex-1 px-2 py-1 rounded-md text-xs font-medium transition-all ${
+                tab.key === "week"
                   ? "bg-primary text-black"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              {period.label}
+              {tab.label}
             </button>
           ))}
         </div>
       </div>
 
-    
+      {/* 日期 + 開高低收 - 單行緊湊 */}
+      <div className="px-3 mb-0.5">
+        <p className="text-xs text-muted-foreground">
+          <span className="text-foreground font-medium">2026/02/05</span>
+          {" "}開 {displayCandle.open}{" "}
+          高 <span className="text-[#FE6D73]">{displayCandle.high}</span>{" "}
+          低 <span className="text-[#9cffd9]">{displayCandle.low}</span>{" "}
+          收 {displayCandle.close}
+        </p>
+      </div>
+
+      {/* MA 數值 + 強勢線數值 - 緊湊顯示 */}
+      <div className="px-3 mb-0.5">
+        <p className="text-xs">
+          {showShortMA && (
+            <span style={{ color: "#EAB308" }}>MA20 {displayCandle.ma20.toFixed(2)}{" "}</span>
+          )}
+          {showLongMA && (
+            <span style={{ color: "#E040FB" }}>MA100 {displayCandle.ma100.toFixed(2)}</span>
+          )}
+        </p>
+        <p className="text-xs">
+          {showCurrentLeader && (
+            <span style={{ color: "#FF9800" }}>當期領頭羊指標 46.2{" "}</span>
+          )}
+          {showPrevLeader && (
+            <span style={{ color: "#42A5F5" }}>前期領頭羊指標 47.36</span>
+          )}
+        </p>
+      </div>
 
       {/* Chart */}
-      <div className="flex-1 px-4 pb-4 overflow-hidden">
-        <div className="h-full bg-card border border-border rounded-lg p-4 relative">
+      <div className="flex-1 px-1 overflow-hidden">
+        <div className="h-full relative">
           <svg viewBox="0 0 400 300" className="w-full h-full">
             {/* Y轴网格线和标签 */}
             <line x1="40" y1="0" x2="40" y2="200" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
-            <text x="5" y="25" className="text-[8px] fill-muted-foreground">32.52K</text>
+            <text x="5" y="25" className="fill-muted-foreground" style={{ fontSize: "8px" }}>32.52K</text>
             <text x="5" y="100" className="fill-muted-foreground" style={{ fontSize: "8px" }}>30.14K</text>
             <text x="5" y="175" className="fill-muted-foreground" style={{ fontSize: "8px" }}>27.75K</text>
             <text x="5" y="200" className="fill-muted-foreground" style={{ fontSize: "8px" }}>25.37K</text>
 
-            {/* MA20 均线 (金色) - 根据showShortMA控制显示 */}
+            {/* MA20 均线 (金色) */}
             {showShortMA && (
-              <path
-                d="M 50,120 Q 120,100 200,80 T 350,50"
-                fill="none"
-                stroke="#EAB308"
-                strokeWidth="1.5"
-              />
+              <path d="M 50,120 Q 120,100 200,80 T 350,50" fill="none" stroke="#EAB308" strokeWidth="1.5" />
             )}
 
-            {/* MA100 均线 (蓝色) - 根据showLongMA控制显示 */}
+            {/* MA100 均线 (洋紅色) */}
             {showLongMA && (
-              <path
-                d="M 50,180 Q 120,170 200,140 T 350,100"
-                fill="none"
-                stroke="#3B82F6"
-                strokeWidth="1.5"
-              />
+              <path d="M 50,180 Q 120,170 200,140 T 350,100" fill="none" stroke="#E040FB" strokeWidth="1.5" />
+            )}
+
+            {/* 當期領頭羊指標（橘色虛線） */}
+            {showCurrentLeader && (
+              <path d="M 50,150 Q 120,120 200,70 T 350,20" fill="none" stroke="#FF9800" strokeWidth="1.5" strokeDasharray="6 3" />
+            )}
+
+            {/* 前期領頭羊指標（藍色虛線） */}
+            {showPrevLeader && (
+              <path d="M 50,140 Q 120,115 200,65 T 350,15" fill="none" stroke="#42A5F5" strokeWidth="1.5" strokeDasharray="6 3" />
             )}
 
             {/* K线图 */}
             {candleData.map((candle, i) => {
               const isGreen = candle.close < candle.open;
               const color = isGreen ? "#9cffd9" : "#FE6D73";
-              const yScale = 200 / 7000; // 简化比例
+              const yScale = 200 / 7000;
               const high = 200 - (candle.high - 25370) * yScale;
               const low = 200 - (candle.low - 25370) * yScale;
               const open = 200 - (candle.open - 25370) * yScale;
               const close = 200 - (candle.close - 25370) * yScale;
               const isSelected = selectedBarIndex === i;
-              
+
               return (
-                <g 
-                  key={i}
-                  onClick={() => setSelectedBarIndex(i)}
-                  style={{ cursor: 'pointer' }}
-                  className="hover:opacity-80 transition-opacity"
-                >
-                  {/* 高亮背景（选中时显示） */}
+                <g key={i} onClick={() => setSelectedBarIndex(i)} style={{ cursor: "pointer" }}>
                   {isSelected && (
-                    <rect
-                      x={candle.x - 8}
-                      y="0"
-                      width="16"
-                      height="200"
-                      fill="rgba(74, 144, 226, 0.1)"
-                      stroke="rgba(74, 144, 226, 0.3)"
-                      strokeWidth="1"
-                    />
+                    <rect x={candle.x - 8} y="0" width="16" height="200"
+                      fill="rgba(74, 144, 226, 0.1)" stroke="rgba(74, 144, 226, 0.3)" strokeWidth="1" />
                   )}
-                  {/* 影线 */}
-                  <line
-                    x1={candle.x}
-                    y1={high}
-                    x2={candle.x}
-                    y2={low}
-                    stroke={color}
-                    strokeWidth="1"
-                  />
-                  {/* K线实体 */}
-                  <rect
-                    x={candle.x - 4}
-                    y={Math.min(open, close)}
-                    width="8"
-                    height={Math.abs(close - open) || 1}
-                    fill={color}
-                  />
+                  <line x1={candle.x} y1={high} x2={candle.x} y2={low} stroke={color} strokeWidth="1" />
+                  <rect x={candle.x - 4} y={Math.min(open, close)} width="8"
+                    height={Math.abs(close - open) || 1} fill={color} />
                 </g>
               );
             })}
@@ -286,82 +183,60 @@ export function MarketIndexPage() {
             {/* 成交量柱状图 */}
             <g transform="translate(0, 230)">
               {[
-                { x: 60, h: 20 },
-                { x: 80, h: 25 },
-                { x: 100, h: 18 },
-                { x: 120, h: 30 },
-                { x: 140, h: 22 },
-                { x: 160, h: 28 },
-                { x: 180, h: 35 },
-                { x: 200, h: 32 },
-                { x: 220, h: 27 },
-                { x: 240, h: 40 },
-                { x: 260, h: 38 },
-                { x: 280, h: 33 },
-                { x: 300, h: 45 },
-                { x: 320, h: 42 },
-                { x: 340, h: 50 },
+                { x: 60, h: 20 }, { x: 80, h: 25 }, { x: 100, h: 18 },
+                { x: 120, h: 30 }, { x: 140, h: 22 }, { x: 160, h: 28 },
+                { x: 180, h: 35 }, { x: 200, h: 32 }, { x: 220, h: 27 },
+                { x: 240, h: 40 }, { x: 260, h: 38 }, { x: 280, h: 33 },
+                { x: 300, h: 45 }, { x: 320, h: 42 }, { x: 340, h: 50 },
               ].map((bar, i) => (
-                <rect
-                  key={i}
-                  x={bar.x - 3}
-                  y={60 - bar.h}
-                  width="6"
-                  height={bar.h}
-                  fill="rgba(150,150,150,0.5)"
-                />
+                <rect key={i} x={bar.x - 3} y={60 - bar.h} width="6" height={bar.h} fill="rgba(150,150,150,0.5)" />
               ))}
               <text x="5" y="10" className="fill-muted-foreground" style={{ fontSize: "8px" }}>619.00M</text>
               <text x="5" y="35" className="fill-muted-foreground" style={{ fontSize: "8px" }}>385.95M</text>
               <text x="5" y="65" className="fill-muted-foreground" style={{ fontSize: "8px" }}>152.05M</text>
             </g>
           </svg>
-
-          {/* 选中K线的信息卡片 */}
-          {selectedBarIndex !== null && candleData[selectedBarIndex] && (
-            <div className="absolute top-4 right-4 bg-card border border-border rounded-lg p-3 shadow-lg z-10">
-              <p className="text-sm font-semibold text-foreground mb-2">
-                {candleData[selectedBarIndex].date}
-              </p>
-              <div className="space-y-1 text-xs">
-                <div className="flex justify-between gap-4">
-                  <span className="text-muted-foreground">開盤：</span>
-                  <span className="font-medium">{candleData[selectedBarIndex].open.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between gap-4">
-                  <span className="text-muted-foreground">最高：</span>
-                  <span className="font-medium text-[#FE6D73]">{candleData[selectedBarIndex].high.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between gap-4">
-                  <span className="text-muted-foreground">最低：</span>
-                  <span className="font-medium text-[#9cffd9]">{candleData[selectedBarIndex].low.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between gap-4">
-                  <span className="text-muted-foreground">收盤：</span>
-                  <span className={`font-medium ${candleData[selectedBarIndex].close >= candleData[selectedBarIndex].open ? "text-[#FE6D73]" : "text-[#9cffd9]"}`}>
-                    {candleData[selectedBarIndex].close.toFixed(2)}
-                  </span>
-                </div>
-                <div className="border-t border-border my-1 pt-1" />
-                {showShortMA && (
-                  <div className="flex justify-between gap-4">
-                    <span className="text-muted-foreground">MA20：</span>
-                    <span className="font-medium" style={{ color: '#EAB308' }}>{candleData[selectedBarIndex].ma20.toFixed(2)}</span>
-                  </div>
-                )}
-                {showLongMA && (
-                  <div className="flex justify-between gap-4">
-                    <span className="text-muted-foreground">MA100：</span>
-                    <span className="font-medium" style={{ color: '#3B82F6' }}>{candleData[selectedBarIndex].ma100.toFixed(2)}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
-     
+      {/* 底部技術線切換 - 簡單圓圈勾選 */}
+      <div className="flex-none flex items-center justify-between px-3 py-2 border-t border-border">
+        <div className="flex items-center gap-4">
+          <span className="text-xs text-muted-foreground font-medium">技術線：</span>
+
+          <button onClick={() => setShowShortMA(!showShortMA)} className="flex items-center gap-1">
+            <div className="w-4 h-4 rounded-full border-2 flex items-center justify-center"
+              style={{ borderColor: "#EAB308", backgroundColor: showShortMA ? "#EAB308" : "transparent" }}>
+              {showShortMA && <div className="w-1.5 h-1.5 rounded-full bg-black" />}
+            </div>
+            <span className="text-xs text-foreground">短均</span>
+          </button>
+
+          <button onClick={() => setShowLongMA(!showLongMA)} className="flex items-center gap-1">
+            <div className="w-4 h-4 rounded-full border-2 flex items-center justify-center"
+              style={{ borderColor: "#E040FB", backgroundColor: showLongMA ? "#E040FB" : "transparent" }}>
+              {showLongMA && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+            </div>
+            <span className="text-xs text-foreground">長均</span>
+          </button>
+
+          <button onClick={() => setShowCurrentLeader(!showCurrentLeader)} className="flex items-center gap-1">
+            <div className="w-4 h-4 rounded-full border-2 flex items-center justify-center"
+              style={{ borderColor: "#FF9800", backgroundColor: showCurrentLeader ? "#FF9800" : "transparent" }}>
+              {showCurrentLeader && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+            </div>
+            <span className="text-xs text-foreground">當期</span>
+          </button>
+
+          <button onClick={() => setShowPrevLeader(!showPrevLeader)} className="flex items-center gap-1">
+            <div className="w-4 h-4 rounded-full border-2 flex items-center justify-center"
+              style={{ borderColor: "#42A5F5", backgroundColor: showPrevLeader ? "#42A5F5" : "transparent" }}>
+              {showPrevLeader && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+            </div>
+            <span className="text-xs text-foreground">前期</span>
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

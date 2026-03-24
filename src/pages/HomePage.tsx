@@ -1,6 +1,7 @@
-import { useState } from "react";
+
+
 import { useNavigate } from "react-router";
-import { TrendingUp, ChevronRight, TrendingDown, Search, Bell } from "lucide-react";
+import { ChevronRight, Search, Bell } from "lucide-react";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import {
   Facebook,
@@ -19,18 +20,10 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { StarIcon1, StarIcon2, StarIcon3 } from "../components/StarIcons";
+
+
 import { Carousel } from "../components/Carousel";
 
-
-interface WatchStock {
-  rank: number;
-  code: string;
-  name: string;
-  price: number;
-  change: number;
-  changePercent: number;
-}
 
 interface LeaderStock {
   rank: number;
@@ -54,33 +47,6 @@ interface ContentItem {
   title: string;
   type: string;
 }
-
-const watchStocks: WatchStock[] = [
-  {
-    rank: 1,
-    code: "2330",
-    name: "台積電",
-    price: 685.0,
-    change: 15.0,
-    changePercent: 2.24,
-  },
-  {
-    rank: 2,
-    code: "2454",
-    name: "聯發科",
-    price: 1245.0,
-    change: 35.0,
-    changePercent: 2.89,
-  },
-  {
-    rank: 3,
-    code: "2382",
-    name: "廣達",
-    price: 298.5,
-    change: 12.5,
-    changePercent: 4.37,
-  },
-];
 
 const currentLeaders: LeaderStock[] = [
   {
@@ -208,133 +174,6 @@ const previousLeaders: LeaderStock[] = [
   },
 ];
 
-// 落水狗類股數據
-const currentLosers: LeaderStock[] = [
-  {
-    rank: 1,
-    code: "",
-    name: "傳產-塑膠工業",
-    industry: "傳產-塑膠工業",
-  },
-  {
-    rank: 2,
-    code: "",
-    name: "傳產-紡織纖維",
-    industry: "傳產-紡織纖維",
-  },
-  {
-    rank: 3,
-    code: "",
-    name: "金融-證券",
-    industry: "金融-證券",
-  },
-  {
-    rank: 4,
-    code: "",
-    name: "傳產-航運",
-    industry: "傳產-航運",
-  },
-  {
-    rank: 5,
-    code: "",
-    name: "傳產-鋼鐵工業",
-    industry: "傳產-鋼鐵工業",
-  },
-  {
-    rank: 6,
-    code: "",
-    name: "傳產-水泥工業",
-    industry: "傳產-水泥工業",
-  },
-  {
-    rank: 7,
-    code: "",
-    name: "金融-保險",
-    industry: "金融-保險",
-  },
-  {
-    rank: 8,
-    code: "",
-    name: "傳產-化學工業",
-    industry: "傳產-化學工業",
-  },
-  {
-    rank: 9,
-    code: "",
-    name: "傳產-營建",
-    industry: "傳產-營建",
-  },
-  {
-    rank: 10,
-    code: "",
-    name: "傳產-觀光",
-    industry: "傳產-觀光",
-  },
-];
-
-const previousLosers: LeaderStock[] = [
-  {
-    rank: 1,
-    code: "",
-    name: "傳產-貿易百貨",
-    industry: "傳產-貿易百貨",
-  },
-  {
-    rank: 2,
-    code: "",
-    name: "傳產-食品工業",
-    industry: "傳產-食品工業",
-  },
-  {
-    rank: 3,
-    code: "",
-    name: "金融-金控",
-    industry: "金融-金控",
-  },
-  {
-    rank: 4,
-    code: "",
-    name: "傳產-汽車工業",
-    industry: "傳產-汽車工業",
-  },
-  {
-    rank: 5,
-    code: "",
-    name: "傳產-造紙工業",
-    industry: "傳產-造紙工業",
-  },
-  {
-    rank: 6,
-    code: "",
-    name: "傳產-電機機械",
-    industry: "傳產-電機機械",
-  },
-  {
-    rank: 7,
-    code: "",
-    name: "傳產-橡膠工業",
-    industry: "傳產-橡膠工業",
-  },
-  {
-    rank: 8,
-    code: "",
-    name: "傳產-玻璃陶瓷",
-    industry: "傳產-玻璃陶瓷",
-  },
-  {
-    rank: 9,
-    code: "",
-    name: "金融-其他金融",
-    industry: "金融-其他金融",
-  },
-  {
-    rank: 10,
-    code: "",
-    name: "傳產-其他",
-    industry: "傳產-其他",
-  },
-];
-
 const socialPosts: SocialPost[] = [
   {
     id: "1",
@@ -440,22 +279,12 @@ const CustomTooltip = ({ active, payload }: any) => {
 };
 
 export function HomePage() {
-  const [activeTab, setActiveTab] = useState<"leader" | "loser">("leader");
   const navigate = useNavigate();
 
-
-  const handleIndustryClick = (industry: string, type?: "leader" | "loser") => {
-    if (type === "loser") {
-      // 落水狗类股：同时设置loserIndustry和空方
-      navigate(
-        `/home/stock-picker?loserIndustry=${encodeURIComponent(industry)}&side=short`,
-      );
-    } else {
-      // 领头羊类股：只设置industry
-      navigate(
-        `/home/stock-picker?industry=${encodeURIComponent(industry)}`,
-      );
-    }
+  const handleIndustryClick = (industry: string) => {
+    navigate(
+      `/home/stock-picker?industry=${encodeURIComponent(industry)}`,
+    );
   };
 
   // 計算大盤漲跌
@@ -599,105 +428,15 @@ a.首圖
         </div>
       </div>
 
+      {/* 領頭羊類股 */}
       <section className="px-4 py-4 border-b border-border/30">
-        <div className="flex items-center justify-between mb-3 px-4">
-          <h2 className="text-lg font-bold">熱門焦點股票</h2>
-          <button
-            onClick={() => navigate("/home/stock-picker")}
-            className="text-primary text-sm flex items-center gap-1 hover:opacity-80 transition-opacity font-medium"
-          >
-            查看更多
-            <ChevronRight className="w-4 h-4 text-primary" />
-          </button>
-        </div>
-        <div className="space-y-2">
-          {watchStocks.map((stock, index) => {
-            const StarIcon = index === 0 ? StarIcon3 : index === 1 ? StarIcon1 : StarIcon2;
-            const starColor = index === 0 ? "#D4AF37" : index === 1 ? "#F5E0A4" : "#8B4513";
-            return (
-              <div
-                key={stock.code}
-                onClick={() => navigate(`/stock/${stock.code}`)}
-                className="flex items-center justify-between bg-card rounded-lg p-3 border border-border hover:border-primary/50 transition-colors cursor-pointer"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 flex flex-col items-center justify-center">
-                    <StarIcon className="size-[28px]" />
-                    <span className="text-[10px] font-medium -mt-1" style={{ color: starColor }}>
-                      {index + 1}
-                    </span>
-                  </div>
-                  <div className="flex flex-col items-start justify-center gap-0.5">
-                    <div className="flex items-center gap-2">
-                      <span className="text-base font-bold">
-                        {stock.price}
-                      </span>
-                      <span className="text-sm font-medium" style={{ color: '#FE6D73' }}>
-                        +{stock.change} (+{stock.changePercent}%)
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1.5 mt-0.5">
-                      <span className="text-[10px] text-muted-foreground font-medium">
-                        {stock.code}
-                      </span>
-                      <span className="text-[13px] font-semibold">
-                        {stock.name}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <TrendingUp className="w-5 h-5" style={{ color: '#FE6D73' }} />
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* 領頭羊/落水狗類股 - Tab 切換 */}
-      <section className="px-4 py-4 border-b border-border/30">
-        {/* Tab 切換 */}
-        <div className="flex items-center gap-4 mb-4">
-          <button
-            onClick={() => setActiveTab("leader")}
-            className="relative pb-1 transition-colors"
-          >
-            <span
-              className={`text-lg font-bold ${
-                activeTab === "leader"
-                  ? "text-foreground"
-                  : "text-muted-foreground"
-              }`}
-            >
-              領頭羊
-            </span>
-            {activeTab === "leader" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#E5C100] via-[#D4AF37] to-[#B8860B]" />
-            )}
-          </button>
-          <button
-            onClick={() => setActiveTab("loser")}
-            className="relative pb-1 transition-colors"
-          >
-            <span
-              className={`text-lg font-bold ${
-                activeTab === "loser"
-                  ? "text-foreground"
-                  : "text-muted-foreground"
-              }`}
-            >
-              落水狗
-            </span>
-            {activeTab === "loser" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#E5C100] via-[#D4AF37] to-[#B8860B]" />
-            )}
-          </button>
-        </div>
+        <h2 className="text-lg font-bold mb-4">領頭羊</h2>
 
         {/* 當期 */}
         <div className="mb-3">
           <div className="text-sm font-medium text-muted-foreground mb-2">當期</div>
           <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-            {(activeTab === "leader" ? currentLeaders : currentLosers).map((stock) => {
+            {currentLeaders.map((stock) => {
               const parts = stock.industry.split("-");
               const category = parts[0] || "";
               const subCategory = parts.slice(1).join("-") || "";
@@ -705,7 +444,7 @@ a.首圖
               return (
                 <div
                   key={`current-${stock.rank}-${stock.industry}`}
-                  onClick={() => handleIndustryClick(stock.industry, activeTab === "loser" ? "loser" : undefined)}
+                  onClick={() => handleIndustryClick(stock.industry)}
                   className="flex-shrink-0 w-24 bg-card rounded-lg p-3 border border-border hover:border-primary/50 transition-colors cursor-pointer shadow-sm"
                 >
                   <div className="flex flex-col h-full items-center">
@@ -730,7 +469,7 @@ a.首圖
         <div>
           <div className="text-sm font-medium text-muted-foreground mb-2">前期</div>
           <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-            {(activeTab === "leader" ? previousLeaders : previousLosers).map((stock) => {
+            {previousLeaders.map((stock) => {
               const parts = stock.industry.split("-");
               const category = parts[0] || "";
               const subCategory = parts.slice(1).join("-") || "";
@@ -738,7 +477,7 @@ a.首圖
               return (
                 <div
                   key={`previous-${stock.rank}-${stock.industry}`}
-                  onClick={() => handleIndustryClick(stock.industry, activeTab === "loser" ? "loser" : undefined)}
+                  onClick={() => handleIndustryClick(stock.industry)}
                   className="flex-shrink-0 w-24 bg-card rounded-lg p-3 border border-border hover:border-primary/50 transition-colors cursor-pointer shadow-sm"
                 >
                   <div className="flex flex-col h-full items-center">
