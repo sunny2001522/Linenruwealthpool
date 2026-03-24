@@ -27,8 +27,12 @@ const TEST_ACCOUNTS = [
 ];
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  // 預設為未登入狀態，需要透過歡迎頁面進入
-  const [user, setUser] = useState<User | null>(null);
+  // 預設為已登入的 VIP 用戶
+  const [user, setUser] = useState<User | null>({
+    name: "VIP會員",
+    email: "vip@example.com",
+    isPro: true
+  });
 
   const login = (email: string, password: string): boolean => {
     // 檢查是否為預設帳號

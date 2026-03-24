@@ -22,7 +22,6 @@ import {
 import { StarIcon1, StarIcon2, StarIcon3 } from "../components/StarIcons";
 import { Carousel } from "../components/Carousel";
 
-type PeriodType = "current" | "previous";
 
 interface WatchStock {
   rank: number;
@@ -441,21 +440,9 @@ const CustomTooltip = ({ active, payload }: any) => {
 };
 
 export function HomePage() {
-  const [leaderPeriod, setLeaderPeriod] =
-    useState<PeriodType>("current");
-  const [loserPeriod, setLoserPeriod] =
-    useState<PeriodType>("current");
+  const [activeTab, setActiveTab] = useState<"leader" | "loser">("leader");
   const navigate = useNavigate();
 
-  const currentLeaderStocks =
-    leaderPeriod === "current"
-      ? currentLeaders
-      : previousLeaders;
-
-  const currentLoserStocks =
-    loserPeriod === "current"
-      ? currentLosers
-      : previousLosers;
 
   const handleIndustryClick = (industry: string, type?: "leader" | "loser") => {
     if (type === "loser") {
@@ -666,155 +653,110 @@ a.首圖
         </div>
       </section>
 
-      {/* 領頭羊類股 */}
+      {/* 領頭羊/落水狗類股 - Tab 切換 */}
       <section className="px-4 py-4 border-b border-border/30">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-bold">領頭羊類股</h2>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setLeaderPeriod("current")}
-              className={`px-3 py-1 rounded-lg text-sm font-medium transition-all shadow-md ${
-                leaderPeriod === "current"
-                  ? "bg-gradient-to-r from-[#E5C100] via-[#D4AF37] to-[#B8860B] text-black"
-                  : "bg-card text-muted-foreground border border-border"
+        {/* Tab 切換 */}
+        <div className="flex items-center gap-4 mb-4">
+          <button
+            onClick={() => setActiveTab("leader")}
+            className="relative pb-1 transition-colors"
+          >
+            <span
+              className={`text-lg font-bold ${
+                activeTab === "leader"
+                  ? "text-foreground"
+                  : "text-muted-foreground"
               }`}
             >
-              當期
-            </button>
-            <button
-              onClick={() => setLeaderPeriod("previous")}
-              className={`px-3 py-1 rounded-lg text-sm font-medium transition-all shadow-md ${
-                leaderPeriod === "previous"
-                  ? "bg-gradient-to-r from-[#E5C100] via-[#D4AF37] to-[#B8860B] text-black"
-                  : "bg-card text-muted-foreground border border-border"
+              領頭羊
+            </span>
+            {activeTab === "leader" && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#E5C100] via-[#D4AF37] to-[#B8860B]" />
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab("loser")}
+            className="relative pb-1 transition-colors"
+          >
+            <span
+              className={`text-lg font-bold ${
+                activeTab === "loser"
+                  ? "text-foreground"
+                  : "text-muted-foreground"
               }`}
             >
-              前期
-            </button>
+              落水狗
+            </span>
+            {activeTab === "loser" && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#E5C100] via-[#D4AF37] to-[#B8860B]" />
+            )}
+          </button>
+        </div>
+
+        {/* 當期 */}
+        <div className="mb-3">
+          <div className="text-sm font-medium text-muted-foreground mb-2">當期</div>
+          <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+            {(activeTab === "leader" ? currentLeaders : currentLosers).map((stock) => {
+              const parts = stock.industry.split("-");
+              const category = parts[0] || "";
+              const subCategory = parts.slice(1).join("-") || "";
+
+              return (
+                <div
+                  key={`current-${stock.rank}-${stock.industry}`}
+                  onClick={() => handleIndustryClick(stock.industry, activeTab === "loser" ? "loser" : undefined)}
+                  className="flex-shrink-0 w-24 bg-card rounded-lg p-3 border border-border hover:border-primary/50 transition-colors cursor-pointer shadow-sm"
+                >
+                  <div className="flex flex-col h-full items-center">
+                    <div className="text-2xl font-bold mb-1.5 text-primary">
+                      {stock.rank}
+                    </div>
+                    <div className="text-xs text-foreground/70 mb-1 text-center leading-tight">
+                      {category}
+                    </div>
+                    <div className="text-sm font-medium text-primary mb-2 flex-1 text-center leading-tight">
+                      {subCategory}
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-primary" />
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        {/* 領頭羊卡片 - 橫向滑動 */}
-        {/* 目前為假資料 正式開發邏輯:
-領頭羊
-多方情況下
-取表 4702290 (近120日漲幅) 的各欄位
-每一欄位：
-累加所有股票漲幅數值 (A)
-計算樣本數 (B)
-取得領頭羊計算指標 C = A / B
-逐欄位生成集合 D (所有 C 的集合)
+        {/* 前期 */}
+        <div>
+          <div className="text-sm font-medium text-muted-foreground mb-2">前期</div>
+          <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+            {(activeTab === "leader" ? previousLeaders : previousLosers).map((stock) => {
+              const parts = stock.industry.split("-");
+              const category = parts[0] || "";
+              const subCategory = parts.slice(1).join("-") || "";
 
-舉例:
-第一輪計算  　取欄位「漲幅(%)119」中所有股票的數值進行加總，記為 A。  　同時，記錄該欄位中股票的總數，記為 B。  　以 A ÷ B 計算所得之結果，定義為「領頭羊計算指標」(C)。
-第二輪計算  　取欄位「漲幅(%)118」中所有股票的數值進行加總，記為 A。  　記錄該欄位股票總數為 B，並以 A ÷ B 計算出「領頭羊計算指標」(C)。
-重複計算與結果彙整  　依上述步驟，依序對表格中各「漲幅(%)」欄位進行相同之計算。  　最終，彙整各輪所取得之「領頭羊計算指標」(C) 值，形成「領頭羊計算指標集合」(D)。
-以此類推。 
-設定每檔股票的「領頭羊」：
-預設值 = 個股近120天收盤價
-領頭羊 = 累乘 (1 + 集合D之第N筆數值/100(N從0到集合D結束) */}
-        <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-          {currentLeaderStocks.map((stock) => {
-            // 拆分產業名稱，例如 "電子上游-IC設計" -> ["電子上游", "IC設計"]
-            const parts = stock.industry.split("-");
-            const category = parts[0] || "";
-            const subCategory = parts.slice(1).join("-") || "";
-            
-            return (
-              <div
-                key={`${stock.rank}-${stock.industry}`}
-                onClick={() => handleIndustryClick(stock.industry)}
-                className="flex-shrink-0 w-24 bg-card rounded-lg p-3 border border-border hover:border-primary/50 transition-colors cursor-pointer shadow-sm"
-              >
-                <div className="flex flex-col h-full items-center">
-                  {/* 排名 */}
-                  <div className="text-2xl font-bold mb-1.5 text-primary">
-                    {stock.rank}
+              return (
+                <div
+                  key={`previous-${stock.rank}-${stock.industry}`}
+                  onClick={() => handleIndustryClick(stock.industry, activeTab === "loser" ? "loser" : undefined)}
+                  className="flex-shrink-0 w-24 bg-card rounded-lg p-3 border border-border hover:border-primary/50 transition-colors cursor-pointer shadow-sm"
+                >
+                  <div className="flex flex-col h-full items-center">
+                    <div className="text-2xl font-bold mb-1.5 text-primary">
+                      {stock.rank}
+                    </div>
+                    <div className="text-xs text-foreground/70 mb-1 text-center leading-tight">
+                      {category}
+                    </div>
+                    <div className="text-sm font-medium text-primary mb-2 flex-1 text-center leading-tight">
+                      {subCategory}
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-primary" />
                   </div>
-                  
-                  {/* 類別 */}
-                  <div className="text-xs text-foreground/70 mb-1 text-center leading-tight">
-                    {category}
-                  </div>
-                  
-                  {/* 子類別 */}
-                  <div className="text-sm font-medium text-primary mb-2 flex-1 text-center leading-tight">
-                    {subCategory}
-                  </div>
-                  
-                  {/* 箭頭 */}
-                  <ChevronRight className="w-4 h-4 text-primary" />
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* 落水狗類股 */}
-      <section className="px-4 py-4 border-b border-border/30">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-bold">落水狗類股</h2>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setLoserPeriod("current")}
-              className={`px-3 py-1 rounded-lg text-sm font-medium transition-all shadow-md ${
-                loserPeriod === "current"
-                  ? "bg-gradient-to-r from-[#E5C100] via-[#D4AF37] to-[#B8860B] text-black"
-                  : "bg-card text-muted-foreground border border-border"
-              }`}
-            >
-              當期
-            </button>
-            <button
-              onClick={() => setLoserPeriod("previous")}
-              className={`px-3 py-1 rounded-lg text-sm font-medium transition-all shadow-md ${
-                loserPeriod === "previous"
-                  ? "bg-gradient-to-r from-[#E5C100] via-[#D4AF37] to-[#B8860B] text-black"
-                  : "bg-card text-muted-foreground border border-border"
-              }`}
-            >
-              前期
-            </button>
+              );
+            })}
           </div>
-        </div>
-
-        {/* 落水狗卡片 - 橫向滑動 */}
-        <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-          {currentLoserStocks.map((stock) => {
-            // 拆分產業名稱，例如 "電子上游-IC設計" -> ["電子上游", "IC設計"]
-            const parts = stock.industry.split("-");
-            const category = parts[0] || "";
-            const subCategory = parts.slice(1).join("-") || "";
-            
-            return (
-              <div
-                key={`${stock.rank}-${stock.industry}`}
-                onClick={() => handleIndustryClick(stock.industry, "loser")}
-                className="flex-shrink-0 w-24 bg-card rounded-lg p-3 border border-border hover:border-primary/50 transition-colors cursor-pointer shadow-sm"
-              >
-                <div className="flex flex-col h-full items-center">
-                  {/* 排名 */}
-                  <div className="text-2xl font-bold mb-1.5 text-primary">
-                    {stock.rank}
-                  </div>
-                  
-                  {/* 類別 */}
-                  <div className="text-xs text-foreground/70 mb-1 text-center leading-tight">
-                    {category}
-                  </div>
-                  
-                  {/* 子類別 */}
-                  <div className="text-sm font-medium text-primary mb-2 flex-1 text-center leading-tight">
-                    {subCategory}
-                  </div>
-                  
-                  {/* 箭頭 */}
-                  <ChevronRight className="w-4 h-4 text-primary" />
-                </div>
-              </div>
-            );
-          })}
         </div>
       </section>
 

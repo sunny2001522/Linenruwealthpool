@@ -143,6 +143,17 @@ export function StarIcon3({ className = "size-[24px]" }: { className?: string })
   );
 }
 
+// 黑色星星 (Star 9.svg)
+export function StarIconBlack({ className = "size-[24px]" }: { className?: string }) {
+  return (
+    <div className={`relative shrink-0 ${className}`}>
+      <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+        <path d="M8 0L10.9171 4.39663L16 5.81234L12.72 9.94532L12.9443 15.2169L8 13.3746L3.05573 15.2169L3.28 9.94532L0 5.81234L5.08288 4.39663L8 0Z" fill="#E7E7E7" style={{ mixBlendMode: "soft-light" }} />
+      </svg>
+    </div>
+  );
+}
+
 // 銀色星星
 export function StarIconSilver({ className = "size-[24px]" }: { className?: string }) {
   return (

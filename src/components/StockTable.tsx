@@ -12,24 +12,25 @@ import { Stock } from "../lib/stockData";
 import { MarketType, FilterType } from "./StockFilters";
 import { useState } from "react";
 import { AddToWatchlistModal } from "./AddToWatchlistModal";
-import { RankStarRating } from "./RankStarRating";
 import { SubscriptionModal } from "./SubscriptionModal";
 import { isInAnyWatchlist } from "../lib/watchlistStorage";
+import { StarIcon3, StarIconSilver, StarIconBlack } from "./StarIcons";
 
 export type SortField =
   | "rank"
   | "code"
   | "name"
   | "price"
-  | "changePercent"  // 新增：漲跌幅排序字段
+  | "changePercent"
+  | "hasFlame"
   | "trilogy1"
   | "trilogy2"
   | "trilogy3"
   | "capitalBillion"
-  | "weekly20MaPrice" // 修改：從 weekly20MaBillion 改為 weekly20MaPrice
+  | "weekly20MaPrice"
   | "weeklyDeviation"
   | "weeklyVolume"
-  | "weeklyVolumeMultiple" // 修改：從 weeklyVolumeDiffBillion 改為 weeklyVolumeMultiple
+  | "weeklyVolumeMultiple"
   | "industry";
 
 export type SortDirection = "asc" | "desc";
@@ -90,16 +91,10 @@ function getTrilogyScores(stock: Stock): {
   score3: number;
   total: number;
 } {
-  const score1 = Math.min(stock.trilogyScore, 2);
-  const score2 =
-    stock.trilogyScore > 0
-      ? Math.min(stock.trilogyScore, 2)
-      : 0;
-  const score3 =
-    stock.trilogyScore > 1
-      ? Math.min(stock.trilogyScore - 1, 2)
-      : 0;
-  const total = Math.min(6, score1 + score2 + score3);
+  const score1 = stock.trilogy1Score ?? 0; // 挑噴出/回檔
+  const score2 = stock.trilogy2Score ?? 0; // 看型態
+  const score3 = stock.trilogy3Score ?? 0; // 看量找動能
+  const total = score1 + score2 + score3;
 
   return { score1, score2, score3, total };
 }
@@ -170,7 +165,7 @@ export function StockTable({
   }) => (
     <th
       onClick={() => onSort(field)}
-      className={`sticky top-0 bg-card backdrop-blur-sm border-b border-border ps-2 pe-1 py-2.5 text-[11px] font-semibold text-muted-foreground cursor-pointer hover:text-foreground hover:bg-muted/30 transition-colors z-10 ${className}`}
+      className={`sticky top-0 bg-card backdrop-blur-sm border-b border-border px-3 py-3 text-[16px] font-semibold text-muted-foreground cursor-pointer hover:text-foreground hover:bg-muted/30 transition-colors z-10 ${className}`}
     >
       <div className="flex items-center justify-center gap-1.5 whitespace-nowrap">
         <span>{children}</span>
@@ -320,7 +315,7 @@ c-8.產業名稱
             <tr className="bg-card backdrop-blur-sm border-b-2 border-primary/20">
               {/* 編輯模式：加入自選股 */}
               {isEditMode && (
-                <th className="sticky text-nowrap top-0 left-0 z-40 bg-card backdrop-blur-sm border-b border-border px-2 py-2.5 text-[11px] font-semibold text-muted-foreground min-w-[50px] border-r border-border/50">
+                <th className="sticky text-nowrap top-0 left-0 z-40 bg-card backdrop-blur-sm border-b border-border px-3 py-3 text-[16px] font-semibold text-muted-foreground min-w-[50px] border-r border-border/50">
                   加入自選
                 </th>
               )}
@@ -328,13 +323,12 @@ c-8.產業名稱
               {/* 火焰欄位 - 放在最左邊，總分前面，只在強勢/弱勢時顯示 */}
               {(filterType === "strong-ma" ||
                 filterType === "weak-ma") && (
-                <th
-                  className={`sticky top-0 backdrop-blur-sm border-b border-border px-1 py-2.5 text-[11px] font-semibold text-muted-foreground z-40 min-w-[50px] border-r border-border/50 bg-card ${isEditMode ? "left-[50px]" : "left-0"}`}
+                <TableHeader
+                  field="hasFlame"
+                  className={`sticky top-0 z-40 min-w-[50px] border-r border-border/50 bg-card ${isEditMode ? "left-[50px]" : "left-0"}`}
                 >
-                  <div className="flex items-center justify-center gap-1.5 whitespace-nowrap">
-                    <span>火焰</span>
-                  </div>
-                </th>
+                  火焰
+                </TableHeader>
               )}
 
               <TableHeader
@@ -350,7 +344,7 @@ c-8.產業名稱
                       : "left-0"
                 } z-40 min-w-[40px] w-[40px] bg-card border-r border-border/50`}
               >
-                總分
+                <Star className="w-4 h-4 text-[#D4AF37] fill-[#D4AF37]" />
               </TableHeader>
               <TableHeader
                 field="code"
@@ -382,7 +376,19 @@ c-8.產業名稱
                 漲跌幅
               </TableHeader>
 
-              {/* 恩如三部曲 - 直接放在第一行 */}
+              {/* 恩如三部曲 - 新順序: 看量找動能 → 看型態 → 挑噴出/回檔 */}
+              <TableHeader
+                field="trilogy3"
+                className="min-w-[100px] bg-card"
+              >
+                看量找動能
+              </TableHeader>
+              <TableHeader
+                field="trilogy2"
+                className="min-w-[110px] bg-card"
+              >
+                看型態
+              </TableHeader>
               <TableHeader
                 field="trilogy1"
                 className="min-w-[100px] bg-card"
@@ -390,19 +396,6 @@ c-8.產業名稱
                 {marketType === "bull"
                   ? "挑噴出/回檔"
                   : "挑下殺/反彈"}
-              </TableHeader>
-              <TableHeader
-                field="trilogy2"
-                className="min-w-[110px] bg-card"
-              >
-                看型態{" "}
-                {/* 修改：從「看盤技籌碼」改為「看型態」 */}
-              </TableHeader>
-              <TableHeader
-                field="trilogy3"
-                className="min-w-[100px] bg-card"
-              >
-                看量找動能
               </TableHeader>
               {/* 移動到這裡：週20MA乖離 */}
               <TableHeader
@@ -496,7 +489,7 @@ c-8.產業名稱
                   {(filterType === "strong-ma" ||
                     filterType === "weak-ma") && (
                     <td
-                      className={`sticky z-20 px-3 py-3 text-center border-r border-border/50 ${isEven ? "bg-card" : "bg-card/95"} ${isEditMode ? "left-[50px]" : "left-0"}`}
+                      className={`sticky z-20 px-4 py-3.5 text-center border-r border-border/50 ${isEven ? "bg-card" : "bg-card/95"} ${isEditMode ? "left-[50px]" : "left-0"}`}
                     >
                       {stock.hasFlame && (
                         <Flame className="w-4 h-4 text-chart-2 mx-auto" />
@@ -516,10 +509,23 @@ c-8.產業名稱
                           : "left-0"
                     }`}
                   >
-                    <div className="flex flex-col items-center gap-1">
-                      <RankStarRating
-                        score={trilogyScores.total}
-                      />
+                    <div className="flex flex-col items-center">
+                      {trilogyScores.score3 >= 2 && trilogyScores.score2 >= 1 && trilogyScores.score1 >= 1 ? (
+                        <>
+                          <StarIcon3 className="size-[16px]" />
+                          <span className="text-[10px] font-medium text-[#D4AF37]">211</span>
+                        </>
+                      ) : trilogyScores.score3 >= 2 && trilogyScores.score2 >= 1 && trilogyScores.score1 < 1 ? (
+                        <>
+                          <StarIconSilver className="size-[16px]" />
+                          <span className="text-[10px] font-medium text-[#C0C0C0]">210</span>
+                        </>
+                      ) : (
+                        <>
+                          <StarIconBlack className="size-[16px]" />
+                          <span className="text-[10px] font-medium text-white/30">-</span>
+                        </>
+                      )}
                     </div>
                   </td>
                   <td
@@ -544,7 +550,7 @@ c-8.產業名稱
                         <span className="text-[10px] text-muted-foreground font-medium leading-tight">
                           {stock.code}
                         </span>
-                        <span className="font-semibold leading-tight text-[13px]">
+                        <span className="font-semibold leading-tight text-[16px]">
                           {stock.name}
                         </span>
                       </div>
@@ -553,13 +559,13 @@ c-8.產業名稱
 
                   {/* 收盤價 */}
                   <td
-                    className={`relative px-3 py-3 text-center font-semibold text-[13px] ${isEven ? "bg-card/30" : "bg-card/60"}`}
+                    className={`relative px-4 py-3.5 text-center font-semibold text-[16px] ${isEven ? "bg-card/30" : "bg-card/60"}`}
                   >
                     {stock.price.toFixed(2)}
                   </td>
                   {/* 新增：漲跌幅 */}
                   <td
-                    className={`relative px-3 py-3 text-center font-semibold text-[13px] border-r border-border/50 ${isEven ? "bg-card/30" : "bg-card/60"} ${
+                    className={`relative px-4 py-3.5 text-center font-semibold text-[16px] border-r border-border/50 ${isEven ? "bg-card/30" : "bg-card/60"} ${
                       isPositive
                         ? "text-chart-2"
                         : isNegative
@@ -571,37 +577,25 @@ c-8.產業名稱
                     {Math.abs(stock.changePercent).toFixed(2)}%
                   </td>
 
-                  {/* 恩如三部曲 */}
+                  {/* 恩如三部曲 - 新順序: 看量找動能 → 看型態 → 挑噴出/回檔 */}
                   <td
-                    className={`relative px-3 py-3 text-center ${isEven ? "bg-primary/5" : "bg-primary/10"}`}
+                    className={`relative px-4 py-3.5 text-center ${isEven ? "bg-primary/5" : "bg-primary/10"}`}
                   >
-                    <StarRating count={stock.trilogyScore} />
+                    <StarRating count={trilogyScores.score3} />
                   </td>
                   <td
-                    className={`relative px-3 py-3 text-center ${isEven ? "bg-primary/5" : "bg-primary/10"}`}
+                    className={`relative px-4 py-3.5 text-center ${isEven ? "bg-primary/5" : "bg-primary/10"}`}
                   >
-                    <StarRating
-                      count={
-                        stock.trilogyScore > 0
-                          ? Math.min(stock.trilogyScore, 2)
-                          : 0
-                      }
-                    />
+                    <StarRating count={trilogyScores.score2} />
                   </td>
                   <td
-                    className={`relative px-3 py-3 text-center ${isEven ? "bg-primary/5" : "bg-primary/10"}`}
+                    className={`relative px-4 py-3.5 text-center ${isEven ? "bg-primary/5" : "bg-primary/10"}`}
                   >
-                    <StarRating
-                      count={
-                        stock.trilogyScore > 1
-                          ? Math.min(stock.trilogyScore - 1, 2)
-                          : 0
-                      }
-                    />
+                    <StarRating count={trilogyScores.score1} />
                   </td>
                   {/* 移動到這裡：週20MA乖離 */}
                   <td
-                    className={`relative px-3 py-3 text-center font-semibold text-[13px] border-r border-border/50 ${isEven ? "bg-card/30" : "bg-card/60"} ${
+                    className={`relative px-4 py-3.5 text-center font-semibold text-[16px] border-r border-border/50 ${isEven ? "bg-card/30" : "bg-card/60"} ${
                       stock.weeklyDeviation > 0
                         ? "text-chart-2"
                         : stock.weeklyDeviation < 0
@@ -615,26 +609,26 @@ c-8.產業名稱
 
                   {/* 股本(億) */}
                   <td
-                    className={`relative px-3 py-3 text-center text-[13px] ${isEven ? "bg-card/30" : "bg-card/60"}`}
+                    className={`relative px-4 py-3.5 text-center text-[16px] ${isEven ? "bg-card/30" : "bg-card/60"}`}
                   >
                     {stock.capitalBillion.toFixed(2)}
                   </td>
                   {/* 20週均(價) */}
                   <td
-                    className={`relative px-3 py-3 text-center text-[13px] ${isEven ? "bg-card/30" : "bg-card/60"}`}
+                    className={`relative px-4 py-3.5 text-center text-[16px] ${isEven ? "bg-card/30" : "bg-card/60"}`}
                   >
                     {stock.weekly20MaPrice.toFixed(2)}{" "}
                     {/* 修改：使用 weekly20MaPrice */}
                   </td>
                   {/* 週成交量 */}
                   <td
-                    className={`relative px-3 py-3 text-center text-[13px] ${isEven ? "bg-card/30" : "bg-card/60"}`}
+                    className={`relative px-4 py-3.5 text-center text-[16px] ${isEven ? "bg-card/30" : "bg-card/60"}`}
                   >
                     {stock.weeklyVolume.toLocaleString()}
                   </td>
                   {/* 週爆量(倍) */}
                   <td
-                    className={`relative px-3 py-3 text-center font-semibold text-[13px] ${isEven ? "bg-card/30" : "bg-card/60"} ${
+                    className={`relative px-4 py-3.5 text-center font-semibold text-[16px] ${isEven ? "bg-card/30" : "bg-card/60"} ${
                       stock.weeklyVolumeMultiple > 1
                         ? "text-chart-2"
                         : stock.weeklyVolumeMultiple < 1
@@ -648,7 +642,7 @@ c-8.產業名稱
                   </td>
                   {/* 產業名稱 */}
                   <td
-                    className={`relative px-3 py-3 text-left text-muted-foreground text-[12px] ${isEven ? "bg-card/30" : "bg-card/60"}`}
+                    className={`relative px-4 py-3.5 text-left text-muted-foreground text-[12px] ${isEven ? "bg-card/30" : "bg-card/60"}`}
                   >
                     {" "}
                     {/* 修改：改 text-left 讓格式更好看 */}

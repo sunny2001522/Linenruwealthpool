@@ -6,11 +6,7 @@ import {
   MinusCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router";
-import {
-  StarIcon3,
-  StarIcon2,
-  StarIconSilver,
-} from "./StarIcons";
+import { StarIcon3, StarIconSilver, StarIconBlack } from "./StarIcons";
 
 // 简单的K棒图标组件
 function KBarIcon({ isPositive, isNegative }: { isPositive: boolean; isNegative: boolean }) {
@@ -83,11 +79,26 @@ export function StockCard({
       onClick={handleCardClick}
       className={`bg-card border border-border rounded-xl p-3 hover:border-primary/50 hover:shadow-lg transition-all relative ${!isEditMode ? "cursor-pointer" : ""}`}
     >
-      {/* 第一行：星星評分 + 股票代码/名称 + 火焰 */}
+      {/* 第一行：金星+pill + 股票代码/名称 + 火焰 */}
       <div className="flex items-center justify-between mb-3">
-        {/* 左侧：星星評分 */}
-        <div className="flex-shrink-0">
-          <StarRating score={trilogyScore} />
+        {/* 左侧：星星 + 211/210 上下排列 */}
+        <div className="flex-shrink-0 flex flex-col items-center">
+          {trilogy3 >= 2 && trilogy2 >= 1 && trilogy1 >= 1 ? (
+            <>
+              <StarIcon3 className="size-[18px]" />
+              <span className="text-[10px] font-medium text-[#D4AF37]">211</span>
+            </>
+          ) : trilogy3 >= 2 && trilogy2 >= 1 && trilogy1 < 1 ? (
+            <>
+              <StarIconSilver className="size-[18px]" />
+              <span className="text-[10px] font-medium text-[#C0C0C0]">210</span>
+            </>
+          ) : (
+            <>
+              <StarIconBlack className="size-[18px]" />
+              <span className="text-[10px] font-medium text-white/30">-</span>
+            </>
+          )}
         </div>
 
         {/* 中间：股票代码/名称 - 文字居中 */}
@@ -108,10 +119,12 @@ export function StockCard({
         </div>
       </div>
 
-      {/* 第二行：价格 */}
-      <div className="mb-3">
-        <div className="flex items-center gap-2">
+      {/* 第二行：K棒靠左 + 價格置中 */}
+      <div className="mb-3 flex items-center">
+        <div className="flex-shrink-0">
           <KBarIcon isPositive={isPositive} isNegative={isNegative} />
+        </div>
+        <div className="flex-1 text-center">
           <span
             className={`text-2xl font-bold ${
               isPositive
@@ -175,51 +188,3 @@ export function StockCard({
   );
 }
 
-// 星星评分组件 - 显示单个星星图标 + 总分
-// 金5-6分，银3-4分，铜1-2分
-function StarRating({ score }: { score: number }) {
-  // 根据分数选择星星颜色和数字颜色
-  const getStarConfig = () => {
-    if (score >= 5) {
-      return {
-        icon: <StarIcon3 className="size-[14px]" />, // 金色
-        textColor: "#D4AF37", // 金色
-      };
-    } else if (score >= 3) {
-      return {
-        icon: <StarIconSilver className="size-[14px]" />, // 银色
-        textColor: "#C0C0C0", // 银色
-      };
-    } else if (score >= 1) {
-      return {
-        icon: <StarIcon2 className="size-[14px]" />, // 铜色
-        textColor: "#CD7F32", // 铜色
-      };
-    } else {
-      // 0分：显示灰色星星
-      return {
-        icon: (
-          <StarIcon3
-            className="size-[14px]"
-            style={{ filter: "grayscale(100%) opacity(0.3)" }}
-          />
-        ),
-        textColor: "#666", // 灰色
-      };
-    }
-  };
-
-  const config = getStarConfig();
-
-  return (
-    <div className="flex flex-col items-center justify-center ">
-      <span
-        className="text-sm font-bold"
-        style={{ color: config.textColor }}
-      >
-        {score}
-      </span>
-      {config.icon}
-    </div>
-  );
-}

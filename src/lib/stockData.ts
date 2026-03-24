@@ -9,6 +9,9 @@ export interface Stock {
   // 圖一的所有欄位
   temperatureLevel: number; // 溫度條等級選
   trilogyScore: number; // 量距三部曲
+  trilogy1Score: number; // 挑噴出/回檔 (0-2)
+  trilogy2Score: number; // 看型態 (0-2)
+  trilogy3Score: number; // 看量找動能 (0-2)
   waitMaScore: number; // 等待均線
   waitStrongScore: number; // 等待轉強
   waitContinueScore: number; // 等待持續
@@ -220,7 +223,11 @@ export function generateMockStocks(): Stock[] {
       
       // 圖一的欄位數據
       temperatureLevel: Math.floor(Math.random() * 3) + 1, // 1-3
-      trilogyScore: Math.floor(Math.random() * 3), // 0-2顆星
+      trilogyScore: Math.floor(Math.random() * 3), // 0-2顆星 (legacy)
+      // 個別三部曲評分: 讓部分股票出現 211 / 210 pattern
+      trilogy3Score: index < 8 ? 2 : index < 16 ? 1 : 0, // 看量找動能
+      trilogy2Score: index < 12 ? 1 : index < 18 ? 1 : 0, // 看型態
+      trilogy1Score: [0, 2, 4, 6, 8].includes(index) ? 1 : 0, // 挑噴出/回檔 (部分有, 部分沒有)
       waitMaScore: Math.floor(Math.random() * 3), // 0-2顆星
       waitStrongScore: Math.floor(Math.random() * 3), // 0-2顆星
       waitContinueScore: Math.floor(Math.random() * 3), // 0-2顆星

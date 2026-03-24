@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "react-router";
 import {
   StockFilters,
@@ -55,10 +55,6 @@ export function StockPickerPage() {
     name: string;
   } | null>(null);
   const [refreshKey, setRefreshKey] = useState(0); // 用於強制重新渲染
-  const [showIndustryDropdown, setShowIndustryDropdown] =
-    useState(false); // 產業下拉菜單
-  const industryButtonRef = useRef<HTMLButtonElement>(null);
-  const industryDropdownRef = useRef<HTMLDivElement>(null);
   // 大盤數據：red(上漲)、green(下跌)、gray(平盤)
   const [marketSignal, setMarketSignal] = useState<
     "red" | "green" | "gray"
@@ -236,10 +232,21 @@ export function StockPickerPage() {
       let comparison = 0;
 
       switch (sortField) {
-        case "rank":
-          comparison =
-            b.trilogyScore - a.trilogyScore ||
-            b.changePercent - a.changePercent;
+        case "rank": {
+          // 星等排序: 211 > 210 > 其他
+          const getStarRank = (s: typeof a) => {
+            const s3 = s.trilogy3Score || 0;
+            const s2 = s.trilogy2Score || 0;
+            const s1 = s.trilogy1Score || 0;
+            if (s3 >= 2 && s2 >= 1 && s1 >= 1) return 3; // 211
+            if (s3 >= 2 && s2 >= 1) return 2; // 210
+            return 1;
+          };
+          comparison = getStarRank(b) - getStarRank(a) || b.changePercent - a.changePercent;
+          break;
+        }
+        case "hasFlame":
+          comparison = (b.hasFlame ? 1 : 0) - (a.hasFlame ? 1 : 0);
           break;
         case "code":
           comparison = a.code.localeCompare(b.code);
@@ -251,9 +258,13 @@ export function StockPickerPage() {
           comparison = b.price - a.price;
           break;
         case "trilogy1":
+          comparison = (b.trilogy1Score || 0) - (a.trilogy1Score || 0);
+          break;
         case "trilogy2":
+          comparison = (b.trilogy2Score || 0) - (a.trilogy2Score || 0);
+          break;
         case "trilogy3":
-          comparison = b.trilogyScore - a.trilogyScore;
+          comparison = (b.trilogy3Score || 0) - (a.trilogy3Score || 0);
           break;
         case "capitalBillion":
           comparison = b.capitalBillion - a.capitalBillion;
@@ -364,29 +375,6 @@ export function StockPickerPage() {
     }
   }, [searchParams]);
 
-  // 点击其他地方关闭产业下拉菜单
-  useEffect(() => {
-    const currentRef = industryDropdownRef.current;
-    const handleOutsideClick = (event: MouseEvent) => {
-      if (
-        currentRef &&
-        !currentRef.contains(event.target as Node) &&
-        !industryButtonRef.current?.contains(
-          event.target as Node,
-        )
-      ) {
-        setShowIndustryDropdown(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleOutsideClick);
-    return () => {
-      document.removeEventListener(
-        "mousedown",
-        handleOutsideClick,
-      );
-    };
-  }, []);
 
   return (
     <div className="flex flex-col h-full w-full bg-background pb-16">
@@ -566,7 +554,7 @@ a.策略(Signal)
 "assignSpid": "",
 "keyMap": "",
 "filterNumber": "0" */}
-              {/* 第二排：篩選條件 Tab */}
+              {/* 第二排：篩選條件 Tab + 篩選按鈕 */}
               <div>
                 <div className="flex items-center gap-2 justify-between">
                   <div className="flex items-center gap-1">
@@ -655,46 +643,8 @@ a.策略(Signal)
                     )}
                   </div>
 
-                  {/* 右側：領頭羊/落水狗按鈕 */}
+                  {/* 右側：篩選按鈕 */}
                   <div className="flex items-center gap-2">
-                    <button
-                      ref={industryButtonRef}
-                      onClick={() => {
-                        const selectedIndustry =
-                          marketType === "bull"
-                            ? advancedFilters.leaderIndustry
-                            : advancedFilters.loserIndustry;
-                        navigate(
-                          `/industry-selection?marketType=${marketType}${selectedIndustry ? `&selected=${encodeURIComponent(selectedIndustry)}` : ""}`,
-                        );
-                      }}
-                      className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${
-                        marketType === "bull"
-                          ? advancedFilters.leaderIndustry
-                            ? "bg-[#4A90E2] text-white shadow-md"
-                            : "bg-muted text-muted-foreground hover:bg-muted/80"
-                          : advancedFilters.loserIndustry
-                            ? "bg-[#4A90E2] text-white shadow-md"
-                            : "bg-muted text-muted-foreground hover:bg-muted/80"
-                      }`}
-                    >
-                      <span>
-                        {(() => {
-                          const selectedIndustry =
-                            marketType === "bull"
-                              ? advancedFilters.leaderIndustry
-                              : advancedFilters.loserIndustry;
-                          if (!selectedIndustry) return "產業";
-                          // 提取最后一部分，例如 "電子上游-IC-設計" -> "設計"
-                          const parts =
-                            selectedIndustry.split("-");
-                          return parts[parts.length - 1];
-                        })()}
-                      </span>
-                      <ChevronDown className="w-3 h-3" />
-                    </button>
-
-                    {/* 篩選按鈕 */}
                     <AdvancedFilters
                       filters={advancedFilters}
                       onChange={setAdvancedFilters}
@@ -703,6 +653,87 @@ a.策略(Signal)
                     />
                   </div>
                 </div>
+              </div>
+
+              {/* 第三排：領頭羊類股/落水狗類股按鈕 + 卡片排序 */}
+              <div className="pb-1 flex items-center justify-between">
+                <button
+                  onClick={() => {
+                    const selectedIndustry =
+                      marketType === "bull"
+                        ? advancedFilters.leaderIndustry
+                        : advancedFilters.loserIndustry;
+                    navigate(
+                      `/industry-selection?marketType=${marketType}${selectedIndustry ? `&selected=${encodeURIComponent(selectedIndustry)}` : ""}`,
+                    );
+                  }}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${
+                    marketType === "bull"
+                      ? advancedFilters.leaderIndustry
+                        ? "bg-[#4A90E2] text-white shadow-md"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      : advancedFilters.loserIndustry
+                        ? "bg-[#4A90E2] text-white shadow-md"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  }`}
+                >
+                  {(() => {
+                    const selectedIndustry =
+                      marketType === "bull"
+                        ? advancedFilters.leaderIndustry
+                        : advancedFilters.loserIndustry;
+                    if (!selectedIndustry)
+                      return (
+                        <span>{marketType === "bull" ? "領頭羊類股" : "落水狗類股"}</span>
+                      );
+                    // 拆分成父類別和子類別，例如 "電子上游-PCB-材料設備" → 父:"電子上游" 子:"PCB 材料設備"
+                    const parts = selectedIndustry.split("-");
+                    const parentCategory = parts[0];
+                    const childCategory = parts.slice(1).join(" ");
+                    return (
+                      <span className="flex items-center gap-1">
+                        <span className="opacity-70 text-[10px]">{parentCategory}</span>
+                        <span className="font-semibold">{childCategory}</span>
+                      </span>
+                    );
+                  })()}
+                  <ChevronDown className="w-3 h-3" />
+                </button>
+
+                {/* 卡片排序按鈕 - 只在卡片視圖顯示 */}
+                {viewMode === "grid" && (
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleSort("rank")}
+                      className={`text-xs font-medium transition-colors flex items-center gap-0.5 ${
+                        sortField === "rank" ? "text-[#4A90E2]" : "text-muted-foreground"
+                      }`}
+                    >
+                      星等
+                      {sortField === "rank" && (sortDirection === "desc" ? " ↓" : " ↑")}
+                    </button>
+                    {(filterType === "strong-ma" || filterType === "weak-ma") && (
+                      <button
+                        onClick={() => handleSort("hasFlame")}
+                        className={`text-xs font-medium transition-colors flex items-center gap-0.5 ${
+                          sortField === "hasFlame" ? "text-[#4A90E2]" : "text-muted-foreground"
+                        }`}
+                      >
+                        火焰
+                        {sortField === "hasFlame" && (sortDirection === "desc" ? " ↓" : " ↑")}
+                      </button>
+                    )}
+                    <button
+                      onClick={() => handleSort("weeklyDeviation")}
+                      className={`text-xs font-medium transition-colors flex items-center gap-0.5 ${
+                        sortField === "weeklyDeviation" ? "text-[#4A90E2]" : "text-muted-foreground"
+                      }`}
+                    >
+                      週20乖離
+                      {sortField === "weeklyDeviation" && (sortDirection === "desc" ? " ↓" : " ↑")}
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -779,9 +810,9 @@ a.策略(Signal)
                     change={stock.change}
                     changePercent={stock.changePercent}
                     trilogyScore={stock.trilogyScore}
-                    trilogy1={stock.trilogy1 || 0}
-                    trilogy2={stock.trilogy2 || 0}
-                    trilogy3={stock.trilogy3 || 0}
+                    trilogy1={stock.trilogy1Score || 0}
+                    trilogy2={stock.trilogy2Score || 0}
+                    trilogy3={stock.trilogy3Score || 0}
                     weeklyDeviation={stock.weeklyDeviation}
                     hasFlame={
                       (filterType === "strong-ma" ||
@@ -842,95 +873,6 @@ a.策略(Signal)
         />
       )}
 
-      {/* 產業下拉菜單 */}
-      {showIndustryDropdown && (
-        <div
-          ref={industryDropdownRef}
-          className="fixed z-50 bg-card border border-border rounded-lg shadow-lg p-2 max-h-80 overflow-y-auto"
-          style={{
-            top: industryButtonRef.current
-              ? industryButtonRef.current.getBoundingClientRect()
-                  .bottom + 8
-              : 0,
-            right: 16,
-            minWidth: "200px",
-          }}
-        >
-          <div className="space-y-1">
-            {[
-              "電子上游-IC設計",
-              "電子上游-晶圓代工",
-              "電子上游-IC封測",
-              "電子中游-被動元件",
-              "電子中游-PCB",
-              "電子中游-面板",
-              "電子下游-組裝代工",
-              "電子下游-網通設備",
-              "電子下游-伺服器",
-              "金融-銀行",
-              "金融-保險",
-              "金融-證券",
-              "傳產-塑化",
-              "傳產-鋼鐵",
-              "傳產-水泥",
-              "航運-貨櫃航運",
-              "航運-散裝航運",
-              "生技醫療-新藥",
-              "生技醫療-醫材",
-            ].map((industry) => (
-              <button
-                key={industry}
-                onClick={() => {
-                  if (marketType === "bull") {
-                    // 多方：設置領頭羊產業
-                    if (
-                      advancedFilters.leaderIndustry ===
-                      industry
-                    ) {
-                      setAdvancedFilters({
-                        ...advancedFilters,
-                        leaderIndustry: null,
-                      });
-                    } else {
-                      setAdvancedFilters({
-                        ...advancedFilters,
-                        leaderIndustry: industry,
-                      });
-                    }
-                  } else {
-                    // 空方：設置落水狗產業
-                    if (
-                      advancedFilters.loserIndustry === industry
-                    ) {
-                      setAdvancedFilters({
-                        ...advancedFilters,
-                        loserIndustry: null,
-                      });
-                    } else {
-                      setAdvancedFilters({
-                        ...advancedFilters,
-                        loserIndustry: industry,
-                      });
-                    }
-                  }
-                  setShowIndustryDropdown(false);
-                }}
-                className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors ${
-                  (marketType === "bull" &&
-                    advancedFilters.leaderIndustry ===
-                      industry) ||
-                  (marketType === "bear" &&
-                    advancedFilters.loserIndustry === industry)
-                    ? "bg-primary text-primary-foreground"
-                    : "hover:bg-muted text-foreground"
-                }`}
-              >
-                {industry}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
