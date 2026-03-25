@@ -4,8 +4,8 @@ import {
   ArrowLeft,
   Heart,
   Search,
-  ChevronDown,
-  ChevronUp,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import {
   ComposedChart,
@@ -73,7 +73,7 @@ export function StockDetailPage() {
   const isNegative = stock.change < 0;
 
   return (
-    <div className="min-h-screen bg-background pb-[56px]">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="flex items-center justify-between px-4 py-3">
@@ -86,21 +86,21 @@ export function StockDetailPage() {
 
           <div className="flex items-center gap-1">
             <button
-              onClick={goToNextStock}
-              disabled={currentIndex >= stocks.length - 1}
+              onClick={goToPrevStock}
+              disabled={currentIndex <= 0}
               className="text-foreground/60 hover:text-primary disabled:text-foreground/20 transition-colors"
             >
-              <ChevronDown className="w-4 h-4" />
+              <ChevronLeft className="w-4 h-4" />
             </button>
             <h1 className="font-bold text-base">
               ({stock.code}) {stock.name}
             </h1>
             <button
-              onClick={goToPrevStock}
-              disabled={currentIndex <= 0}
+              onClick={goToNextStock}
+              disabled={currentIndex >= stocks.length - 1}
               className="text-foreground/60 hover:text-primary disabled:text-foreground/20 transition-colors"
             >
-              <ChevronUp className="w-4 h-4" />
+              <ChevronRight className="w-4 h-4" />
             </button>
           </div>
 
@@ -264,24 +264,70 @@ function KLineTab({
         </div>
       </div>
 
-      {/* MA + 強勢線 - 4欄排版，保持位置不變 */}
-      <div className="px-4 mb-2 grid grid-cols-4 gap-2">
-        <div className={`flex flex-col ${!showShortMA ? "invisible" : ""}`}>
-          <span className="text-[10px] text-muted-foreground">MA20</span>
-          <span className="text-xs font-medium" style={{ color: "#F5C518" }}>{displayData.ma20.toFixed(2)}</span>
-        </div>
-        <div className={`flex flex-col ${!showLongMA ? "invisible" : ""}`}>
-          <span className="text-[10px] text-muted-foreground">MA100</span>
-          <span className="text-xs font-medium" style={{ color: "#D355F5" }}>{displayData.ma100.toFixed(2)}</span>
-        </div>
-        <div className={`flex flex-col ${!showLeaderLine ? "invisible" : ""}`}>
-          <span className="text-[10px] text-muted-foreground">當期領頭羊</span>
-          <span className="text-xs font-medium" style={{ color: "#FFB347" }}>{displayData.currentLeader.toFixed(1)}</span>
-        </div>
-        <div className={`flex flex-col ${!showLeaderLine ? "invisible" : ""}`}>
-          <span className="text-[10px] text-muted-foreground">前期領頭羊</span>
-          <span className="text-xs font-medium" style={{ color: "#64B5F6" }}>{displayData.prevLeader.toFixed(1)}</span>
-        </div>
+      {/* MA + 強勢線 - 三個淡灰底色區塊 */}
+      <div className="px-4 mb-2 flex gap-2">
+        {/* 短均區塊 */}
+        <button onClick={() => setShowShortMA(!showShortMA)}
+          className={`flex-1 flex items-start gap-2 p-2 rounded-lg text-left ${!showShortMA ? "opacity-40" : ""}`}
+          style={{ backgroundColor: "rgba(255,255,255,0.05)" }}>
+          <div className="w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5"
+            style={{ borderColor: "#F5C518", backgroundColor: showShortMA ? "#F5C518" : "transparent" }}>
+            {showShortMA && (
+              <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            )}
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] font-medium leading-tight" style={{ color: "#F5C518" }}>短均</span>
+            <span className="text-[10px] text-muted-foreground leading-tight">20MA</span>
+            <span className="text-xs text-foreground font-medium mt-0.5">{displayData.ma20.toFixed(2)}</span>
+          </div>
+        </button>
+
+        {/* 長均區塊 */}
+        <button onClick={() => setShowLongMA(!showLongMA)}
+          className={`flex-1 flex items-start gap-2 p-2 rounded-lg text-left ${!showLongMA ? "opacity-40" : ""}`}
+          style={{ backgroundColor: "rgba(255,255,255,0.05)" }}>
+          <div className="w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5"
+            style={{ borderColor: "#D355F5", backgroundColor: showLongMA ? "#D355F5" : "transparent" }}>
+            {showLongMA && (
+              <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            )}
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] font-medium leading-tight" style={{ color: "#D355F5" }}>長均</span>
+            <span className="text-[10px] text-muted-foreground leading-tight">100MA</span>
+            <span className="text-xs text-foreground font-medium mt-0.5">{displayData.ma100.toFixed(2)}</span>
+          </div>
+        </button>
+
+        {/* 強勢線區塊 - 包含當期和前期 */}
+        <button onClick={() => setShowLeaderLine(!showLeaderLine)}
+          className={`flex-[2] flex items-start gap-2 p-2 rounded-lg text-left ${!showLeaderLine ? "opacity-40" : ""}`}
+          style={{ backgroundColor: "rgba(255,255,255,0.05)" }}>
+          <div className="w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5"
+            style={{ borderColor: "#4A90E2", backgroundColor: showLeaderLine ? "#4A90E2" : "transparent" }}>
+            {showLeaderLine && (
+              <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            )}
+          </div>
+          <div className="flex flex-col flex-1">
+            <span className="text-[10px] font-medium leading-tight" style={{ color: "#4A90E2" }}>強勢線</span>
+            <div className="flex leading-tight">
+              <span className="flex-1 text-[10px] font-medium" style={{ color: "#FFB347" }}>當期領頭羊</span>
+              <span className="flex-1 text-[10px] font-medium" style={{ color: "#64B5F6" }}>前期領頭羊</span>
+            </div>
+            <div className="flex mt-0.5">
+              <span className="flex-1 text-xs text-foreground font-medium">{displayData.currentLeader.toFixed(1)}</span>
+              <span className="flex-1 text-xs text-foreground font-medium">{displayData.prevLeader.toFixed(1)}</span>
+            </div>
+          </div>
+        </button>
       </div>
 
       {/* K線圖表 */}
@@ -305,51 +351,6 @@ function KLineTab({
         </div>
       </div>
 
-      {/* 底部技術線切換 - 固定在底部，保證44px高度，無上邊框 */}
-      <div className="fixed bottom-0 left-0 right-0 h-[44px] flex items-center justify-center px-3 bg-background z-40">
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-muted-foreground font-medium">技術線：</span>
-
-          {/* 短均 */}
-          <button onClick={() => setShowShortMA(!showShortMA)} className="flex items-center gap-1.5">
-            <div className="w-5 h-5 rounded-full border-2 flex items-center justify-center"
-              style={{ borderColor: "#F5C518", backgroundColor: showShortMA ? "#F5C518" : "transparent" }}>
-              {showShortMA && (
-                <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-              )}
-            </div>
-            <span className="text-sm text-foreground">短均</span>
-          </button>
-
-          {/* 長均 */}
-          <button onClick={() => setShowLongMA(!showLongMA)} className="flex items-center gap-1.5">
-            <div className="w-5 h-5 rounded-full border-2 flex items-center justify-center"
-              style={{ borderColor: "#D355F5", backgroundColor: showLongMA ? "#D355F5" : "transparent" }}>
-              {showLongMA && (
-                <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-              )}
-            </div>
-            <span className="text-sm text-foreground">長均</span>
-          </button>
-
-          {/* 強勢線 */}
-          <button onClick={() => setShowLeaderLine(!showLeaderLine)} className="flex items-center gap-1.5">
-            <div className="w-5 h-5 rounded-full border-2 flex items-center justify-center"
-              style={{ borderColor: "#4A90E2", backgroundColor: showLeaderLine ? "#4A90E2" : "transparent" }}>
-              {showLeaderLine && (
-                <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-              )}
-            </div>
-            <span className="text-sm text-foreground">強勢線</span>
-          </button>
-        </div>
-      </div>
     </div>
   );
 }
@@ -430,58 +431,46 @@ function KLineChart({
   showCurrentLeader: boolean;
   showPrevLeader: boolean;
 }) {
-  // 硬編碼的靜態K線數據 - 類似參考圖的上漲趨勢
+  // 硬編碼的靜態K線數據 - 自然的上漲趨勢，每根K棒長度不同
   const data = [
-    { date: "11/26", open: 28, close: 29, high: 29.5, low: 27.5, ma20: 27, ma100: 25, currentLeader: 32, prevLeader: 34 },
-    { date: "11/27", open: 29, close: 30, high: 30.5, low: 28.5, ma20: 27.5, ma100: 25.2, currentLeader: 32.5, prevLeader: 34.2 },
-    { date: "11/28", open: 30, close: 31, high: 31.5, low: 29.5, ma20: 28, ma100: 25.5, currentLeader: 33, prevLeader: 34.5 },
-    { date: "11/29", open: 31, close: 30.5, high: 31.5, low: 30, ma20: 28.5, ma100: 25.8, currentLeader: 33.5, prevLeader: 34.8 },
-    { date: "12/02", open: 30.5, close: 32, high: 32.5, low: 30, ma20: 29, ma100: 26, currentLeader: 34, prevLeader: 35 },
-    { date: "12/03", open: 32, close: 33, high: 33.5, low: 31.5, ma20: 29.5, ma100: 26.3, currentLeader: 35, prevLeader: 36 },
-    { date: "12/04", open: 33, close: 34, high: 34.5, low: 32.5, ma20: 30, ma100: 26.5, currentLeader: 36, prevLeader: 37 },
-    { date: "12/05", open: 34, close: 35, high: 35.5, low: 33.5, ma20: 30.5, ma100: 26.8, currentLeader: 37, prevLeader: 38 },
-    { date: "12/06", open: 35, close: 34.5, high: 35.5, low: 34, ma20: 31, ma100: 27, currentLeader: 38, prevLeader: 39 },
-    { date: "12/09", open: 34.5, close: 36, high: 36.5, low: 34, ma20: 31.5, ma100: 27.3, currentLeader: 39, prevLeader: 40 },
-    { date: "12/10", open: 36, close: 38, high: 38.5, low: 35.5, ma20: 32, ma100: 27.5, currentLeader: 40, prevLeader: 41 },
-    { date: "12/11", open: 38, close: 40, high: 40.5, low: 37.5, ma20: 33, ma100: 28, currentLeader: 42, prevLeader: 43 },
-    { date: "12/12", open: 40, close: 42, high: 42.5, low: 39.5, ma20: 34, ma100: 28.5, currentLeader: 44, prevLeader: 45 },
-    { date: "12/13", open: 42, close: 44, high: 44.5, low: 41.5, ma20: 35, ma100: 29, currentLeader: 46, prevLeader: 47 },
-    { date: "12/16", open: 44, close: 46, high: 46.5, low: 43.5, ma20: 36, ma100: 29.5, currentLeader: 48, prevLeader: 49 },
-    { date: "12/17", open: 46, close: 48, high: 48.5, low: 45.5, ma20: 38, ma100: 30, currentLeader: 50, prevLeader: 51 },
-    { date: "12/18", open: 48, close: 50, high: 50.5, low: 47.5, ma20: 40, ma100: 31, currentLeader: 52, prevLeader: 53 },
-    { date: "12/19", open: 50, close: 52, high: 52.5, low: 49.5, ma20: 42, ma100: 32, currentLeader: 54, prevLeader: 55 },
-    { date: "12/20", open: 52, close: 54, high: 54.5, low: 51.5, ma20: 44, ma100: 33, currentLeader: 56, prevLeader: 57 },
-    { date: "12/23", open: 54, close: 56, high: 56.5, low: 53.5, ma20: 46, ma100: 34, currentLeader: 58, prevLeader: 59 },
-    { date: "12/24", open: 56, close: 58, high: 58.5, low: 55.5, ma20: 48, ma100: 35, currentLeader: 60, prevLeader: 61 },
-    { date: "12/25", open: 58, close: 57, high: 59, low: 56.5, ma20: 50, ma100: 36, currentLeader: 61, prevLeader: 62 },
-    { date: "12/26", open: 57, close: 59, high: 59.5, low: 56.5, ma20: 51, ma100: 37, currentLeader: 62, prevLeader: 63 },
-    { date: "12/27", open: 59, close: 58, high: 60, low: 57.5, ma20: 52, ma100: 38, currentLeader: 63, prevLeader: 64 },
-    { date: "12/30", open: 58, close: 60, high: 60.5, low: 57.5, ma20: 53, ma100: 39, currentLeader: 64, prevLeader: 65 },
-    { date: "12/31", open: 60, close: 62, high: 62.5, low: 59.5, ma20: 54, ma100: 40, currentLeader: 65, prevLeader: 66 },
-    { date: "01/02", open: 62, close: 64, high: 64.5, low: 61.5, ma20: 55, ma100: 41, currentLeader: 67, prevLeader: 68 },
-    { date: "01/03", open: 64, close: 66, high: 66.5, low: 63.5, ma20: 56, ma100: 42, currentLeader: 68, prevLeader: 69 },
-    { date: "01/06", open: 66, close: 65, high: 67, low: 64.5, ma20: 57, ma100: 43, currentLeader: 69, prevLeader: 70 },
-    { date: "01/07", open: 65, close: 67, high: 67.5, low: 64.5, ma20: 58, ma100: 44, currentLeader: 70, prevLeader: 71 },
-    { date: "01/08", open: 67, close: 66, high: 68, low: 65.5, ma20: 59, ma100: 45, currentLeader: 71, prevLeader: 72 },
-    { date: "01/09", open: 66, close: 68, high: 68.5, low: 65.5, ma20: 60, ma100: 46, currentLeader: 72, prevLeader: 73 },
-    { date: "01/10", open: 68, close: 70, high: 70.5, low: 67.5, ma20: 61, ma100: 47, currentLeader: 73, prevLeader: 74 },
-    { date: "01/13", open: 70, close: 72, high: 72.5, low: 69.5, ma20: 62, ma100: 48, currentLeader: 75, prevLeader: 76 },
-    { date: "01/14", open: 72, close: 74, high: 74.5, low: 71.5, ma20: 64, ma100: 49, currentLeader: 76, prevLeader: 77 },
-    { date: "01/15", open: 74, close: 73, high: 75, low: 72.5, ma20: 65, ma100: 50, currentLeader: 77, prevLeader: 78 },
-    { date: "01/16", open: 73, close: 75, high: 75.5, low: 72.5, ma20: 66, ma100: 51, currentLeader: 78, prevLeader: 79 },
-    { date: "01/17", open: 75, close: 77, high: 77.5, low: 74.5, ma20: 67, ma100: 52, currentLeader: 79, prevLeader: 80 },
-    { date: "01/20", open: 77, close: 76, high: 78, low: 75.5, ma20: 68, ma100: 53, currentLeader: 80, prevLeader: 81 },
-    { date: "01/21", open: 76, close: 78, high: 78.5, low: 75.5, ma20: 69, ma100: 54, currentLeader: 81, prevLeader: 82 },
-    { date: "01/22", open: 78, close: 80, high: 80.5, low: 77.5, ma20: 70, ma100: 55, currentLeader: 82, prevLeader: 83 },
-    { date: "01/23", open: 80, close: 79, high: 81, low: 78.5, ma20: 71, ma100: 56, currentLeader: 83, prevLeader: 84 },
-    { date: "01/24", open: 79, close: 81, high: 81.5, low: 78.5, ma20: 72, ma100: 57, currentLeader: 83.5, prevLeader: 84.5 },
-    { date: "01/27", open: 81, close: 80, high: 82, low: 79.5, ma20: 73, ma100: 58, currentLeader: 84, prevLeader: 85 },
-    { date: "01/28", open: 80, close: 82, high: 82.5, low: 79.5, ma20: 74, ma100: 59, currentLeader: 84.5, prevLeader: 85.5 },
-    { date: "01/29", open: 82, close: 81, high: 83, low: 80.5, ma20: 75, ma100: 60, currentLeader: 85, prevLeader: 86 },
-    { date: "01/30", open: 81, close: 83, high: 83.5, low: 80.5, ma20: 76, ma100: 61, currentLeader: 85.5, prevLeader: 86.5 },
-    { date: "01/31", open: 83, close: 82, high: 84, low: 81.5, ma20: 77, ma100: 62, currentLeader: 86, prevLeader: 87 },
-    { date: "02/03", open: 82, close: 84, high: 84.5, low: 81.5, ma20: 78, ma100: 63, currentLeader: 86.5, prevLeader: 87.5 },
-    { date: "02/04", open: 84, close: 83, high: 85, low: 82.5, ma20: 79, ma100: 64, currentLeader: 87, prevLeader: 88 },
+    { date: "11/26", open: 28.2, close: 29.8, high: 30.5, low: 27.1, ma20: 27, ma100: 25, currentLeader: 32, prevLeader: 34 },
+    { date: "11/27", open: 29.5, close: 30.2, high: 31.0, low: 29.0, ma20: 27.5, ma100: 25.2, currentLeader: 32.5, prevLeader: 34.2 },
+    { date: "11/28", open: 30.0, close: 32.5, high: 33.2, low: 29.3, ma20: 28, ma100: 25.5, currentLeader: 33, prevLeader: 34.5 },
+    { date: "11/29", open: 32.8, close: 31.2, high: 33.5, low: 30.5, ma20: 28.5, ma100: 25.8, currentLeader: 33.5, prevLeader: 34.8 },
+    { date: "12/02", open: 31.0, close: 34.5, high: 35.2, low: 30.2, ma20: 29, ma100: 26, currentLeader: 34, prevLeader: 35 },
+    { date: "12/03", open: 34.2, close: 35.8, high: 36.5, low: 33.8, ma20: 29.5, ma100: 26.3, currentLeader: 35, prevLeader: 36 },
+    { date: "12/04", open: 35.5, close: 34.2, high: 36.8, low: 33.5, ma20: 30, ma100: 26.5, currentLeader: 36, prevLeader: 37 },
+    { date: "12/05", open: 34.0, close: 38.2, high: 39.0, low: 33.5, ma20: 30.5, ma100: 26.8, currentLeader: 37, prevLeader: 38 },
+    { date: "12/06", open: 38.5, close: 37.0, high: 39.5, low: 36.2, ma20: 31, ma100: 27, currentLeader: 38, prevLeader: 39 },
+    { date: "12/09", open: 36.8, close: 40.5, high: 41.2, low: 36.0, ma20: 31.5, ma100: 27.3, currentLeader: 39, prevLeader: 40 },
+    { date: "12/10", open: 40.2, close: 42.8, high: 43.5, low: 39.5, ma20: 32, ma100: 27.5, currentLeader: 40, prevLeader: 41 },
+    { date: "12/11", open: 43.0, close: 41.5, high: 44.2, low: 40.8, ma20: 33, ma100: 28, currentLeader: 42, prevLeader: 43 },
+    { date: "12/12", open: 41.2, close: 45.8, high: 46.5, low: 40.5, ma20: 34, ma100: 28.5, currentLeader: 44, prevLeader: 45 },
+    { date: "12/13", open: 46.0, close: 48.2, high: 49.0, low: 45.2, ma20: 35, ma100: 29, currentLeader: 46, prevLeader: 47 },
+    { date: "12/16", open: 48.5, close: 47.0, high: 49.8, low: 46.0, ma20: 36, ma100: 29.5, currentLeader: 48, prevLeader: 49 },
+    { date: "12/17", open: 46.8, close: 52.5, high: 53.2, low: 46.0, ma20: 38, ma100: 30, currentLeader: 50, prevLeader: 51 },
+    { date: "12/18", open: 52.8, close: 51.2, high: 54.0, low: 50.5, ma20: 40, ma100: 31, currentLeader: 52, prevLeader: 53 },
+    { date: "12/19", open: 51.0, close: 55.8, high: 56.5, low: 50.2, ma20: 42, ma100: 32, currentLeader: 54, prevLeader: 55 },
+    { date: "12/20", open: 56.0, close: 54.2, high: 57.5, low: 53.5, ma20: 44, ma100: 33, currentLeader: 56, prevLeader: 57 },
+    { date: "12/23", open: 54.0, close: 58.5, high: 59.2, low: 53.2, ma20: 46, ma100: 34, currentLeader: 58, prevLeader: 59 },
+    { date: "12/24", open: 58.8, close: 57.2, high: 60.0, low: 56.5, ma20: 48, ma100: 35, currentLeader: 60, prevLeader: 61 },
+    { date: "12/25", open: 57.0, close: 61.5, high: 62.2, low: 56.2, ma20: 50, ma100: 36, currentLeader: 61, prevLeader: 62 },
+    { date: "12/26", open: 61.8, close: 60.0, high: 63.0, low: 59.2, ma20: 51, ma100: 37, currentLeader: 62, prevLeader: 63 },
+    { date: "12/27", open: 59.8, close: 64.2, high: 65.0, low: 59.0, ma20: 52, ma100: 38, currentLeader: 63, prevLeader: 64 },
+    { date: "12/30", open: 64.5, close: 63.0, high: 66.0, low: 62.2, ma20: 53, ma100: 39, currentLeader: 64, prevLeader: 65 },
+    { date: "12/31", open: 62.8, close: 68.5, high: 69.2, low: 62.0, ma20: 54, ma100: 40, currentLeader: 65, prevLeader: 66 },
+    { date: "01/02", open: 69.0, close: 67.2, high: 70.5, low: 66.5, ma20: 55, ma100: 41, currentLeader: 67, prevLeader: 68 },
+    { date: "01/03", open: 67.0, close: 72.8, high: 73.5, low: 66.2, ma20: 56, ma100: 42, currentLeader: 68, prevLeader: 69 },
+    { date: "01/06", open: 73.2, close: 71.0, high: 74.5, low: 70.2, ma20: 57, ma100: 43, currentLeader: 69, prevLeader: 70 },
+    { date: "01/07", open: 70.8, close: 75.5, high: 76.2, low: 70.0, ma20: 58, ma100: 44, currentLeader: 70, prevLeader: 71 },
+    { date: "01/08", open: 75.8, close: 74.0, high: 77.0, low: 73.2, ma20: 59, ma100: 45, currentLeader: 71, prevLeader: 72 },
+    { date: "01/09", open: 73.8, close: 78.2, high: 79.0, low: 73.0, ma20: 60, ma100: 46, currentLeader: 72, prevLeader: 73 },
+    { date: "01/10", open: 78.5, close: 76.8, high: 80.0, low: 75.8, ma20: 61, ma100: 47, currentLeader: 73, prevLeader: 74 },
+    { date: "01/13", open: 76.5, close: 82.0, high: 82.8, low: 75.8, ma20: 62, ma100: 48, currentLeader: 75, prevLeader: 76 },
+    { date: "01/14", open: 82.5, close: 80.2, high: 84.0, low: 79.5, ma20: 64, ma100: 49, currentLeader: 76, prevLeader: 77 },
+    { date: "01/15", open: 80.0, close: 85.5, high: 86.2, low: 79.2, ma20: 65, ma100: 50, currentLeader: 77, prevLeader: 78 },
+    { date: "01/16", open: 85.8, close: 84.0, high: 87.5, low: 83.2, ma20: 66, ma100: 51, currentLeader: 78, prevLeader: 79 },
+    { date: "01/17", open: 83.8, close: 88.2, high: 89.0, low: 83.0, ma20: 67, ma100: 52, currentLeader: 79, prevLeader: 80 },
   ];
 
   // 自定義K線渲染組件
@@ -606,7 +595,7 @@ function KLineChart({
             />
           )}
 
-          {/* 當期領頭羊指標（淺橘色） */}
+          {/* 當期領頭羊指標（淺橘色）- 實線 */}
           {showCurrentLeader && (
             <Line
               type="monotone"
@@ -615,11 +604,10 @@ function KLineChart({
               strokeWidth={2}
               dot={false}
               isAnimationActive={false}
-              strokeDasharray="6 3"
             />
           )}
 
-          {/* 前期領頭羊指標（淺藍色） */}
+          {/* 前期領頭羊指標（淺藍色）- 實線 */}
           {showPrevLeader && (
             <Line
               type="monotone"
@@ -628,15 +616,15 @@ function KLineChart({
               strokeWidth={2}
               dot={false}
               isAnimationActive={false}
-              strokeDasharray="6 3"
             />
           )}
 
-          {/* K線 */}
+          {/* K線 - 加大間距 */}
           <Bar
             dataKey="high"
             shape={<CustomCandlestick />}
             isAnimationActive={false}
+            barSize={6}
           />
         </ComposedChart>
       </ResponsiveContainer>
@@ -646,58 +634,46 @@ function KLineChart({
 
 // 成交量圖表組件（硬編碼靜態數據）
 function VolumeChart() {
-  // 硬編碼成交量數據
+  // 硬編碼成交量數據 - 與K線數據對應
   const data = [
-    { date: "11/26", volume: 45, isRise: true },
-    { date: "11/27", volume: 52, isRise: true },
-    { date: "11/28", volume: 48, isRise: true },
-    { date: "11/29", volume: 35, isRise: false },
-    { date: "12/02", volume: 58, isRise: true },
-    { date: "12/03", volume: 65, isRise: true },
-    { date: "12/04", volume: 72, isRise: true },
-    { date: "12/05", volume: 68, isRise: true },
-    { date: "12/06", volume: 42, isRise: false },
-    { date: "12/09", volume: 78, isRise: true },
-    { date: "12/10", volume: 85, isRise: true },
-    { date: "12/11", volume: 92, isRise: true },
-    { date: "12/12", volume: 88, isRise: true },
-    { date: "12/13", volume: 95, isRise: true },
-    { date: "12/16", volume: 82, isRise: true },
-    { date: "12/17", volume: 75, isRise: true },
-    { date: "12/18", volume: 68, isRise: true },
-    { date: "12/19", volume: 72, isRise: true },
-    { date: "12/20", volume: 65, isRise: true },
-    { date: "12/23", volume: 58, isRise: true },
-    { date: "12/24", volume: 52, isRise: true },
-    { date: "12/25", volume: 38, isRise: false },
-    { date: "12/26", volume: 55, isRise: true },
-    { date: "12/27", volume: 42, isRise: false },
-    { date: "12/30", volume: 62, isRise: true },
-    { date: "12/31", volume: 75, isRise: true },
-    { date: "01/02", volume: 82, isRise: true },
-    { date: "01/03", volume: 88, isRise: true },
-    { date: "01/06", volume: 45, isRise: false },
-    { date: "01/07", volume: 72, isRise: true },
-    { date: "01/08", volume: 38, isRise: false },
-    { date: "01/09", volume: 68, isRise: true },
-    { date: "01/10", volume: 78, isRise: true },
-    { date: "01/13", volume: 85, isRise: true },
-    { date: "01/14", volume: 92, isRise: true },
-    { date: "01/15", volume: 48, isRise: false },
-    { date: "01/16", volume: 75, isRise: true },
-    { date: "01/17", volume: 82, isRise: true },
-    { date: "01/20", volume: 42, isRise: false },
-    { date: "01/21", volume: 68, isRise: true },
-    { date: "01/22", volume: 78, isRise: true },
-    { date: "01/23", volume: 45, isRise: false },
-    { date: "01/24", volume: 72, isRise: true },
-    { date: "01/27", volume: 38, isRise: false },
-    { date: "01/28", volume: 65, isRise: true },
-    { date: "01/29", volume: 42, isRise: false },
-    { date: "01/30", volume: 75, isRise: true },
-    { date: "01/31", volume: 48, isRise: false },
-    { date: "02/03", volume: 82, isRise: true },
-    { date: "02/04", volume: 55, isRise: false },
+    { date: "11/26", volume: 45 },
+    { date: "11/27", volume: 32 },
+    { date: "11/28", volume: 78 },
+    { date: "11/29", volume: 55 },
+    { date: "12/02", volume: 92 },
+    { date: "12/03", volume: 48 },
+    { date: "12/04", volume: 62 },
+    { date: "12/05", volume: 85 },
+    { date: "12/06", volume: 42 },
+    { date: "12/09", volume: 95 },
+    { date: "12/10", volume: 72 },
+    { date: "12/11", volume: 38 },
+    { date: "12/12", volume: 88 },
+    { date: "12/13", volume: 65 },
+    { date: "12/16", volume: 52 },
+    { date: "12/17", volume: 98 },
+    { date: "12/18", volume: 45 },
+    { date: "12/19", volume: 82 },
+    { date: "12/20", volume: 58 },
+    { date: "12/23", volume: 75 },
+    { date: "12/24", volume: 42 },
+    { date: "12/25", volume: 88 },
+    { date: "12/26", volume: 55 },
+    { date: "12/27", volume: 92 },
+    { date: "12/30", volume: 48 },
+    { date: "12/31", volume: 95 },
+    { date: "01/02", volume: 62 },
+    { date: "01/03", volume: 85 },
+    { date: "01/06", volume: 45 },
+    { date: "01/07", volume: 78 },
+    { date: "01/08", volume: 52 },
+    { date: "01/09", volume: 88 },
+    { date: "01/10", volume: 42 },
+    { date: "01/13", volume: 95 },
+    { date: "01/14", volume: 58 },
+    { date: "01/15", volume: 82 },
+    { date: "01/16", volume: 48 },
+    { date: "01/17", volume: 72 },
   ];
 
   return (
@@ -715,8 +691,8 @@ function VolumeChart() {
           width={30}
           tickMargin={0}
         />
-        {/* 成交量柱狀圖 */}
-        <Bar dataKey="volume" isAnimationActive={false}>
+        {/* 成交量柱狀圖 - 加大間距 */}
+        <Bar dataKey="volume" isAnimationActive={false} barSize={6}>
           {data.map((entry, index) => (
             <Cell
               key={`volume-cell-${entry.date}-${index}`}
