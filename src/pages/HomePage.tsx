@@ -1,5 +1,6 @@
 
 
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import { ChevronRight, Search, Bell } from "lucide-react";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
@@ -12,13 +13,16 @@ import headerImage from "figma:asset/d20ba1880b93234408a79ed7a95dd69f77384350.pn
 import bannerImage1 from "figma:asset/481bd66216aed098ddf5065664bd1aa8a65f2aac.png";
 import bannerImage2 from "figma:asset/453b5cbdadb7f3040eee3fdfe4737f36d805c5ef.png";
 import {
+  ComposedChart,
   LineChart,
   Line,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Cell,
 } from "recharts";
 
 
@@ -238,48 +242,37 @@ const contentItems: ContentItem[] = [
   },
 ];
 
-// 大盤趨勢數據 (最近30天)
+// 大盤趨勢數據 (最近20天) - 含開高低收 + MA20 + MA100 + 當期/前期領頭羊
 const marketTrendData = [
-  { date: "12/29", value: 22800 },
-  { date: "1/02", value: 22950 },
-  { date: "1/03", value: 22820 },
-  { date: "1/06", value: 23100 },
-  { date: "1/07", value: 23250 },
-  { date: "1/08", value: 23180 },
-  { date: "1/09", value: 23350 },
-  { date: "1/10", value: 23280 },
-  { date: "1/13", value: 23450 },
-  { date: "1/14", value: 23520 },
-  { date: "1/15", value: 23410 },
-  { date: "1/16", value: 23680 },
-  { date: "1/17", value: 23750 },
-  { date: "1/20", value: 23820 },
-  { date: "1/21", value: 23690 },
-  { date: "1/22", value: 23850 },
-  { date: "1/23", value: 23920 },
-  { date: "1/24", value: 24050 },
-  { date: "1/27", value: 24180 },
-  { date: "1/28", value: 24320 },
+  { date: "12/29", open: 22750, high: 22860, low: 22700, close: 22800, volume: 2850, ma20: 22500, ma100: 21800, currentLeader: 23100, prevLeader: 23300 },
+  { date: "1/02", open: 22800, high: 23010, low: 22780, close: 22950, volume: 3120, ma20: 22550, ma100: 21850, currentLeader: 23120, prevLeader: 23320 },
+  { date: "1/03", open: 22950, high: 22960, low: 22760, close: 22820, volume: 2680, ma20: 22600, ma100: 21900, currentLeader: 23150, prevLeader: 23340 },
+  { date: "1/06", open: 22820, high: 23150, low: 22810, close: 23100, volume: 3450, ma20: 22680, ma100: 21960, currentLeader: 23200, prevLeader: 23380 },
+  { date: "1/07", open: 23100, high: 23300, low: 23050, close: 23250, volume: 3680, ma20: 22750, ma100: 22020, currentLeader: 23250, prevLeader: 23420 },
+  { date: "1/08", open: 23250, high: 23280, low: 23100, close: 23180, volume: 2940, ma20: 22820, ma100: 22080, currentLeader: 23300, prevLeader: 23460 },
+  { date: "1/09", open: 23180, high: 23400, low: 23150, close: 23350, volume: 3210, ma20: 22900, ma100: 22140, currentLeader: 23350, prevLeader: 23500 },
+  { date: "1/10", open: 23350, high: 23380, low: 23200, close: 23280, volume: 2760, ma20: 22960, ma100: 22200, currentLeader: 23400, prevLeader: 23540 },
+  { date: "1/13", open: 23280, high: 23500, low: 23260, close: 23450, volume: 3350, ma20: 23030, ma100: 22260, currentLeader: 23450, prevLeader: 23580 },
+  { date: "1/14", open: 23450, high: 23570, low: 23420, close: 23520, volume: 3180, ma20: 23100, ma100: 22320, currentLeader: 23500, prevLeader: 23620 },
+  { date: "1/15", open: 23520, high: 23540, low: 23350, close: 23410, volume: 2890, ma20: 23150, ma100: 22380, currentLeader: 23530, prevLeader: 23650 },
+  { date: "1/16", open: 23410, high: 23720, low: 23400, close: 23680, volume: 3560, ma20: 23220, ma100: 22440, currentLeader: 23580, prevLeader: 23700 },
+  { date: "1/17", open: 23680, high: 23800, low: 23650, close: 23750, volume: 3420, ma20: 23280, ma100: 22500, currentLeader: 23620, prevLeader: 23740 },
+  { date: "1/20", open: 23750, high: 23870, low: 23720, close: 23820, volume: 3280, ma20: 23350, ma100: 22560, currentLeader: 23680, prevLeader: 23780 },
+  { date: "1/21", open: 23820, high: 23830, low: 23620, close: 23690, volume: 3050, ma20: 23400, ma100: 22620, currentLeader: 23720, prevLeader: 23820 },
+  { date: "1/22", open: 23690, high: 23900, low: 23680, close: 23850, volume: 3370, ma20: 23460, ma100: 22680, currentLeader: 23770, prevLeader: 23860 },
+  { date: "1/23", open: 23850, high: 23960, low: 23830, close: 23920, volume: 3150, ma20: 23520, ma100: 22740, currentLeader: 23820, prevLeader: 23900 },
+  { date: "1/24", open: 23920, high: 24100, low: 23900, close: 24050, volume: 3580, ma20: 23580, ma100: 22800, currentLeader: 23880, prevLeader: 23950 },
+  { date: "1/27", open: 24050, high: 24230, low: 24020, close: 24180, volume: 3720, ma20: 23650, ma100: 22860, currentLeader: 23950, prevLeader: 24000 },
+  { date: "1/28", open: 24180, high: 24380, low: 24150, close: 24320, volume: 3890, ma20: 23720, ma100: 22920, currentLeader: 24020, prevLeader: 24060 },
 ];
 
-const CustomTooltip = ({ active, payload }: any) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-card border border-border rounded-lg p-2 shadow-lg">
-        <p className="text-xs text-muted-foreground mb-1">
-          {payload[0].payload.date}
-        </p>
-        <p className="text-sm font-bold text-foreground">
-          {payload[0].value.toLocaleString()}
-        </p>
-      </div>
-    );
-  }
-  return null;
-};
 
 export function HomePage() {
   const navigate = useNavigate();
+  const [showMA20, setShowMA20] = useState(true);
+  const [showLongMA, setShowLongMA] = useState(true);
+  const [showLeaderLine, setShowLeaderLine] = useState(true);
+  const [marketTimeframe, setMarketTimeframe] = useState<"day" | "week" | "month">("day");
 
   const handleIndustryClick = (industry: string) => {
     navigate(
@@ -289,8 +282,8 @@ export function HomePage() {
 
   // 計算大盤漲跌
   const marketChange =
-    marketTrendData[marketTrendData.length - 1].value -
-    marketTrendData[0].value;
+    marketTrendData[marketTrendData.length - 1].close -
+    marketTrendData[0].close;
   const isMarketUp = marketChange > 0;
   const lineColor = isMarketUp ? "#FE6D73" : "#9cffd9"; // 紅漲綠跌
 
@@ -500,123 +493,185 @@ a.首圖
       </section>
 
       {/* 大盤趨勢 */}
-      <section className="px-4 py-3 border-b border-border/30">
-        <h2 className="text-base font-bold mb-2">大盤趨勢</h2>
+      <section className="border-b border-border/30">
+        {/* 價格 - 無背景無框 */}
+        <div className="px-3 pt-3">
+          <div className="text-xs text-foreground/60 mb-0.5">台灣加權指數</div>
+          {(() => {
+            const latest = marketTrendData[marketTrendData.length - 1];
+            const prev = marketTrendData[marketTrendData.length - 2];
+            const change = latest.close - prev.close;
+            const changePercent = (change / prev.close) * 100;
+            const up = change > 0;
+            return (
+              <div className="flex items-baseline gap-2">
+                <span className={`text-4xl font-bold ${up ? "text-[#FE6D73]" : "text-[#9cffd9]"}`}>
+                  {latest.close.toLocaleString()}
+                </span>
+                <span className={`text-sm font-semibold ${up ? "text-[#FE6D73]" : "text-[#9cffd9]"}`}>
+                  {up ? "▲" : "▼"}{Math.abs(change).toLocaleString()} ({up ? "+" : "-"}{Math.abs(changePercent).toFixed(2)}%)
+                </span>
+              </div>
+            );
+          })()}
+        </div>
 
-        <div className="bg-card rounded-lg border border-border overflow-hidden shadow-sm">
-          {/* 指數資訊卡片 */}
-          <div className="bg-gradient-to-br from-card via-card to-primary/5 p-3 border-b border-border">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-xs text-foreground/60 mb-0.5">
-                  台灣加權指數
-                </div>
-                <div className="text-2xl font-bold">
-                  {marketTrendData[
-                    marketTrendData.length - 1
-                  ].value.toLocaleString()}
-                </div>
-              </div>
-              <div className="text-right">
-                <div
-                  className={`text-xl font-bold ${
-                    marketTrendData[marketTrendData.length - 1]
-                      .value -
-                      marketTrendData[0].value >
-                    0
-                      ? "text-chart-2"
-                      : "text-chart-3"
-                  }`}
-                >
-                  {marketTrendData[marketTrendData.length - 1]
-                    .value -
-                    marketTrendData[0].value >
-                  0
-                    ? "+"
-                    : ""}
-                  {(
-                    marketTrendData[marketTrendData.length - 1]
-                      .value - marketTrendData[0].value
-                  ).toLocaleString()}
-                </div>
-                <div
-                  className={`text-sm font-medium ${
-                    marketTrendData[marketTrendData.length - 1]
-                      .value -
-                      marketTrendData[0].value >
-                    0
-                      ? "text-chart-2"
-                      : "text-chart-3"
-                  }`}
-                >
-                  {marketTrendData[marketTrendData.length - 1]
-                    .value -
-                    marketTrendData[0].value >
-                  0
-                    ? "+"
-                    : ""}
-                  {(
-                    ((marketTrendData[
-                      marketTrendData.length - 1
-                    ].value -
-                      marketTrendData[0].value) /
-                      marketTrendData[0].value) *
-                    100
-                  ).toFixed(2)}
-                  %
-                </div>
-              </div>
-            </div>
+        {/* Tabs - 膠囊樣式：日/周/月 */}
+        <div className="px-3 py-1">
+          <div className="flex items-center gap-0.5 bg-muted/30 rounded-lg p-0.5">
+            {[
+              { key: "day", label: "日" },
+              { key: "week", label: "周" },
+              { key: "month", label: "月" },
+            ].map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setMarketTimeframe(tab.key as "day" | "week" | "month")}
+                className={`flex-1 px-2 py-1 rounded-md text-xs font-medium transition-all ${
+                  marketTimeframe === tab.key
+                    ? "bg-primary text-black"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
+        </div>
 
-          {/* 圖表區域 */}
-          <div className="p-3">
-            <ResponsiveContainer width="100%" height={160}>
-              <LineChart data={marketTrendData}>
-                <CartesianGrid
-                  key="grid"
-                  strokeDasharray="3 3"
-                  stroke="hsl(var(--border))"
-                  opacity={0.2}
-                />
-                <XAxis
-                  key="xAxis"
-                  dataKey="date"
-                  stroke="hsl(var(--foreground))"
-                  style={{ fontSize: "10px", fill: "hsl(var(--foreground))" }}
-                  tickLine={false}
-                  axisLine={{ stroke: "hsl(var(--border))" }}
-                  interval={3}
-                />
-                <YAxis
-                  key="yAxis"
-                  stroke="hsl(var(--foreground))"
-                  style={{ fontSize: "10px", fill: "hsl(var(--foreground))" }}
-                  tickLine={false}
-                  axisLine={{ stroke: "hsl(var(--border))" }}
-                  domain={["dataMin - 200", "dataMax + 200"]}
-                  tickFormatter={(value) => value.toLocaleString()}
-                />
-                <Tooltip key="tooltip" content={<CustomTooltip />} />
-                <Line
-                  key="line"
-                  type="monotone"
-                  dataKey="value"
-                  stroke={lineColor}
-                  strokeWidth={2.5}
-                  dot={false}
-                  activeDot={{
-                    r: 5,
-                    fill: lineColor,
-                    strokeWidth: 2,
-                    stroke: "#fff",
-                  }}
-                />
-              </LineChart>
+        {/* 日期 + 開高低收 */}
+        <div className="px-3 mb-0.5">
+          {(() => {
+            const latest = marketTrendData[marketTrendData.length - 1];
+            return (
+              <p className="text-xs text-muted-foreground">
+                <span className="text-foreground font-medium">{latest.date}</span>
+                {" "}開 {latest.open.toLocaleString()}{" "}
+                高 <span className="text-[#FE6D73]">{latest.high.toLocaleString()}</span>{" "}
+                低 <span className="text-[#9cffd9]">{latest.low.toLocaleString()}</span>{" "}
+                收 {latest.close.toLocaleString()}
+              </p>
+            );
+          })()}
+        </div>
+
+        {/* MA + 強勢線數值 - 2x2 grid */}
+        <div className="px-3 mb-0.5 grid grid-cols-2 gap-x-4 gap-y-0 text-xs">
+          {showMA20 && (
+            <span>
+              <span className="text-muted-foreground">MA20 </span>
+              <span style={{ color: "#EAB308" }}>{marketTrendData[marketTrendData.length - 1].ma20.toLocaleString()}</span>
+            </span>
+          )}
+          {showLongMA && (
+            <span>
+              <span className="text-muted-foreground">MA100 </span>
+              <span style={{ color: "#E040FB" }}>{marketTrendData[marketTrendData.length - 1].ma100.toLocaleString()}</span>
+            </span>
+          )}
+          {showLeaderLine && (
+            <span>
+              <span className="text-muted-foreground">當期領頭羊 </span>
+              <span style={{ color: "#FF9800" }}>{marketTrendData[marketTrendData.length - 1].currentLeader.toLocaleString()}</span>
+            </span>
+          )}
+          {showLeaderLine && (
+            <span>
+              <span className="text-muted-foreground">前期領頭羊 </span>
+              <span style={{ color: "#42A5F5" }}>{marketTrendData[marketTrendData.length - 1].prevLeader.toLocaleString()}</span>
+            </span>
+          )}
+        </div>
+
+        {/* K線圖表 */}
+        <div style={{ height: "300px" }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={marketTrendData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.2} />
+              <XAxis
+                dataKey="date"
+                stroke="hsl(var(--foreground))"
+                style={{ fontSize: "10px", fill: "hsl(var(--foreground))" }}
+                tickLine={false}
+                axisLine={{ stroke: "hsl(var(--border))" }}
+                interval={3}
+              />
+              <YAxis
+                stroke="hsl(var(--foreground))"
+                style={{ fontSize: "10px", fill: "hsl(var(--foreground))" }}
+                tickLine={false}
+                axisLine={{ stroke: "hsl(var(--border))" }}
+                domain={["dataMin - 200", "dataMax + 200"]}
+                tickFormatter={(v) => v.toLocaleString()}
+              />
+              <Tooltip content={() => null} cursor={false} />
+              <Line type="monotone" dataKey="close" stroke={lineColor} strokeWidth={2.5} dot={false} />
+              {showMA20 && (
+                <Line type="monotone" dataKey="ma20" stroke="#EAB308" strokeWidth={1.5} dot={false} strokeDasharray="4 2" />
+              )}
+              {showLongMA && (
+                <Line type="monotone" dataKey="ma100" stroke="#E040FB" strokeWidth={1.5} dot={false} strokeDasharray="4 2" />
+              )}
+              {showLeaderLine && (
+                <Line type="monotone" dataKey="currentLeader" stroke="#FF9800" strokeWidth={1.5} dot={false} strokeDasharray="6 3" />
+              )}
+              {showLeaderLine && (
+                <Line type="monotone" dataKey="prevLeader" stroke="#42A5F5" strokeWidth={1.5} dot={false} strokeDasharray="6 3" />
+              )}
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* 成交量 */}
+        <div className="px-3">
+          <div className="flex items-center text-xs mb-0.5">
+            <span className="text-foreground font-medium">量: {marketTrendData[marketTrendData.length - 1].volume.toLocaleString()}億</span>
+          </div>
+          <div style={{ height: "60px" }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={marketTrendData}>
+                <Bar dataKey="volume" barSize={6}>
+                  {marketTrendData.map((entry, index) => (
+                    <Cell
+                      key={`vol-${index}`}
+                      fill={entry.close >= entry.open ? "#FE6D73" : "#9cffd9"}
+                      opacity={0.7}
+                    />
+                  ))}
+                </Bar>
+              </ComposedChart>
             </ResponsiveContainer>
-            <div className="text-xs text-foreground/50 text-center mt-1.5">
-              近20個交易日走勢
-            </div>
+          </div>
+        </div>
+
+        {/* 技術線切換 */}
+        <div className="flex items-center justify-between px-3 py-2 mt-1 border-t border-border">
+          <div className="flex items-center gap-4">
+            <span className="text-xs text-muted-foreground font-medium">技術線：</span>
+
+            <button onClick={() => setShowMA20(!showMA20)} className="flex items-center gap-1">
+              <div className="w-4 h-4 rounded-full border-2 flex items-center justify-center"
+                style={{ borderColor: "#EAB308", backgroundColor: showMA20 ? "#EAB308" : "transparent" }}>
+                {showMA20 && <div className="w-1.5 h-1.5 rounded-full bg-black" />}
+              </div>
+              <span className="text-xs text-foreground">短均</span>
+            </button>
+
+            <button onClick={() => setShowLongMA(!showLongMA)} className="flex items-center gap-1">
+              <div className="w-4 h-4 rounded-full border-2 flex items-center justify-center"
+                style={{ borderColor: "#E040FB", backgroundColor: showLongMA ? "#E040FB" : "transparent" }}>
+                {showLongMA && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+              </div>
+              <span className="text-xs text-foreground">長均</span>
+            </button>
+
+            <button onClick={() => setShowLeaderLine(!showLeaderLine)} className="flex items-center gap-1">
+              <div className="w-4 h-4 rounded-full border-2 flex items-center justify-center"
+                style={{ borderColor: "#4A90E2", backgroundColor: showLeaderLine ? "#4A90E2" : "transparent" }}>
+                {showLeaderLine && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+              </div>
+              <span className="text-xs text-foreground">強勢線</span>
+            </button>
           </div>
         </div>
       </section>

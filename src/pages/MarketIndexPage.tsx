@@ -99,24 +99,32 @@ export function MarketIndexPage() {
         </p>
       </div>
 
-      {/* MA 數值 + 強勢線數值 - 緊湊顯示 */}
-      <div className="px-3 mb-0.5">
-        <p className="text-xs">
-          {showShortMA && (
-            <span style={{ color: "#EAB308" }}>MA20 {displayCandle.ma20.toFixed(2)}{" "}</span>
-          )}
-          {showLongMA && (
-            <span style={{ color: "#E040FB" }}>MA100 {displayCandle.ma100.toFixed(2)}</span>
-          )}
-        </p>
-        <p className="text-xs">
-          {showCurrentLeader && (
-            <span style={{ color: "#FF9800" }}>當期領頭羊指標 46.2{" "}</span>
-          )}
-          {showPrevLeader && (
-            <span style={{ color: "#42A5F5" }}>前期領頭羊指標 47.36</span>
-          )}
-        </p>
+      {/* MA 數值 + 強勢線數值 - 2x2 grid */}
+      <div className="px-3 mb-0.5 grid grid-cols-2 gap-x-4 gap-y-0 text-xs">
+        {showShortMA && (
+          <span>
+            <span className="text-muted-foreground">MA20 </span>
+            <span style={{ color: "#EAB308" }}>{displayCandle.ma20.toFixed(2)}</span>
+          </span>
+        )}
+        {showLongMA && (
+          <span>
+            <span className="text-muted-foreground">MA100 </span>
+            <span style={{ color: "#E040FB" }}>{displayCandle.ma100.toFixed(2)}</span>
+          </span>
+        )}
+        {showCurrentLeader && (
+          <span>
+            <span className="text-muted-foreground">當期領頭羊 </span>
+            <span style={{ color: "#FF9800" }}>46.2</span>
+          </span>
+        )}
+        {showPrevLeader && (
+          <span>
+            <span className="text-muted-foreground">前期領頭羊 </span>
+            <span style={{ color: "#42A5F5" }}>47.36</span>
+          </span>
+        )}
       </div>
 
       {/* Chart */}
