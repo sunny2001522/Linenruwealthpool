@@ -317,7 +317,7 @@ function KLineTab({
             )}
           </div>
           <div className="flex flex-col flex-1">
-            <span className="text-[10px] font-medium leading-tight" style={{ color: "#4A90E2" }}>強勢線</span>
+            <span className="text-[10px] font-medium leading-tight text-foreground">強勢線</span>
             <div className="flex leading-tight">
               <span className="flex-1 text-[10px] font-medium" style={{ color: "#FFB347" }}>當期領頭羊</span>
               <span className="flex-1 text-[10px] font-medium" style={{ color: "#64B5F6" }}>前期領頭羊</span>
@@ -358,11 +358,11 @@ function KLineTab({
 // 即時分頁
 function RealtimeTab({ stock }: { stock: any }) {
   return (
-    <div>
+    <div className="px-2">
       {/* 即時圖表 */}
       <div
-        className="bg-black rounded-lg p-3 mb-4"
-        style={{ height: "520px" }}
+        className="bg-black rounded-lg py-4 pb-6"
+        style={{ height: "480px" }}
       >
         <RealtimeChart stock={stock} />
       </div>
@@ -391,11 +391,11 @@ function InfoTab({ stock }: { stock: any }) {
 
   return (
     <div>
-      <div className="space-y-0 border-t border-border">
+      <div className="space-y-0">
         {infoItems.map((item, index) => (
           <div
             key={index}
-            className="flex items-center justify-between py-4 border-b border-border"
+            className="flex items-center justify-between py-4 px-4 border-b border-border"
           >
             <span className="text-sm text-muted-foreground">
               {item.label}
@@ -571,6 +571,14 @@ function KLineChart({
           {/* Tooltip disabled */}
           <Tooltip content={() => null} cursor={false} />
 
+          {/* K線 - 先渲染，讓技術線在上層 */}
+          <Bar
+            dataKey="high"
+            shape={<CustomCandlestick />}
+            isAnimationActive={false}
+            barSize={6}
+          />
+
           {/* 短均線（亮黃色）- 加粗 */}
           {showShortMA && (
             <Line
@@ -618,14 +626,6 @@ function KLineChart({
               isAnimationActive={false}
             />
           )}
-
-          {/* K線 - 加大間距 */}
-          <Bar
-            dataKey="high"
-            shape={<CustomCandlestick />}
-            isAnimationActive={false}
-            barSize={6}
-          />
         </ComposedChart>
       </ResponsiveContainer>
     </div>
@@ -634,46 +634,46 @@ function KLineChart({
 
 // 成交量圖表組件（硬編碼靜態數據）
 function VolumeChart() {
-  // 硬編碼成交量數據 - 與K線數據對應
+  // 硬編碼成交量數據 - 與K線數據對應，包含漲跌
   const data = [
-    { date: "11/26", volume: 45 },
-    { date: "11/27", volume: 32 },
-    { date: "11/28", volume: 78 },
-    { date: "11/29", volume: 55 },
-    { date: "12/02", volume: 92 },
-    { date: "12/03", volume: 48 },
-    { date: "12/04", volume: 62 },
-    { date: "12/05", volume: 85 },
-    { date: "12/06", volume: 42 },
-    { date: "12/09", volume: 95 },
-    { date: "12/10", volume: 72 },
-    { date: "12/11", volume: 38 },
-    { date: "12/12", volume: 88 },
-    { date: "12/13", volume: 65 },
-    { date: "12/16", volume: 52 },
-    { date: "12/17", volume: 98 },
-    { date: "12/18", volume: 45 },
-    { date: "12/19", volume: 82 },
-    { date: "12/20", volume: 58 },
-    { date: "12/23", volume: 75 },
-    { date: "12/24", volume: 42 },
-    { date: "12/25", volume: 88 },
-    { date: "12/26", volume: 55 },
-    { date: "12/27", volume: 92 },
-    { date: "12/30", volume: 48 },
-    { date: "12/31", volume: 95 },
-    { date: "01/02", volume: 62 },
-    { date: "01/03", volume: 85 },
-    { date: "01/06", volume: 45 },
-    { date: "01/07", volume: 78 },
-    { date: "01/08", volume: 52 },
-    { date: "01/09", volume: 88 },
-    { date: "01/10", volume: 42 },
-    { date: "01/13", volume: 95 },
-    { date: "01/14", volume: 58 },
-    { date: "01/15", volume: 82 },
-    { date: "01/16", volume: 48 },
-    { date: "01/17", volume: 72 },
+    { date: "11/26", volume: 45, isRise: true },
+    { date: "11/27", volume: 32, isRise: false },
+    { date: "11/28", volume: 78, isRise: true },
+    { date: "11/29", volume: 55, isRise: false },
+    { date: "12/02", volume: 92, isRise: true },
+    { date: "12/03", volume: 48, isRise: false },
+    { date: "12/04", volume: 62, isRise: false },
+    { date: "12/05", volume: 85, isRise: true },
+    { date: "12/06", volume: 42, isRise: false },
+    { date: "12/09", volume: 95, isRise: true },
+    { date: "12/10", volume: 72, isRise: true },
+    { date: "12/11", volume: 38, isRise: false },
+    { date: "12/12", volume: 88, isRise: true },
+    { date: "12/13", volume: 65, isRise: false },
+    { date: "12/16", volume: 52, isRise: false },
+    { date: "12/17", volume: 98, isRise: true },
+    { date: "12/18", volume: 45, isRise: false },
+    { date: "12/19", volume: 82, isRise: true },
+    { date: "12/20", volume: 58, isRise: false },
+    { date: "12/23", volume: 75, isRise: true },
+    { date: "12/24", volume: 42, isRise: false },
+    { date: "12/25", volume: 88, isRise: true },
+    { date: "12/26", volume: 55, isRise: false },
+    { date: "12/27", volume: 92, isRise: true },
+    { date: "12/30", volume: 48, isRise: false },
+    { date: "12/31", volume: 95, isRise: true },
+    { date: "01/02", volume: 62, isRise: false },
+    { date: "01/03", volume: 85, isRise: true },
+    { date: "01/06", volume: 45, isRise: false },
+    { date: "01/07", volume: 78, isRise: true },
+    { date: "01/08", volume: 52, isRise: false },
+    { date: "01/09", volume: 88, isRise: true },
+    { date: "01/10", volume: 42, isRise: false },
+    { date: "01/13", volume: 95, isRise: true },
+    { date: "01/14", volume: 58, isRise: false },
+    { date: "01/15", volume: 82, isRise: true },
+    { date: "01/16", volume: 48, isRise: false },
+    { date: "01/17", volume: 72, isRise: true },
   ];
 
   return (
@@ -691,13 +691,13 @@ function VolumeChart() {
           width={30}
           tickMargin={0}
         />
-        {/* 成交量柱狀圖 - 加大間距 */}
+        {/* 成交量柱狀圖 - 紅漲綠跌 */}
         <Bar dataKey="volume" isAnimationActive={false} barSize={6}>
           {data.map((entry, index) => (
             <Cell
               key={`volume-cell-${entry.date}-${index}`}
-              fill="#9CA3AF"
-              opacity={0.6}
+              fill={entry.isRise ? "#FE6D73" : "#9cffd9"}
+              opacity={0.7}
             />
           ))}
         </Bar>
@@ -706,136 +706,184 @@ function VolumeChart() {
   );
 }
 
-// 即時圖表組件（簡化版）
+// 即時圖表組件 - 參考專業股票APP設計
 function RealtimeChart({ stock }: { stock: any }) {
+  // 模擬數據 - 當天即時走勢
+  const basePrice = 5.66; // 開盤價/基準價
+  const currentPrice = 6.22; // 當前價
+  const isUp = currentPrice > basePrice;
+  const lineColor = isUp ? "#FE6D73" : "#9cffd9"; // 紅漲綠跌
+  const fillColor = isUp ? "#FE6D73" : "#9cffd9";
+
+  // Y軸價格範圍
+  const priceRange = {
+    max: 6.29,
+    levels: [6.29, 6.08, 5.87, 5.66, 5.45, 5.24, 5.03],
+    min: 5.03,
+  };
+
+  // 成交量數據
+  const volumeData = [
+    { v: 45, up: true }, { v: 12, up: false }, { v: 8, up: true }, { v: 5, up: false },
+    { v: 3, up: true }, { v: 2, up: false }, { v: 4, up: true }, { v: 3, up: false },
+    { v: 2, up: true }, { v: 1, up: false }, { v: 2, up: true }, { v: 1, up: false },
+    { v: 3, up: true }, { v: 2, up: false }, { v: 1, up: true }, { v: 2, up: false },
+    { v: 1, up: true }, { v: 1, up: false }, { v: 2, up: true }, { v: 1, up: false },
+    { v: 1, up: true }, { v: 1, up: false }, { v: 2, up: true }, { v: 1, up: false },
+    { v: 1, up: true }, { v: 1, up: false }, { v: 1, up: true }, { v: 2, up: false },
+    { v: 1, up: true }, { v: 1, up: false }, { v: 1, up: true }, { v: 1, up: false },
+    { v: 2, up: true }, { v: 1, up: false }, { v: 1, up: true }, { v: 1, up: false },
+    { v: 1, up: true }, { v: 1, up: false }, { v: 1, up: true }, { v: 2, up: false },
+  ];
+  const maxVolume = Math.max(...volumeData.map(d => d.v));
+
   return (
-    <div className="relative w-full h-full">
-      {/* Y軸標籤 */}
-      <div className="absolute right-0 top-0 bottom-20 flex flex-col justify-between text-[10px] pr-1">
-        <span className="text-chart-2">6.29</span>
-        <span className="text-chart-2">6.08</span>
-        <span className="text-chart-2">5.87</span>
-        <span className="text-primary font-bold">5.66</span>
-        <span className="text-chart-3">5.45</span>
-        <span className="text-chart-3">5.24</span>
-        <span className="text-chart-3">5.03</span>
-      </div>
-
-      {/* X軸標籤 */}
-      <div className="absolute bottom-0 left-0 right-12 text-right text-[10px] text-primary font-semibold">
-        16
-      </div>
-
-      {/* 即時價格曲線 - 台股顏色：上漲用紅色 */}
-      <svg
-        className="w-full h-full"
-        viewBox="0 0 400 450"
-        preserveAspectRatio="none"
-      >
-        {/* 網格線 */}
-        {[0, 1, 2, 3, 4, 5, 6].map((i) => (
-          <line
-            key={i}
-            x1="0"
-            y1={50 + i * 50}
-            x2="370"
-            y2={50 + i * 50}
-            stroke="#333"
-            strokeWidth="0.5"
-          />
-        ))}
-
-        {/* 基準線（黃色虛線） */}
-        <line
-          x1="0"
-          y1="200"
-          x2="370"
-          y2="200"
-          stroke="#FFD700"
-          strokeWidth="1"
-          strokeDasharray="3,3"
-        />
-
-        {/* 價格標籤 */}
-        <text
-          x="30"
-          y="205"
-          fill="#FFD700"
-          fontSize="11"
-          fontWeight="bold"
-        >
-          5.63
-        </text>
-
-        {/* 即時價格曲線 - 台股顏色：上漲用紅色 */}
-        <path
-          d="M 10,350 L 30,340 L 50,320 L 70,300 L 90,280 L 110,260 L 130,230 L 150,200 L 170,180 L 190,160 L 210,150 L 230,145 L 250,140 L 270,135 L 290,130 L 310,128 L 330,125 L 350,120 L 370,118"
-          fill="none"
-          stroke="#ef4444"
-          strokeWidth="2"
-        />
-
-        {/* 填充區域 */}
-        <path
-          d="M 10,350 L 30,340 L 50,320 L 70,300 L 90,280 L 110,260 L 130,230 L 150,200 L 170,180 L 190,160 L 210,150 L 230,145 L 250,140 L 270,135 L 290,130 L 310,128 L 330,125 L 350,120 L 370,118 L 370,400 L 10,400 Z"
-          fill="url(#gradient)"
-          opacity="0.3"
-        />
-
-        <defs>
-          <linearGradient
-            id="gradient"
-            x1="0%"
-            y1="0%"
-            x2="0%"
-            y2="100%"
-          >
-            <stop
-              offset="0%"
-              stopColor="#ef4444"
-              stopOpacity="0.8"
-            />
-            <stop
-              offset="100%"
-              stopColor="#ef4444"
-              stopOpacity="0"
-            />
-          </linearGradient>
-        </defs>
-      </svg>
-
-      {/* 成交量 */}
-      <div className="absolute bottom-0 left-0 right-12 h-24 flex items-end gap-[1px]">
-        <div className="absolute top-0 left-2 text-[10px] text-primary">
-          46.21K
-        </div>
-        <div className="absolute top-6 left-2 text-[10px] text-primary">
-          30.14K
-        </div>
-        <div className="absolute top-12 left-2 text-[10px] text-primary">
-          15.07K
-        </div>
-        <div className="absolute bottom-0 left-2 text-[10px] text-primary">
-          0
-        </div>
-
-        {/* 成交量柱狀圖 */}
-        {Array.from({ length: 80 }).map((_, i) => {
-          const height =
-            i < 5
-              ? Math.random() * 80 + 20
-              : Math.random() * 30;
-          const isHighlight = i < 5;
+    <div className="relative w-full h-full flex">
+      {/* 左側Y軸標籤 - 價格 */}
+      <div className="flex flex-col justify-between py-2 pr-2 text-[11px] font-medium" style={{ width: "45px" }}>
+        {priceRange.levels.map((price, i) => {
+          const isBase = price === basePrice;
+          const isAboveBase = price > basePrice;
           return (
-            <div
+            <span
               key={i}
-              className={`flex-1 rounded-t ${
-                isHighlight ? "bg-primary" : "bg-primary/30"
+              className={`text-right ${
+                isBase
+                  ? "text-[#FFD700] font-bold"
+                  : isAboveBase
+                    ? "text-[#FE6D73]"
+                    : "text-[#9cffd9]"
               }`}
-              style={{ height: `${height}%` }}
-            />
+            >
+              {price.toFixed(2)}
+            </span>
           );
         })}
+      </div>
+
+      {/* 主圖表區域 */}
+      <div className="flex-1 flex flex-col">
+        {/* 價格走勢圖 */}
+        <div className="flex-1 relative" style={{ minHeight: "280px" }}>
+          <svg
+            className="w-full h-full"
+            viewBox="0 0 400 280"
+            preserveAspectRatio="none"
+          >
+            {/* 水平網格線 */}
+            {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+              <line
+                key={`h-${i}`}
+                x1="0"
+                y1={i * 40 + 20}
+                x2="400"
+                y2={i * 40 + 20}
+                stroke="#333"
+                strokeWidth="0.5"
+              />
+            ))}
+
+            {/* 垂直網格線 */}
+            {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <line
+                key={`v-${i}`}
+                x1={i * 50}
+                y1="0"
+                x2={i * 50}
+                y2="280"
+                stroke="#333"
+                strokeWidth="0.5"
+              />
+            ))}
+
+            {/* 基準線（黃色虛線）- 對應 5.66 */}
+            <line
+              x1="0"
+              y1="140"
+              x2="400"
+              y2="140"
+              stroke="#FFD700"
+              strokeWidth="1.5"
+              strokeDasharray="4,4"
+            />
+
+            {/* 最低點標記 */}
+            <circle cx="50" cy="220" r="3" fill="#FE6D73" />
+            <text x="55" y="235" fill="#FE6D73" fontSize="10" fontWeight="bold">5.63</text>
+
+            {/* 最高點標記 */}
+            <text x="340" y="55" fill="#FE6D73" fontSize="10" fontWeight="bold">6.22</text>
+
+            {/* 填充區域 - 漸層 */}
+            <defs>
+              <linearGradient id="realtimeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor={fillColor} stopOpacity="0.4" />
+                <stop offset="100%" stopColor={fillColor} stopOpacity="0.05" />
+              </linearGradient>
+            </defs>
+
+            {/* 填充路徑 */}
+            <path
+              d="M 0,220
+                 C 20,225 40,230 50,220
+                 C 60,210 80,180 100,170
+                 C 120,160 140,150 160,145
+                 C 180,140 200,130 220,120
+                 C 240,110 260,100 280,90
+                 C 300,80 320,70 340,65
+                 C 360,60 380,55 400,50
+                 L 400,280 L 0,280 Z"
+              fill="url(#realtimeGradient)"
+            />
+
+            {/* 價格曲線 */}
+            <path
+              d="M 0,220
+                 C 20,225 40,230 50,220
+                 C 60,210 80,180 100,170
+                 C 120,160 140,150 160,145
+                 C 180,140 200,130 220,120
+                 C 240,110 260,100 280,90
+                 C 300,80 320,70 340,65
+                 C 360,60 380,55 400,50"
+              fill="none"
+              stroke={lineColor}
+              strokeWidth="1.5"
+            />
+          </svg>
+        </div>
+
+        {/* 成交量區域 */}
+        <div className="relative" style={{ height: "100px" }}>
+          {/* 成交量Y軸標籤 */}
+          <div className="absolute left-[-45px] top-0 bottom-0 flex flex-col justify-between py-1 text-[10px] text-[#4A90E2] font-medium" style={{ width: "40px" }}>
+            <span className="text-right">45.21K</span>
+            <span className="text-right">30.14K</span>
+            <span className="text-right">15.07K</span>
+            <span className="text-right">0</span>
+          </div>
+
+          {/* 成交量柱狀圖 */}
+          <div className="h-full flex items-end gap-[2px] px-1">
+            {volumeData.map((item, i) => (
+              <div
+                key={i}
+                className="flex-1"
+                style={{
+                  height: `${(item.v / maxVolume) * 100}%`,
+                  backgroundColor: item.up ? "#4A90E2" : "#4A90E2",
+                  opacity: item.v > 10 ? 1 : 0.6,
+                  minHeight: "2px",
+                }}
+              />
+            ))}
+          </div>
+
+          {/* X軸時間標籤 */}
+          <div className="absolute bottom-[-16px] right-0 text-[10px] text-foreground font-medium">
+            16
+          </div>
+        </div>
       </div>
     </div>
   );

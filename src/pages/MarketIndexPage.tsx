@@ -164,7 +164,7 @@ export function MarketIndexPage() {
             )}
           </div>
           <div className="flex flex-col flex-1">
-            <span className="text-[10px] font-medium leading-tight" style={{ color: "#4A90E2" }}>強勢線</span>
+            <span className="text-[10px] font-medium leading-tight text-foreground">強勢線</span>
             <div className="flex leading-tight">
               <span className="flex-1 text-[10px] font-medium" style={{ color: "#FFB347" }}>當期領頭羊</span>
               <span className="flex-1 text-[10px] font-medium" style={{ color: "#64B5F6" }}>前期領頭羊</span>
@@ -306,19 +306,25 @@ function MarketKLineChart({
           />
           <Tooltip content={() => null} cursor={false} />
 
+          {/* K線 - 先渲染，讓技術線在上層 */}
+          <Bar dataKey="high" shape={<CustomCandlestick />} isAnimationActive={false} barSize={6} />
+
+          {/* 短均線（亮黃色）- 加粗 */}
           {showShortMA && (
             <Line type="monotone" dataKey="ma20" stroke="#F5C518" strokeWidth={2.5} dot={false} isAnimationActive={false} />
           )}
+          {/* 長均線（柔紫色）- 加粗 */}
           {showLongMA && (
             <Line type="monotone" dataKey="ma100" stroke="#D355F5" strokeWidth={2.5} dot={false} isAnimationActive={false} />
           )}
+          {/* 當期領頭羊線（淺橙色）- 實線 */}
           {showCurrentLeader && (
             <Line type="monotone" dataKey="currentLeader" stroke="#FFB347" strokeWidth={2} dot={false} isAnimationActive={false} />
           )}
+          {/* 前期領頭羊線（淺藍色）- 實線 */}
           {showPrevLeader && (
             <Line type="monotone" dataKey="prevLeader" stroke="#64B5F6" strokeWidth={2} dot={false} isAnimationActive={false} />
           )}
-          <Bar dataKey="high" shape={<CustomCandlestick />} isAnimationActive={false} barSize={6} />
         </ComposedChart>
       </ResponsiveContainer>
     </div>
@@ -327,46 +333,46 @@ function MarketKLineChart({
 
 // 大盤成交量圖表
 function MarketVolumeChart() {
-  // 與K線數據對應
+  // 與K線數據對應 - isRise 表示該日收盤價 >= 開盤價
   const data = [
-    { date: "11/26", volume: 78 },
-    { date: "11/27", volume: 42 },
-    { date: "11/28", volume: 92 },
-    { date: "11/29", volume: 55 },
-    { date: "12/02", volume: 85 },
-    { date: "12/03", volume: 48 },
-    { date: "12/04", volume: 95 },
-    { date: "12/05", volume: 62 },
-    { date: "12/06", volume: 75 },
-    { date: "12/09", volume: 52 },
-    { date: "12/10", volume: 88 },
-    { date: "12/11", volume: 45 },
-    { date: "12/12", volume: 82 },
-    { date: "12/13", volume: 58 },
-    { date: "12/16", volume: 95 },
-    { date: "12/17", volume: 42 },
-    { date: "12/18", volume: 78 },
-    { date: "12/19", volume: 55 },
-    { date: "12/20", volume: 92 },
-    { date: "12/23", volume: 48 },
-    { date: "12/24", volume: 85 },
-    { date: "12/25", volume: 62 },
-    { date: "12/26", volume: 75 },
-    { date: "12/27", volume: 52 },
-    { date: "12/30", volume: 88 },
-    { date: "12/31", volume: 45 },
-    { date: "01/02", volume: 82 },
-    { date: "01/03", volume: 58 },
-    { date: "01/06", volume: 95 },
-    { date: "01/07", volume: 42 },
-    { date: "01/08", volume: 78 },
-    { date: "01/09", volume: 55 },
-    { date: "01/10", volume: 92 },
-    { date: "01/13", volume: 48 },
-    { date: "01/14", volume: 85 },
-    { date: "01/15", volume: 62 },
-    { date: "01/16", volume: 75 },
-    { date: "01/17", volume: 52 },
+    { date: "11/26", volume: 78, isRise: true },
+    { date: "11/27", volume: 42, isRise: false },
+    { date: "11/28", volume: 92, isRise: true },
+    { date: "11/29", volume: 55, isRise: false },
+    { date: "12/02", volume: 85, isRise: true },
+    { date: "12/03", volume: 48, isRise: false },
+    { date: "12/04", volume: 95, isRise: true },
+    { date: "12/05", volume: 62, isRise: false },
+    { date: "12/06", volume: 75, isRise: true },
+    { date: "12/09", volume: 52, isRise: false },
+    { date: "12/10", volume: 88, isRise: true },
+    { date: "12/11", volume: 45, isRise: false },
+    { date: "12/12", volume: 82, isRise: true },
+    { date: "12/13", volume: 58, isRise: false },
+    { date: "12/16", volume: 95, isRise: true },
+    { date: "12/17", volume: 42, isRise: false },
+    { date: "12/18", volume: 78, isRise: true },
+    { date: "12/19", volume: 55, isRise: false },
+    { date: "12/20", volume: 92, isRise: true },
+    { date: "12/23", volume: 48, isRise: false },
+    { date: "12/24", volume: 85, isRise: true },
+    { date: "12/25", volume: 62, isRise: false },
+    { date: "12/26", volume: 75, isRise: true },
+    { date: "12/27", volume: 52, isRise: false },
+    { date: "12/30", volume: 88, isRise: true },
+    { date: "12/31", volume: 45, isRise: false },
+    { date: "01/02", volume: 82, isRise: true },
+    { date: "01/03", volume: 58, isRise: false },
+    { date: "01/06", volume: 95, isRise: true },
+    { date: "01/07", volume: 42, isRise: false },
+    { date: "01/08", volume: 78, isRise: true },
+    { date: "01/09", volume: 55, isRise: false },
+    { date: "01/10", volume: 92, isRise: true },
+    { date: "01/13", volume: 48, isRise: false },
+    { date: "01/14", volume: 85, isRise: true },
+    { date: "01/15", volume: 62, isRise: false },
+    { date: "01/16", volume: 75, isRise: true },
+    { date: "01/17", volume: 52, isRise: false },
   ];
 
   return (
@@ -384,8 +390,8 @@ function MarketVolumeChart() {
           {data.map((entry, index) => (
             <Cell
               key={`volume-cell-${entry.date}-${index}`}
-              fill="#9CA3AF"
-              opacity={0.6}
+              fill={entry.isRise ? "#FE6D73" : "#9cffd9"}
+              opacity={0.7}
             />
           ))}
         </Bar>
