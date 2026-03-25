@@ -69,7 +69,7 @@ export const router = createBrowserRouter([
     path: "/home",
     Component: Layout,
     children: [
-      { index: true, Component: HomePage },
+      { index: true, Component: StockPickerPage },
       { path: "stock-picker", Component: StockPickerPage },
       { path: "watchlist", Component: WatchlistPage },
       { path: "discussion", Component: DiscussionPage },

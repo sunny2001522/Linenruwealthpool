@@ -25,6 +25,7 @@ import {
   Edit2,
   LayoutGrid,
   LayoutList,
+  Bell,
 } from "lucide-react";
 import enruImage from "figma:asset/095f4405cde9352f659086e40b9cb6883546f0c4.png";
 import { useNavigate } from "react-router";
@@ -483,41 +484,21 @@ export function StockPickerPage() {
 
                   {/* 右側：按鈕組 */}
                   <div className="flex items-center gap-2">
-                    {/* 切換視圖按鈕 */}
-                    <button
-                      onClick={() =>
-                        setViewMode(
-                          viewMode === "list" ? "grid" : "list",
-                        )
-                      }
-                      className="p-2 rounded-lg bg-muted/50 text-muted-foreground hover:bg-muted transition-all"
-                      title="切換視圖"
-                    >
-                      {viewMode === "list" ? (
-                        <LayoutGrid className="w-5 h-5" />
-                      ) : (
-                        <LayoutList className="w-5 h-5" />
-                      )}
-                    </button>
-
-                    {/* 編輯模式按鈕 */}
-                    <button
-                      onClick={() => setIsEditMode(!isEditMode)}
-                      className={`p-2 rounded-lg transition-all ${
-                        isEditMode
-                          ? "bg-primary text-black"
-                          : "bg-muted/50 text-muted-foreground hover:bg-muted"
-                      }`}
-                    >
-                      <Edit2 className="w-5 h-5" />
-                    </button>
-
                     {/* 搜尋圖標按鈕 */}
                     <button
                       onClick={() => navigate("/search")}
                       className="p-2 hover:bg-muted rounded-full transition-colors"
                     >
                       <Search className="w-5 h-5 text-muted-foreground" />
+                    </button>
+
+                    {/* 鈴鐺按鈕 */}
+                    <button
+                      onClick={() => navigate("/notifications")}
+                      className="relative p-2 hover:bg-muted rounded-full transition-colors"
+                    >
+                      <Bell className="w-5 h-5 text-muted-foreground" />
+                      <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full" />
                     </button>
                   </div>
                 </div>
@@ -643,7 +624,7 @@ a.策略(Signal)
                     )}
                   </div>
 
-                  {/* 右側：篩選按鈕 */}
+                  {/* 右側：篩選按鈕 + 視圖切換 + 編輯 */}
                   <div className="flex items-center gap-2">
                     <AdvancedFilters
                       filters={advancedFilters}
@@ -651,6 +632,35 @@ a.策略(Signal)
                       marketType={marketType}
                       renderMode="inline"
                     />
+
+                    {/* 切換視圖按鈕 */}
+                    <button
+                      onClick={() =>
+                        setViewMode(
+                          viewMode === "list" ? "grid" : "list",
+                        )
+                      }
+                      className="p-2 rounded-lg bg-muted/50 text-muted-foreground hover:bg-muted transition-all"
+                      title="切換視圖"
+                    >
+                      {viewMode === "list" ? (
+                        <LayoutGrid className="w-5 h-5" />
+                      ) : (
+                        <LayoutList className="w-5 h-5" />
+                      )}
+                    </button>
+
+                    {/* 編輯模式按鈕 */}
+                    <button
+                      onClick={() => setIsEditMode(!isEditMode)}
+                      className={`p-2 rounded-lg transition-all ${
+                        isEditMode
+                          ? "bg-primary text-black"
+                          : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      <Edit2 className="w-5 h-5" />
+                    </button>
                   </div>
                 </div>
               </div>
@@ -734,6 +744,31 @@ a.策略(Signal)
                     </button>
                   </div>
                 )}
+              </div>
+
+              {/* 跑馬燈 */}
+              <div className="overflow-hidden bg-muted/30 py-1.5 rounded-lg">
+                <div className="marquee-scroll flex items-center gap-8 whitespace-nowrap text-xs text-muted-foreground">
+                  <span>台積電(2330) 站上週20MA，恩如三部曲三顆星</span>
+                  <span className="text-border">│</span>
+                  <span>鴻海(2317) 週均量突破 5,000 張</span>
+                  <span className="text-border">│</span>
+                  <span>聯發科(2454) 型態突破，庸中佼佼選入</span>
+                  <span className="text-border">│</span>
+                  <span>台達電(2308) 蓄勢待發策略選入</span>
+                  <span className="text-border">│</span>
+                  <span>廣達(2382) 量能放大，後起新秀選入</span>
+                  <span className="text-border">│</span>
+                  <span>台積電(2330) 站上週20MA，恩如三部曲三顆星</span>
+                  <span className="text-border">│</span>
+                  <span>鴻海(2317) 週均量突破 5,000 張</span>
+                  <span className="text-border">│</span>
+                  <span>聯發科(2454) 型態突破，庸中佼佼選入</span>
+                  <span className="text-border">│</span>
+                  <span>台達電(2308) 蓄勢待發策略選入</span>
+                  <span className="text-border">│</span>
+                  <span>廣達(2382) 量能放大，後起新秀選入</span>
+                </div>
               </div>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import { ChevronRight, ChevronLeft, BookOpen, Headphones, Star, Share2, Settings, User, Mail, Calendar, Crown, LogOut, Shield, HelpCircle, Sparkles } from "lucide-react";
+import { ChevronRight, ChevronLeft, BookOpen, Headphones, Star, Share2, Settings, User, Mail, Calendar, Crown, LogOut, Shield, HelpCircle, Sparkles, Facebook, Instagram, MessageCircle } from "lucide-react";
 import { useAuth } from "../lib/authContext";
 import { useNavigate, useLocation } from "react-router";
 import { useState, useEffect } from "react";
@@ -60,9 +60,7 @@ export function MorePage() {
   const supportItems = [
     { icon: BookOpen, label: "新手導覽", onClick: () => navigate("/guide") },
     { icon: Headphones, label: "線上客服", onClick: () => navigate("/customer-service") },
-    { icon: Star, label: "App 評分", onClick: openAppRating },
     { icon: HelpCircle, label: "幫助中心", onClick: () => navigate("/help-center") },
-    { icon: Share2, label: "分享給好友", onClick: shareToFriend },
   ];
 
   return (
@@ -197,6 +195,73 @@ export function MorePage() {
                 </button>
               );
             })}
+          </div>
+        </div>
+
+        {/* 社交媒體連結 - 白色風格 */}
+        <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl overflow-hidden shadow-lg p-5">
+          <h3 className="font-bold text-sm text-muted-foreground mb-4">追蹤我們</h3>
+          <div className="flex gap-4 justify-center flex-wrap">
+            {/* LINE */}
+            <a
+              href="https://line.me"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-col items-center gap-2 group"
+            >
+              <div className="w-14 h-14 bg-white/10 border border-white/20 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                <MessageCircle className="w-7 h-7 text-white" />
+              </div>
+              <span className="text-xs text-muted-foreground">LINE</span>
+            </a>
+
+            {/* Facebook */}
+            <a
+              href="https://facebook.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-col items-center gap-2 group"
+            >
+              <div className="w-14 h-14 bg-white/10 border border-white/20 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Facebook className="w-7 h-7 text-white" />
+              </div>
+              <span className="text-xs text-muted-foreground">Facebook</span>
+            </a>
+
+            {/* Instagram */}
+            <a
+              href="https://instagram.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-col items-center gap-2 group"
+            >
+              <div className="w-14 h-14 bg-white/10 border border-white/20 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Instagram className="w-7 h-7 text-white" />
+              </div>
+              <span className="text-xs text-muted-foreground">Instagram</span>
+            </a>
+
+            {/* 五星好評 */}
+            <button
+              onClick={openAppRating}
+              className="flex flex-col items-center gap-2 group"
+            >
+              <div className="w-14 h-14 bg-white/10 border border-white/20 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Star className="w-7 h-7 text-white" />
+              </div>
+              <span className="text-xs text-muted-foreground">五星好評</span>
+            </button>
+
+            {/* 推薦好友 */}
+            <button
+              onClick={shareToFriend}
+              className="flex flex-col items-center gap-2 group"
+            >
+              <div className="w-14 h-14 bg-white/10 border border-white/20 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Share2 className="w-7 h-7 text-white" />
+              </div>
+              <span className="text-xs text-muted-foreground">推薦好友</span>
+            </button>
           </div>
         </div>
 

@@ -1,12 +1,11 @@
 import { Outlet, useLocation, useNavigate, Link } from "react-router";
-import { Home, BarChart3, Eye, MessageCircle, FileText, User } from "lucide-react";
+import { BarChart3, Eye, MessageCircle, FileText, User } from "lucide-react";
 import { useAuth } from "../lib/authContext";
 import { useTabContext } from "../lib/tabContext";
 
 type SubTabType = "live" | "favorite" | "unpurchased" | "purchased" | "stock" | "tutorial";
 
 const navItems = [
-  { path: "/home", label: "首頁", icon: Home },
   { path: "/home/stock-picker", label: "選股", icon: BarChart3 },
   { path: "/home/watchlist", label: "自選", icon: Eye },
   { path: "/home/discussion", label: "社團", icon: MessageCircle },
@@ -31,7 +30,8 @@ export function Layout() {
         <div className="flex items-center justify-around h-16 max-w-screen-xl mx-auto px-2">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = location.pathname === item.path;
+            const isActive = location.pathname === item.path ||
+              (item.path === "/home/stock-picker" && location.pathname === "/home");
             return (
               <Link
                 key={item.path}

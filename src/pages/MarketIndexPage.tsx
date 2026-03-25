@@ -1,59 +1,64 @@
 import { useState } from "react";
-import { ChevronLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router";
+import {
+  ComposedChart,
+  Line,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+} from "recharts";
 
 export function MarketIndexPage() {
   const navigate = useNavigate();
+  const [timeframe, setTimeframe] = useState<"日" | "周" | "月">("周");
+
   // 均线显示状态
   const [showShortMA, setShowShortMA] = useState(true);
   const [showLongMA, setShowLongMA] = useState(true);
-  // 強勢線顯示狀態
-  const [showCurrentLeader, setShowCurrentLeader] = useState(true);
-  const [showPrevLeader, setShowPrevLeader] = useState(true);
-  // 選中的K線數據
-  const [selectedBarIndex, setSelectedBarIndex] = useState<number | null>(null);
+  const [showLeaderLine, setShowLeaderLine] = useState(true);
 
-  // 模拟数据
-  const indexPrice = 31801.27;
-  const indexChange = -488.54;
-  const indexChangePercent = -1.51;
+  // 模拟大盤数据
+  const indexPrice = 22537.25;
+  const indexChange = 156.32;
+  const indexChangePercent = 0.70;
   const isPositive = indexChange >= 0;
 
-  // 模拟K线数据
-  const candleData = [
-    { x: 50, high: 27063, low: 26500, open: 27000, close: 26800, date: "11/26", ma20: 26850, ma100: 26200 },
-    { x: 80, high: 28000, low: 27200, open: 27300, close: 27800, date: "12/03", ma20: 27450, ma100: 26500 },
-    { x: 110, high: 29000, low: 28100, open: 28200, close: 28900, date: "12/10", ma20: 28300, ma100: 26900 },
-    { x: 140, high: 30000, low: 29200, open: 29300, close: 29800, date: "12/17", ma20: 29100, ma100: 27300 },
-    { x: 170, high: 30500, low: 29600, open: 29700, close: 30300, date: "12/24", ma20: 29850, ma100: 27700 },
-    { x: 200, high: 31200, low: 30100, open: 30300, close: 31000, date: "12/31", ma20: 30550, ma100: 28100 },
-    { x: 230, high: 31800, low: 30900, open: 31000, close: 31600, date: "01/07", ma20: 31200, ma100: 28500 },
-    { x: 260, high: 32300, low: 31400, open: 31600, close: 32100, date: "01/14", ma20: 31750, ma100: 28900 },
-    { x: 290, high: 32700, low: 31800, open: 32100, close: 32500, date: "01/21", ma20: 32200, ma100: 29300 },
-    { x: 320, high: 32100, low: 31000, open: 32000, close: 31400, date: "01/28", ma20: 31900, ma100: 29700 },
-  ];
-
-  // 選中或預設顯示的數據
-  const displayCandle = selectedBarIndex !== null ? candleData[selectedBarIndex] : candleData[candleData.length - 1];
+  // 硬編碼顯示數據
+  const displayData = {
+    date: "2026/02/05",
+    open: 22380.50,
+    high: 22620.75,
+    low: 22350.20,
+    close: 22537.25,
+    ma20: 22150.80,
+    ma100: 21580.45,
+    currentLeader: 23650.5,
+    prevLeader: 24120.8,
+  };
 
   return (
-    <div className="flex flex-col h-full bg-background">
+    <div className="min-h-screen bg-background pb-[56px]">
       {/* Header */}
-      <div className="flex-none bg-background border-b border-border">
-        <div className="px-4 py-2 flex items-center justify-between">
+      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
+        <div className="flex items-center justify-between px-4 py-3">
           <button
             onClick={() => navigate(-1)}
-            className="p-1 hover:bg-muted rounded-lg transition-colors"
+            className="text-foreground hover:text-primary transition-colors"
           >
-            <ChevronLeft className="w-6 h-6" />
+            <ArrowLeft className="w-6 h-6" />
           </button>
-          <h1 className="text-lg font-bold">加權指數</h1>
-          <div className="w-10" />
+          <h1 className="font-bold text-base">加權指數</h1>
+          <div className="w-6" />
         </div>
       </div>
 
-      {/* 價格 - 無背景無框 */}
-      <div className="px-3 pt-1">
+      {/* 價格 */}
+      <div className="px-3 pt-3">
         <div className="flex items-baseline gap-2">
           <span className={`text-4xl font-bold ${isPositive ? "text-[#FE6D73]" : "text-[#9cffd9]"}`}>
             {indexPrice.toFixed(2)}
@@ -64,187 +69,346 @@ export function MarketIndexPage() {
         </div>
       </div>
 
-      {/* Tabs - 膠囊樣式 */}
-      <div className="px-3 py-1">
-        <div className="flex items-center gap-0.5 bg-muted/30 rounded-lg p-0.5">
-          {[
-            { key: "day", label: "日K" },
-            { key: "week", label: "週K" },
-            { key: "month", label: "月K" },
-            { key: "trend", label: "走勢" },
-            { key: "discussion", label: "討論區" },
-          ].map((tab) => (
-            <button
-              key={tab.key}
-              className={`flex-1 px-2 py-1 rounded-md text-xs font-medium transition-all ${
-                tab.key === "week"
-                  ? "bg-primary text-black"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+      {/* Timeframe selector - 日/周/月 */}
+      <div className="flex items-center gap-2 px-3 py-2">
+        {(["日", "周", "月"] as const).map((tf) => (
+          <button
+            key={tf}
+            onClick={() => setTimeframe(tf)}
+            className={`px-3 py-1 rounded-full text-sm font-medium transition-all ${
+              timeframe === tf
+                ? "bg-primary text-black"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {tf}
+          </button>
+        ))}
+      </div>
+
+      {/* 日期 */}
+      <div className="px-4 mb-1">
+        <p className="text-xs text-muted-foreground">{displayData.date}</p>
+      </div>
+
+      {/* 開高低收 - 4欄排版 */}
+      <div className="px-4 mb-2 grid grid-cols-4 gap-2">
+        <div className="flex flex-col">
+          <span className="text-[10px] text-muted-foreground">開盤</span>
+          <span className="text-xs text-foreground font-medium">{displayData.open.toFixed(2)}</span>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-[10px] text-muted-foreground">最高</span>
+          <span className="text-xs text-[#FE6D73] font-medium">{displayData.high.toFixed(2)}</span>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-[10px] text-muted-foreground">最低</span>
+          <span className="text-xs text-[#9cffd9] font-medium">{displayData.low.toFixed(2)}</span>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-[10px] text-muted-foreground">收盤</span>
+          <span className="text-xs text-foreground font-medium">{displayData.close.toFixed(2)}</span>
         </div>
       </div>
 
-      {/* 日期 + 開高低收 - 單行緊湊 */}
-      <div className="px-3 mb-0.5">
-        <p className="text-xs text-muted-foreground">
-          <span className="text-foreground font-medium">2026/02/05</span>
-          {" "}開 {displayCandle.open}{" "}
-          高 <span className="text-[#FE6D73]">{displayCandle.high}</span>{" "}
-          低 <span className="text-[#9cffd9]">{displayCandle.low}</span>{" "}
-          收 {displayCandle.close}
-        </p>
-      </div>
-
-      {/* MA 數值 + 強勢線數值 - 2x2 grid */}
-      <div className="px-3 mb-0.5 grid grid-cols-2 gap-x-4 gap-y-0 text-xs">
-        {showShortMA && (
-          <span>
-            <span className="text-muted-foreground">MA20 </span>
-            <span style={{ color: "#EAB308" }}>{displayCandle.ma20.toFixed(2)}</span>
-          </span>
-        )}
-        {showLongMA && (
-          <span>
-            <span className="text-muted-foreground">MA100 </span>
-            <span style={{ color: "#E040FB" }}>{displayCandle.ma100.toFixed(2)}</span>
-          </span>
-        )}
-        {showCurrentLeader && (
-          <span>
-            <span className="text-muted-foreground">當期領頭羊 </span>
-            <span style={{ color: "#FF9800" }}>46.2</span>
-          </span>
-        )}
-        {showPrevLeader && (
-          <span>
-            <span className="text-muted-foreground">前期領頭羊 </span>
-            <span style={{ color: "#42A5F5" }}>47.36</span>
-          </span>
-        )}
-      </div>
-
-      {/* Chart */}
-      <div className="flex-1 px-1 overflow-hidden">
-        <div className="h-full relative">
-          <svg viewBox="0 0 400 300" className="w-full h-full">
-            {/* Y轴网格线和标签 */}
-            <line x1="40" y1="0" x2="40" y2="200" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
-            <text x="5" y="25" className="fill-muted-foreground" style={{ fontSize: "8px" }}>32.52K</text>
-            <text x="5" y="100" className="fill-muted-foreground" style={{ fontSize: "8px" }}>30.14K</text>
-            <text x="5" y="175" className="fill-muted-foreground" style={{ fontSize: "8px" }}>27.75K</text>
-            <text x="5" y="200" className="fill-muted-foreground" style={{ fontSize: "8px" }}>25.37K</text>
-
-            {/* MA20 均线 (金色) */}
-            {showShortMA && (
-              <path d="M 50,120 Q 120,100 200,80 T 350,50" fill="none" stroke="#EAB308" strokeWidth="1.5" />
-            )}
-
-            {/* MA100 均线 (洋紅色) */}
-            {showLongMA && (
-              <path d="M 50,180 Q 120,170 200,140 T 350,100" fill="none" stroke="#E040FB" strokeWidth="1.5" />
-            )}
-
-            {/* 當期領頭羊指標（橘色虛線） */}
-            {showCurrentLeader && (
-              <path d="M 50,150 Q 120,120 200,70 T 350,20" fill="none" stroke="#FF9800" strokeWidth="1.5" strokeDasharray="6 3" />
-            )}
-
-            {/* 前期領頭羊指標（藍色虛線） */}
-            {showPrevLeader && (
-              <path d="M 50,140 Q 120,115 200,65 T 350,15" fill="none" stroke="#42A5F5" strokeWidth="1.5" strokeDasharray="6 3" />
-            )}
-
-            {/* K线图 */}
-            {candleData.map((candle, i) => {
-              const isGreen = candle.close < candle.open;
-              const color = isGreen ? "#9cffd9" : "#FE6D73";
-              const yScale = 200 / 7000;
-              const high = 200 - (candle.high - 25370) * yScale;
-              const low = 200 - (candle.low - 25370) * yScale;
-              const open = 200 - (candle.open - 25370) * yScale;
-              const close = 200 - (candle.close - 25370) * yScale;
-              const isSelected = selectedBarIndex === i;
-
-              return (
-                <g key={i} onClick={() => setSelectedBarIndex(i)} style={{ cursor: "pointer" }}>
-                  {isSelected && (
-                    <rect x={candle.x - 8} y="0" width="16" height="200"
-                      fill="rgba(74, 144, 226, 0.1)" stroke="rgba(74, 144, 226, 0.3)" strokeWidth="1" />
-                  )}
-                  <line x1={candle.x} y1={high} x2={candle.x} y2={low} stroke={color} strokeWidth="1" />
-                  <rect x={candle.x - 4} y={Math.min(open, close)} width="8"
-                    height={Math.abs(close - open) || 1} fill={color} />
-                </g>
-              );
-            })}
-
-            {/* X轴日期标签 */}
-            <text x="60" y="220" className="fill-muted-foreground" style={{ fontSize: "8px" }}>11/26</text>
-            <text x="160" y="220" className="fill-muted-foreground" style={{ fontSize: "8px" }}>12/18</text>
-            <text x="260" y="220" className="fill-muted-foreground" style={{ fontSize: "8px" }}>2026 01</text>
-            <text x="340" y="220" className="fill-muted-foreground" style={{ fontSize: "8px" }}>02/04</text>
-
-            {/* 成交量柱状图 */}
-            <g transform="translate(0, 230)">
-              {[
-                { x: 60, h: 20 }, { x: 80, h: 25 }, { x: 100, h: 18 },
-                { x: 120, h: 30 }, { x: 140, h: 22 }, { x: 160, h: 28 },
-                { x: 180, h: 35 }, { x: 200, h: 32 }, { x: 220, h: 27 },
-                { x: 240, h: 40 }, { x: 260, h: 38 }, { x: 280, h: 33 },
-                { x: 300, h: 45 }, { x: 320, h: 42 }, { x: 340, h: 50 },
-              ].map((bar, i) => (
-                <rect key={i} x={bar.x - 3} y={60 - bar.h} width="6" height={bar.h} fill="rgba(150,150,150,0.5)" />
-              ))}
-              <text x="5" y="10" className="fill-muted-foreground" style={{ fontSize: "8px" }}>619.00M</text>
-              <text x="5" y="35" className="fill-muted-foreground" style={{ fontSize: "8px" }}>385.95M</text>
-              <text x="5" y="65" className="fill-muted-foreground" style={{ fontSize: "8px" }}>152.05M</text>
-            </g>
-          </svg>
+      {/* MA + 強勢線 - 4欄排版 */}
+      <div className="px-4 mb-2 grid grid-cols-4 gap-2">
+        <div className={`flex flex-col ${!showShortMA ? "invisible" : ""}`}>
+          <span className="text-[10px] text-muted-foreground">MA20</span>
+          <span className="text-xs font-medium" style={{ color: "#F5C518" }}>{displayData.ma20.toFixed(2)}</span>
+        </div>
+        <div className={`flex flex-col ${!showLongMA ? "invisible" : ""}`}>
+          <span className="text-[10px] text-muted-foreground">MA100</span>
+          <span className="text-xs font-medium" style={{ color: "#D355F5" }}>{displayData.ma100.toFixed(2)}</span>
+        </div>
+        <div className={`flex flex-col ${!showLeaderLine ? "invisible" : ""}`}>
+          <span className="text-[10px] text-muted-foreground">當期領頭羊</span>
+          <span className="text-xs font-medium" style={{ color: "#FFB347" }}>{displayData.currentLeader.toFixed(1)}</span>
+        </div>
+        <div className={`flex flex-col ${!showLeaderLine ? "invisible" : ""}`}>
+          <span className="text-[10px] text-muted-foreground">前期領頭羊</span>
+          <span className="text-xs font-medium" style={{ color: "#64B5F6" }}>{displayData.prevLeader.toFixed(1)}</span>
         </div>
       </div>
 
-      {/* 底部技術線切換 - 簡單圓圈勾選 */}
-      <div className="flex-none flex items-center justify-between px-3 py-2 border-t border-border">
+      {/* K線圖表 */}
+      <div className="px-3" style={{ height: "240px" }}>
+        <MarketKLineChart
+          showShortMA={showShortMA}
+          showLongMA={showLongMA}
+          showCurrentLeader={showLeaderLine}
+          showPrevLeader={showLeaderLine}
+        />
+      </div>
+
+      {/* 成交量 */}
+      <div className="px-3">
+        <div className="flex items-center gap-1 mb-0.5">
+          <span className="text-[10px] text-muted-foreground">量</span>
+          <span className="text-xs text-foreground font-medium">2,845,123,456</span>
+        </div>
+        <div style={{ height: "60px" }}>
+          <MarketVolumeChart />
+        </div>
+      </div>
+
+      {/* 底部技術線切換 */}
+      <div className="fixed bottom-0 left-0 right-0 h-[44px] flex items-center justify-center px-3 bg-background z-40">
         <div className="flex items-center gap-4">
-          <span className="text-xs text-muted-foreground font-medium">技術線：</span>
+          <span className="text-sm text-muted-foreground font-medium">技術線：</span>
 
-          <button onClick={() => setShowShortMA(!showShortMA)} className="flex items-center gap-1">
-            <div className="w-4 h-4 rounded-full border-2 flex items-center justify-center"
-              style={{ borderColor: "#EAB308", backgroundColor: showShortMA ? "#EAB308" : "transparent" }}>
-              {showShortMA && <div className="w-1.5 h-1.5 rounded-full bg-black" />}
+          <button onClick={() => setShowShortMA(!showShortMA)} className="flex items-center gap-1.5">
+            <div className="w-5 h-5 rounded-full border-2 flex items-center justify-center"
+              style={{ borderColor: "#F5C518", backgroundColor: showShortMA ? "#F5C518" : "transparent" }}>
+              {showShortMA && (
+                <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              )}
             </div>
-            <span className="text-xs text-foreground">短均</span>
+            <span className="text-sm text-foreground">短均</span>
           </button>
 
-          <button onClick={() => setShowLongMA(!showLongMA)} className="flex items-center gap-1">
-            <div className="w-4 h-4 rounded-full border-2 flex items-center justify-center"
-              style={{ borderColor: "#E040FB", backgroundColor: showLongMA ? "#E040FB" : "transparent" }}>
-              {showLongMA && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+          <button onClick={() => setShowLongMA(!showLongMA)} className="flex items-center gap-1.5">
+            <div className="w-5 h-5 rounded-full border-2 flex items-center justify-center"
+              style={{ borderColor: "#D355F5", backgroundColor: showLongMA ? "#D355F5" : "transparent" }}>
+              {showLongMA && (
+                <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              )}
             </div>
-            <span className="text-xs text-foreground">長均</span>
+            <span className="text-sm text-foreground">長均</span>
           </button>
 
-          <button onClick={() => setShowCurrentLeader(!showCurrentLeader)} className="flex items-center gap-1">
-            <div className="w-4 h-4 rounded-full border-2 flex items-center justify-center"
-              style={{ borderColor: "#FF9800", backgroundColor: showCurrentLeader ? "#FF9800" : "transparent" }}>
-              {showCurrentLeader && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+          <button onClick={() => setShowLeaderLine(!showLeaderLine)} className="flex items-center gap-1.5">
+            <div className="w-5 h-5 rounded-full border-2 flex items-center justify-center"
+              style={{ borderColor: "#4A90E2", backgroundColor: showLeaderLine ? "#4A90E2" : "transparent" }}>
+              {showLeaderLine && (
+                <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              )}
             </div>
-            <span className="text-xs text-foreground">當期</span>
-          </button>
-
-          <button onClick={() => setShowPrevLeader(!showPrevLeader)} className="flex items-center gap-1">
-            <div className="w-4 h-4 rounded-full border-2 flex items-center justify-center"
-              style={{ borderColor: "#42A5F5", backgroundColor: showPrevLeader ? "#42A5F5" : "transparent" }}>
-              {showPrevLeader && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
-            </div>
-            <span className="text-xs text-foreground">前期</span>
+            <span className="text-sm text-foreground">強勢線</span>
           </button>
         </div>
       </div>
     </div>
+  );
+}
+
+// 大盤K線圖表組件
+function MarketKLineChart({
+  showShortMA,
+  showLongMA,
+  showCurrentLeader,
+  showPrevLeader,
+}: {
+  showShortMA: boolean;
+  showLongMA: boolean;
+  showCurrentLeader: boolean;
+  showPrevLeader: boolean;
+}) {
+  // 硬編碼的靜態K線數據 - 大盤上漲趨勢
+  const data = [
+    { date: "11/26", open: 20800, close: 20950, high: 21000, low: 20750, ma20: 20600, ma100: 20200, currentLeader: 21500, prevLeader: 21800 },
+    { date: "11/27", open: 20950, close: 21100, high: 21150, low: 20900, ma20: 20650, ma100: 20250, currentLeader: 21600, prevLeader: 21900 },
+    { date: "11/28", open: 21100, close: 21250, high: 21300, low: 21050, ma20: 20700, ma100: 20300, currentLeader: 21700, prevLeader: 22000 },
+    { date: "11/29", open: 21250, close: 21150, high: 21300, low: 21100, ma20: 20750, ma100: 20350, currentLeader: 21750, prevLeader: 22050 },
+    { date: "12/02", open: 21150, close: 21350, high: 21400, low: 21100, ma20: 20800, ma100: 20400, currentLeader: 21850, prevLeader: 22150 },
+    { date: "12/03", open: 21350, close: 21500, high: 21550, low: 21300, ma20: 20900, ma100: 20450, currentLeader: 21950, prevLeader: 22250 },
+    { date: "12/04", open: 21500, close: 21650, high: 21700, low: 21450, ma20: 21000, ma100: 20500, currentLeader: 22100, prevLeader: 22400 },
+    { date: "12/05", open: 21650, close: 21800, high: 21850, low: 21600, ma20: 21100, ma100: 20550, currentLeader: 22200, prevLeader: 22500 },
+    { date: "12/06", open: 21800, close: 21700, high: 21850, low: 21650, ma20: 21150, ma100: 20600, currentLeader: 22250, prevLeader: 22550 },
+    { date: "12/09", open: 21700, close: 21900, high: 21950, low: 21650, ma20: 21250, ma100: 20650, currentLeader: 22350, prevLeader: 22650 },
+    { date: "12/10", open: 21900, close: 22050, high: 22100, low: 21850, ma20: 21350, ma100: 20700, currentLeader: 22500, prevLeader: 22800 },
+    { date: "12/11", open: 22050, close: 22200, high: 22250, low: 22000, ma20: 21450, ma100: 20750, currentLeader: 22650, prevLeader: 22950 },
+    { date: "12/12", open: 22200, close: 22100, high: 22250, low: 22050, ma20: 21500, ma100: 20800, currentLeader: 22700, prevLeader: 23000 },
+    { date: "12/13", open: 22100, close: 22300, high: 22350, low: 22050, ma20: 21600, ma100: 20850, currentLeader: 22850, prevLeader: 23150 },
+    { date: "12/16", open: 22300, close: 22450, high: 22500, low: 22250, ma20: 21700, ma100: 20900, currentLeader: 23000, prevLeader: 23300 },
+    { date: "12/17", open: 22450, close: 22350, high: 22500, low: 22300, ma20: 21750, ma100: 20950, currentLeader: 23050, prevLeader: 23350 },
+    { date: "12/18", open: 22350, close: 22500, high: 22550, low: 22300, ma20: 21850, ma100: 21000, currentLeader: 23150, prevLeader: 23450 },
+    { date: "12/19", open: 22500, close: 22650, high: 22700, low: 22450, ma20: 21950, ma100: 21050, currentLeader: 23300, prevLeader: 23600 },
+    { date: "12/20", open: 22650, close: 22550, high: 22700, low: 22500, ma20: 22000, ma100: 21100, currentLeader: 23350, prevLeader: 23650 },
+    { date: "12/23", open: 22550, close: 22700, high: 22750, low: 22500, ma20: 22100, ma100: 21150, currentLeader: 23450, prevLeader: 23750 },
+    { date: "12/24", open: 22700, close: 22600, high: 22750, low: 22550, ma20: 22150, ma100: 21200, currentLeader: 23500, prevLeader: 23800 },
+    { date: "12/25", open: 22600, close: 22750, high: 22800, low: 22550, ma20: 22200, ma100: 21250, currentLeader: 23550, prevLeader: 23850 },
+    { date: "12/26", open: 22750, close: 22650, high: 22800, low: 22600, ma20: 22250, ma100: 21300, currentLeader: 23600, prevLeader: 23900 },
+    { date: "12/27", open: 22650, close: 22800, high: 22850, low: 22600, ma20: 22300, ma100: 21350, currentLeader: 23650, prevLeader: 23950 },
+    { date: "12/30", open: 22800, close: 22700, high: 22850, low: 22650, ma20: 22350, ma100: 21400, currentLeader: 23700, prevLeader: 24000 },
+    { date: "12/31", open: 22700, close: 22850, high: 22900, low: 22650, ma20: 22400, ma100: 21450, currentLeader: 23750, prevLeader: 24050 },
+    { date: "01/02", open: 22850, close: 22750, high: 22900, low: 22700, ma20: 22450, ma100: 21500, currentLeader: 23800, prevLeader: 24100 },
+    { date: "01/03", open: 22750, close: 22900, high: 22950, low: 22700, ma20: 22500, ma100: 21550, currentLeader: 23850, prevLeader: 24150 },
+    { date: "01/06", open: 22900, close: 22800, high: 22950, low: 22750, ma20: 22550, ma100: 21600, currentLeader: 23900, prevLeader: 24200 },
+    { date: "01/07", open: 22800, close: 22950, high: 23000, low: 22750, ma20: 22600, ma100: 21650, currentLeader: 23950, prevLeader: 24250 },
+    { date: "01/08", open: 22950, close: 22850, high: 23000, low: 22800, ma20: 22650, ma100: 21700, currentLeader: 24000, prevLeader: 24300 },
+    { date: "01/09", open: 22850, close: 23000, high: 23050, low: 22800, ma20: 22700, ma100: 21750, currentLeader: 24050, prevLeader: 24350 },
+    { date: "01/10", open: 23000, close: 22900, high: 23050, low: 22850, ma20: 22750, ma100: 21800, currentLeader: 24100, prevLeader: 24400 },
+    { date: "01/13", open: 22900, close: 23050, high: 23100, low: 22850, ma20: 22800, ma100: 21850, currentLeader: 24150, prevLeader: 24450 },
+    { date: "01/14", open: 23050, close: 22950, high: 23100, low: 22900, ma20: 22850, ma100: 21900, currentLeader: 24200, prevLeader: 24500 },
+    { date: "01/15", open: 22950, close: 23100, high: 23150, low: 22900, ma20: 22900, ma100: 21950, currentLeader: 24250, prevLeader: 24550 },
+    { date: "01/16", open: 23100, close: 23000, high: 23150, low: 22950, ma20: 22950, ma100: 22000, currentLeader: 24300, prevLeader: 24600 },
+    { date: "01/17", open: 23000, close: 23150, high: 23200, low: 22950, ma20: 23000, ma100: 22050, currentLeader: 24350, prevLeader: 24650 },
+    { date: "01/20", open: 23150, close: 23050, high: 23200, low: 23000, ma20: 23050, ma100: 22100, currentLeader: 24400, prevLeader: 24700 },
+    { date: "01/21", open: 23050, close: 23200, high: 23250, low: 23000, ma20: 23100, ma100: 22150, currentLeader: 24450, prevLeader: 24750 },
+    { date: "01/22", open: 23200, close: 23100, high: 23250, low: 23050, ma20: 23150, ma100: 22200, currentLeader: 24500, prevLeader: 24800 },
+    { date: "01/23", open: 23100, close: 23250, high: 23300, low: 23050, ma20: 23200, ma100: 22250, currentLeader: 24550, prevLeader: 24850 },
+    { date: "01/24", open: 23250, close: 23150, high: 23300, low: 23100, ma20: 23250, ma100: 22300, currentLeader: 24600, prevLeader: 24900 },
+    { date: "01/27", open: 23150, close: 23300, high: 23350, low: 23100, ma20: 23300, ma100: 22350, currentLeader: 24650, prevLeader: 24950 },
+    { date: "01/28", open: 23300, close: 23200, high: 23350, low: 23150, ma20: 23350, ma100: 22400, currentLeader: 24700, prevLeader: 25000 },
+    { date: "01/29", open: 23200, close: 23350, high: 23400, low: 23150, ma20: 23400, ma100: 22450, currentLeader: 24750, prevLeader: 25050 },
+    { date: "01/30", open: 23350, close: 23250, high: 23400, low: 23200, ma20: 23450, ma100: 22500, currentLeader: 24800, prevLeader: 25100 },
+    { date: "01/31", open: 23250, close: 23400, high: 23450, low: 23200, ma20: 23500, ma100: 22550, currentLeader: 24850, prevLeader: 25150 },
+    { date: "02/03", open: 23400, close: 23300, high: 23450, low: 23250, ma20: 23550, ma100: 22600, currentLeader: 24900, prevLeader: 25200 },
+    { date: "02/04", open: 23300, close: 23450, high: 23500, low: 23250, ma20: 23600, ma100: 22650, currentLeader: 24950, prevLeader: 25250 },
+  ];
+
+  const CustomCandlestick = (props: any) => {
+    const { x, y, width, height, payload } = props;
+    const isRise = payload.close >= payload.open;
+    const color = isRise ? "#FE6D73" : "#9cffd9";
+
+    const bodyHeight = (Math.abs(payload.close - payload.open) / (payload.high - payload.low)) * height;
+    const bodyY = isRise
+      ? y + ((payload.high - payload.close) / (payload.high - payload.low)) * height
+      : y + ((payload.high - payload.open) / (payload.high - payload.low)) * height;
+
+    const wickX = x + width / 2;
+
+    return (
+      <g>
+        <line x1={wickX} y1={y} x2={wickX} y2={y + height} stroke={color} strokeWidth={1} />
+        <rect x={x} y={bodyY} width={width} height={Math.max(bodyHeight, 1)} fill={color} stroke={color} strokeWidth={0.5} />
+      </g>
+    );
+  };
+
+  return (
+    <div className="relative w-full h-full">
+      <ResponsiveContainer width="100%" height="100%">
+        <ComposedChart data={data} margin={{ top: 10, right: 0, left: 0, bottom: 10 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
+          <XAxis
+            dataKey="date"
+            tick={{ fill: "#666", fontSize: 10 }}
+            tickLine={false}
+            axisLine={false}
+            interval="preserveStartEnd"
+            tickFormatter={(value, index) => {
+              if (index === 0 || index === data.length - 1 || index === Math.floor(data.length / 2)) {
+                return value;
+              }
+              return "";
+            }}
+          />
+          <YAxis
+            domain={["auto", "auto"]}
+            tick={{ fill: "#666", fontSize: 10 }}
+            tickLine={false}
+            axisLine={false}
+            orientation="left"
+            tickFormatter={(value) => value.toFixed(0)}
+            width={30}
+            tickMargin={0}
+          />
+          <Tooltip content={() => null} cursor={false} />
+
+          {showShortMA && (
+            <Line type="monotone" dataKey="ma20" stroke="#F5C518" strokeWidth={2.5} dot={false} isAnimationActive={false} />
+          )}
+          {showLongMA && (
+            <Line type="monotone" dataKey="ma100" stroke="#D355F5" strokeWidth={2.5} dot={false} isAnimationActive={false} />
+          )}
+          {showCurrentLeader && (
+            <Line type="monotone" dataKey="currentLeader" stroke="#FFB347" strokeWidth={2} dot={false} isAnimationActive={false} strokeDasharray="6 3" />
+          )}
+          {showPrevLeader && (
+            <Line type="monotone" dataKey="prevLeader" stroke="#64B5F6" strokeWidth={2} dot={false} isAnimationActive={false} strokeDasharray="6 3" />
+          )}
+          <Bar dataKey="high" shape={<CustomCandlestick />} isAnimationActive={false} />
+        </ComposedChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+// 大盤成交量圖表
+function MarketVolumeChart() {
+  const data = [
+    { date: "11/26", volume: 45, isRise: true },
+    { date: "11/27", volume: 52, isRise: true },
+    { date: "11/28", volume: 48, isRise: true },
+    { date: "11/29", volume: 35, isRise: false },
+    { date: "12/02", volume: 58, isRise: true },
+    { date: "12/03", volume: 65, isRise: true },
+    { date: "12/04", volume: 72, isRise: true },
+    { date: "12/05", volume: 68, isRise: true },
+    { date: "12/06", volume: 42, isRise: false },
+    { date: "12/09", volume: 78, isRise: true },
+    { date: "12/10", volume: 85, isRise: true },
+    { date: "12/11", volume: 92, isRise: true },
+    { date: "12/12", volume: 88, isRise: false },
+    { date: "12/13", volume: 95, isRise: true },
+    { date: "12/16", volume: 82, isRise: true },
+    { date: "12/17", volume: 75, isRise: false },
+    { date: "12/18", volume: 68, isRise: true },
+    { date: "12/19", volume: 72, isRise: true },
+    { date: "12/20", volume: 65, isRise: false },
+    { date: "12/23", volume: 58, isRise: true },
+    { date: "12/24", volume: 52, isRise: false },
+    { date: "12/25", volume: 38, isRise: true },
+    { date: "12/26", volume: 55, isRise: false },
+    { date: "12/27", volume: 42, isRise: true },
+    { date: "12/30", volume: 62, isRise: false },
+    { date: "12/31", volume: 75, isRise: true },
+    { date: "01/02", volume: 82, isRise: false },
+    { date: "01/03", volume: 88, isRise: true },
+    { date: "01/06", volume: 45, isRise: false },
+    { date: "01/07", volume: 72, isRise: true },
+    { date: "01/08", volume: 38, isRise: false },
+    { date: "01/09", volume: 68, isRise: true },
+    { date: "01/10", volume: 78, isRise: false },
+    { date: "01/13", volume: 85, isRise: true },
+    { date: "01/14", volume: 92, isRise: false },
+    { date: "01/15", volume: 48, isRise: true },
+    { date: "01/16", volume: 75, isRise: false },
+    { date: "01/17", volume: 82, isRise: true },
+    { date: "01/20", volume: 42, isRise: false },
+    { date: "01/21", volume: 68, isRise: true },
+    { date: "01/22", volume: 78, isRise: false },
+    { date: "01/23", volume: 45, isRise: true },
+    { date: "01/24", volume: 72, isRise: false },
+    { date: "01/27", volume: 38, isRise: true },
+    { date: "01/28", volume: 65, isRise: false },
+    { date: "01/29", volume: 42, isRise: true },
+    { date: "01/30", volume: 75, isRise: false },
+    { date: "01/31", volume: 48, isRise: true },
+    { date: "02/03", volume: 82, isRise: false },
+    { date: "02/04", volume: 55, isRise: true },
+  ];
+
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <ComposedChart data={data} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+        <YAxis
+          tick={{ fill: "#666", fontSize: 10 }}
+          tickLine={false}
+          axisLine={false}
+          orientation="left"
+          width={30}
+          tickMargin={0}
+        />
+        <Bar dataKey="volume" isAnimationActive={false}>
+          {data.map((entry, index) => (
+            <Cell
+              key={`volume-cell-${entry.date}-${index}`}
+              fill="#9CA3AF"
+              opacity={0.6}
+            />
+          ))}
+        </Bar>
+      </ComposedChart>
+    </ResponsiveContainer>
   );
 }
