@@ -219,6 +219,8 @@ export function WatchlistPage() {
   const [totalGroups, setTotalGroups] = useState(5); // 總群組數，預設5個
   const [showEditGroupModal, setShowEditGroupModal] = useState(false); // 編輯群組名稱彈窗
   const [showManageGroupsModal, setShowManageGroupsModal] = useState(false); // 管理群組彈窗
+  const [editingGroupInModal, setEditingGroupInModal] = useState<number | null>(null); // 管理群組彈窗中正在編輯的群組
+  const [editingGroupNameInModal, setEditingGroupNameInModal] = useState(""); // 管理群組彈窗中正在編輯的名稱
 
   // 篩選器狀態
   const [marketType, setMarketType] =
@@ -656,16 +658,21 @@ a.策略(Signal)
                       />
                     ) : (
                       // 正常模式：顯示標籤
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1">
                         <button
                           onClick={() => {
-                            if (!isEditMode) {
+                            if (isEditMode) {
+                              // 編輯模式下點擊直接進入名稱編輯
+                              setEditingTab(tab);
+                              setEditingName(watchlistNames[tab] || `自選${tab}`);
+                              setActiveTab(tab);
+                            } else {
                               setActiveTab(tab);
                             }
                           }}
                           className={`text-sm font-medium ${
                             isEditMode
-                              ? "cursor-default"
+                              ? "cursor-text"
                               : "cursor-pointer"
                           } ${
                             activeTab === tab
@@ -680,13 +687,13 @@ a.策略(Signal)
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
+                              setEditingTab(tab);
                               setEditingName(watchlistNames[tab] || `自選${tab}`);
                               setActiveTab(tab);
-                              setShowEditGroupModal(true);
                             }}
-                            className="p-1 hover:bg-muted rounded transition-colors"
+                            className="p-0.5 hover:bg-muted rounded transition-colors"
                           >
-                            <Edit2 className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground" />
+                            <Edit2 className="w-3 h-3 text-muted-foreground hover:text-foreground" />
                           </button>
                         )}
                       </div>
@@ -1263,7 +1270,11 @@ c-8.產業名稱
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold">管理群組</h2>
                 <button
-                  onClick={() => setShowManageGroupsModal(false)}
+                  onClick={() => {
+                    setShowManageGroupsModal(false);
+                    setEditingGroupInModal(null);
+                    setEditingGroupNameInModal("");
+                  }}
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <X className="w-6 h-6" />
@@ -1277,28 +1288,74 @@ c-8.產業名稱
                     key={groupIndex}
                     className="flex items-center justify-between px-4 py-3 rounded-xl border border-border bg-background"
                   >
-                    <span className="font-medium text-sm">
-                      {watchlistNames[groupIndex] || `自選${groupIndex}`}
-                    </span>
-                    {totalGroups > 1 && (
-                      <button
-                        onClick={() => {
-                          deleteWatchlistGroup(groupIndex, totalGroups);
-                          const newTotal = totalGroups - 1;
-                          setTotalGroups(newTotal);
-                          setWatchlistNames(getWatchlistNames());
-                          if (activeTab > newTotal) {
-                            setActiveTab(newTotal);
-                          } else if (activeTab >= groupIndex && activeTab > 1) {
-                            setActiveTab(activeTab > groupIndex ? activeTab - 1 : activeTab);
+                    {editingGroupInModal === groupIndex ? (
+                      <input
+                        type="text"
+                        value={editingGroupNameInModal}
+                        onChange={(e) => setEditingGroupNameInModal(e.target.value)}
+                        onBlur={() => {
+                          if (editingGroupNameInModal.trim()) {
+                            updateWatchlistName(groupIndex, editingGroupNameInModal.trim());
+                            setWatchlistNames(getWatchlistNames());
+                          }
+                          setEditingGroupInModal(null);
+                          setEditingGroupNameInModal("");
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && editingGroupNameInModal.trim()) {
+                            updateWatchlistName(groupIndex, editingGroupNameInModal.trim());
+                            setWatchlistNames(getWatchlistNames());
+                            setEditingGroupInModal(null);
+                            setEditingGroupNameInModal("");
+                          } else if (e.key === "Escape") {
+                            setEditingGroupInModal(null);
+                            setEditingGroupNameInModal("");
                           }
                         }}
-                        className="p-1.5 hover:bg-red-500/20 rounded-full transition-colors"
-                        title="刪除群組"
-                      >
-                        <Minus className="w-4 h-4 text-red-400" />
-                      </button>
+                        autoFocus
+                        className="font-medium text-sm bg-background border border-primary rounded px-2 py-0.5 outline-none focus:ring-1 focus:ring-primary/50 text-foreground min-w-[80px] max-w-[160px]"
+                      />
+                    ) : (
+                      <span className="font-medium text-sm">
+                        {watchlistNames[groupIndex] || `自選${groupIndex}`}
+                      </span>
                     )}
+                    <div className="flex items-center gap-1">
+                      {/* 編輯名稱按鈕 */}
+                      {editingGroupInModal !== groupIndex && (
+                        <button
+                          onClick={() => {
+                            setEditingGroupInModal(groupIndex);
+                            setEditingGroupNameInModal(watchlistNames[groupIndex] || `自選${groupIndex}`);
+                          }}
+                          className="p-1.5 hover:bg-muted rounded-full transition-colors"
+                          title="編輯名稱"
+                        >
+                          <Edit2 className="w-4 h-4 text-muted-foreground hover:text-foreground" />
+                        </button>
+                      )}
+                      {/* 刪除群組按鈕 */}
+                      {totalGroups > 1 && (
+                        <button
+                          onClick={() => {
+                            deleteWatchlistGroup(groupIndex, totalGroups);
+                            const newTotal = totalGroups - 1;
+                            setTotalGroups(newTotal);
+                            setWatchlistNames(getWatchlistNames());
+                            if (activeTab > newTotal) {
+                              setActiveTab(newTotal);
+                            } else if (activeTab >= groupIndex && activeTab > 1) {
+                              setActiveTab(activeTab > groupIndex ? activeTab - 1 : activeTab);
+                            }
+                            setEditingGroupInModal(null);
+                          }}
+                          className="p-1.5 hover:bg-red-500/20 rounded-full transition-colors"
+                          title="刪除群組"
+                        >
+                          <Minus className="w-4 h-4 text-red-400" />
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
