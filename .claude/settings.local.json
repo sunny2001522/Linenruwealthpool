@@ -2,7 +2,19 @@
   "permissions": {
     "allow": [
       "Bash(npx tsc:*)",
-      "Bash(npx vite:*)"
+      "Bash(npx vite:*)",
+      "Bash(find /c/Users/user1/Documents/Linenruwealthpool -type f \\\\\\( -name \"*.ts\" -o -name \"*.tsx\" -o -name \"*.js\" -o -name \"*.jsx\" -o -name \"*.json\" \\\\\\) 2>/dev/null | head -50)",
+      "Bash(grep -r \"埋點\\\\|tracking\\\\|event.*send\\\\|logEvent\" /c/Users/user1/Documents/Linenruwealthpool/src --include=\"*.ts\" --include=\"*.tsx\" 2>/dev/null | head -50)",
+      "Bash(grep -l \"trackEvent\\\\|logEvent\\\\|埋點\\\\|firebase\" /c/Users/user1/Documents/Linenruwealthpool/src/docs/*.md 2>/dev/null)",
+      "Bash(grep -r \"trackEvent\\\\|logEvent\" /c/Users/user1/Documents/Linenruwealthpool/src/docs/*.md 2>/dev/null)",
+      "Bash(grep -r \"nativeBridge\\\\|CMoney\\\\|postMessage\" /c/Users/user1/Documents/Linenruwealthpool/src --include=\"*.ts\" --include=\"*.tsx\" 2>/dev/null | head -20)",
+      "mcp__claude_ai_Apify__apify-slash-rag-web-browser",
+      "Bash(grep -r \"type.*=.*\\\\\"\" /c/Users/user1/Documents/Linenruwealthpool/src/pages/*.tsx | grep -E \"\\(Type|FilterType|SortField\\)\" | head -20)",
+      "WebFetch(domain:docs.google.com)",
+      "WebFetch(domain:doc-00-60-sheets.googleusercontent.com)",
+      "Bash(grep -r \"function track\\\\|function log\\\\|function send\\\\|const track\\\\|const log\\\\|const send\\\\|export.*track\\\\|export.*log\\\\|export.*event\" /c/Users/user1/Documents/Linenruwealthpool/src --include=\"*.ts\" --include=\"*.tsx\" 2>/dev/null | head -50)",
+      "Bash(grep -r \"newcomer_guide\\\\|stockpick_tab\\\\|strategy_one\\\\|strategy_two\\\\|strategy_three\\\\|single_stock\\\\|watchlist_tab\\\\|community_tab\\\\|content_tab\\\\|more_tab\" /c/Users/user1/Documents/Linenruwealthpool/src --include=\"*.ts\" --include=\"*.tsx\" 2>/dev/null | head -50)",
+      "Bash(grep -r \"home_tab\\\\|home_banner\\\\|home_hot_stock\\\\|home_leader\\\\|home_loser\\\\|home_market\\\\|home_community\\\\|home_content\\\\|home_social\" /c/Users/user1/Documents/Linenruwealthpool/src --include=\"*.ts\" --include=\"*.tsx\" 2>/dev/null | head -50)"
     ]
   }
 }
