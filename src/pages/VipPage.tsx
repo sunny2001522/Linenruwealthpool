@@ -65,10 +65,10 @@ export function VipPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-white/70 text-xs mb-0.5">
-                月訂閱 每月現省NT$700
+                年訂閱 現省NT$7,000
               </p>
-              <p className="text-white/40 text-xs line-through mb-0.5">NT$3,200/月</p>
-              <p className="text-2xl font-bold">NT$2,500<span className="text-sm font-normal text-white/60">/月</span></p>
+              <p className="text-white/40 text-xs line-through mb-0.5">NT$34,000/年</p>
+              <p className="text-2xl font-bold">NT$27,000<span className="text-sm font-normal text-white/60">/年</span></p>
             </div>
             <button
               onClick={handleSubscribe}
